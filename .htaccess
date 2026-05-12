@@ -1,0 +1,65 @@
+# ============================================================
+# .htaccess - SaaS Chat Pop-up Security & Configuration
+# Letakkan file ini di root public_html
+# ============================================================
+
+# ── Aktifkan mod_rewrite ─────────────────────────────────────
+Options -Indexes
+Options -MultiViews
+
+# ── Blokir akses ke file sensitif ───────────────────────────
+<FilesMatch "^(config\.php|schema\.sql|composer\.(json|lock)|\.env.*|.*\.log)$">
+    Require all denied
+</FilesMatch>
+
+# ── Blokir akses langsung ke folder tersembunyi ──────────────
+<DirectoryMatch "^\.|.*\/\.">
+    Require all denied
+</DirectoryMatch>
+
+# ── Header keamanan HTTP ────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options            "SAMEORIGIN"
+    Header always set X-Content-Type-Options     "nosniff"
+    Header always set X-XSS-Protection           "1; mode=block"
+    Header always set Referrer-Policy            "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy         "geolocation=(), camera=(), microphone=()"
+    Header always set Content-Security-Policy    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self';"
+
+    # Cache untuk widget.js (5 menit)
+    <FilesMatch "widget\.js$">
+        Header set Cache-Control "public, max-age=300"
+    </FilesMatch>
+
+    # Jangan cache respons API
+    <FilesMatch "\.php$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate"
+        Header set Pragma "no-cache"
+    </FilesMatch>
+</IfModule>
+
+# ── Kompresi GZIP ────────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+</IfModule>
+
+# ── Batasi ukuran request POST (10 MB) ───────────────────────
+<IfModule mod_php8.c>
+    php_value post_max_size         10M
+    php_value upload_max_filesize   10M
+    php_value max_execution_time    60
+    php_value max_input_time        60
+    php_flag  display_errors        Off
+    php_flag  log_errors            On
+</IfModule>
+
+# ── Rate limiting sederhana via mod_evasive (jika tersedia) ──
+<IfModule mod_evasive24.c>
+    DOSHashTableSize    3097
+    DOSPageCount        10
+    DOSSiteCount        100
+    DOSPageInterval     2
+    DOSSiteInterval     1
+    DOSBlockingPeriod   10
+</IfModule>
