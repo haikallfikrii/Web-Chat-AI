@@ -1,0 +1,17 @@
+# Folder /api - hanya izinkan akses ke file PHP, tolak akses ke yang lain
+<FilesMatch "^(?!.*\.php$).*$">
+    Require all denied
+</FilesMatch>
+
+# Paksa HTTPS untuk semua request ke API
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Set header untuk semua respons API
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set Cache-Control "no-store"
+</IfModule>
