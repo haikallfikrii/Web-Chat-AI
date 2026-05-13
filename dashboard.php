@@ -20,16 +20,23 @@ $embedCode = '<script' . "\n"
     . '  async' . "\n"
     . '></script>';
 
-$welcome = isset($_GET['welcome']);
+$welcome    = isset($_GET['welcome']);
+$aiKeySet   = trim((string) $settings['ai_api_key']) !== '';
+$domainSet  = trim((string) $settings['allowed_origins']) !== '' && $settings['allowed_origins'] !== '*';
+$providerOk = trim((string) $settings['ai_model']) !== '';
+$tgSet      = !empty($settings['telegram_notify_enabled']) && !empty($settings['telegram_chat_id']);
 
-$aiKeySet    = trim((string) $settings['ai_api_key']) !== '';
-$domainSet   = trim((string) $settings['allowed_origins']) !== '' && $settings['allowed_origins'] !== '*';
-$providerOk  = trim((string) $settings['ai_model']) !== '';
+$status      = $user['subscription_status'] ?? 'trial';
+$statusLabel = ['active' => 'Aktif', 'trial' => 'Trial', 'inactive' => 'Nonaktif'][$status] ?? $status;
 
-$status = $user['subscription_status'] ?? 'trial';
-$statusLabel = ['active' => 'Active', 'trial' => 'Trial', 'inactive' => 'Inactive'][$status] ?? $status;
-$statusColor = $status === 'active' ? '#16A34A' : ($status === 'inactive' ? '#DC2626' : '#D97706');
-$statusBg    = $status === 'active' ? '#DCFCE7' : ($status === 'inactive' ? '#FEF2F2' : '#FEF9C3');
+$checklist = [
+    ['ok' => $aiKeySet,   'label' => 'API Key AI sudah diisi'],
+    ['ok' => $providerOk, 'label' => 'Model AI sudah dipilih'],
+    ['ok' => $domainSet,  'label' => 'Domain allowed diatur'],
+    ['ok' => $tgSet,      'label' => 'Telegram notifikasi (opsional)'],
+];
+$checkScore  = count(array_filter(array_column($checklist, 'ok')));
+$checkTotal  = count($checklist);
 ?>
 <!doctype html>
 <html lang="id">
@@ -39,314 +46,506 @@ $statusBg    = $status === 'active' ? '#DCFCE7' : ($status === 'inactive' ? '#FE
 <title>Dashboard — <?= e((string) $user['client_name']) ?></title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--blue:#2563EB;--blue-dark:#1D4ED8;--purple:#7C3AED;--slate:#0F172A;--muted:#64748B;--border:#E2E8F0;--bg:#F1F5F9;--white:#fff;--red:#DC2626;--green:#16A34A}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--slate);min-height:100vh}
-a{text-decoration:none;color:inherit}
-/* TOP NAV */
-.topnav{background:var(--white);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:50}
-.logo{font-size:18px;font-weight:800;color:var(--blue);margin-right:auto}
-.logo span{color:var(--purple)}
-.nav-user{font-size:13px;color:var(--muted)}
-.nav-user strong{color:var(--slate)}
-.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
-.btn-sm{padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:0;transition:background .15s}
-.btn-ghost{background:#F1F5F9;color:var(--muted)}.btn-ghost:hover{color:var(--slate);background:#E2E8F0}
-.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-dark)}
-.btn-danger{background:#FEF2F2;color:var(--red)}.btn-danger:hover{background:#FEE2E2}
-/* LAYOUT */
-.layout{max-width:1280px;margin:0 auto;padding:28px 24px 60px;display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
-/* FLASH */
-.flash{padding:14px 18px;border-radius:14px;margin-bottom:20px;font-size:14px;font-weight:600;grid-column:1/-1}
-.flash.success{background:#DCFCE7;color:var(--green)}.flash.error{background:#FEF2F2;color:var(--red)}
-.flash.info{background:#EFF6FF;color:var(--blue)}
-/* WELCOME BANNER */
-.welcome{background:linear-gradient(135deg,#1E3A8A,var(--purple));border-radius:18px;padding:22px 24px;color:#fff;grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.welcome h2{font-size:20px;font-weight:800;margin-bottom:4px}
-.welcome p{font-size:14px;opacity:.85}
-/* STATS */
-.stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.stat-card{background:var(--white);border-radius:16px;padding:18px;border:1px solid var(--border)}
-.stat-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
-.stat-val{font-size:14px;font-weight:600;color:var(--slate);word-break:break-all}
-.stat-val code{font-size:12px;background:#F1F5F9;padding:2px 6px;border-radius:6px;display:inline-block;word-break:break-all;max-width:100%}
-/* CARD */
-.card{background:var(--white);border-radius:18px;border:1px solid var(--border);overflow:hidden}
-/* SECTION TOGGLE */
-.sec-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;cursor:pointer;user-select:none;border-bottom:1px solid var(--border)}
-.sec-head:hover{background:#F8FAFC}
-.sec-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
-.chevron{font-size:12px;color:var(--muted)}
-.sec-body{padding:20px}
-/* FORMS */
-.field{margin-bottom:18px}
-.field:last-child{margin-bottom:0}
-label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
-.hint{font-size:12px;color:var(--muted);font-weight:400;margin-left:4px}
-input,select,textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:12px;font:inherit;font-size:14px;color:var(--slate);background:#F8FAFC;transition:border-color .15s;appearance:none}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);background:var(--white)}
-textarea{resize:vertical;min-height:100px;line-height:1.6}
-.color-row{display:flex;align-items:center;gap:10px}
-.color-row input[type=color]{width:44px;height:44px;padding:2px;border-radius:10px;cursor:pointer;flex-shrink:0}
-.color-row input[type=text]{flex:1}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.checkbox-row{display:flex;align-items:center;gap:10px}
-.checkbox-row input[type=checkbox]{width:18px;height:18px;margin:0;flex-shrink:0}
-.checkbox-row label{margin:0;font-weight:600}
-.key-row{display:flex;gap:8px}
-.key-row input{flex:1}
-/* SAVE BUTTON */
-.save-bar{padding:16px 20px;border-top:1px solid var(--border);background:#F8FAFC;display:flex;gap:12px;align-items:center}
-.btn-save{padding:12px 28px;background:var(--blue);color:#fff;border:0;border-radius:12px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s}
-.btn-save:hover{background:var(--blue-dark)}
-.save-note{font-size:12px;color:var(--muted)}
-/* RIGHT COLUMN */
-.embed-card .sec-body{padding:20px}
-pre{background:#0F172A;color:#E2E8F0;border-radius:12px;padding:16px;font-size:12px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:12px}
-.btn-copy{width:100%;padding:11px;background:var(--blue);color:#fff;border:0;border-radius:12px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
-.btn-copy:hover{background:var(--blue-dark)}
-/* CHECKLIST */
-.checklist{display:flex;flex-direction:column;gap:10px;padding:20px}
-.check-item{display:flex;align-items:center;gap:10px;font-size:14px}
-.check-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.check-icon.ok{background:#DCFCE7;color:var(--green)}
-.check-icon.no{background:#FEF2F2;color:var(--red)}
-/* PROVIDER BADGE */
-.provider-row{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 20px}
-.p-chip{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1.5px solid var(--border);color:var(--muted);cursor:default}
-.p-chip.active{border-color:var(--blue);background:#EFF6FF;color:var(--blue)}
-@media(max-width:1000px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.stats{grid-template-columns:1fr}.topnav .nav-user{display:none}.row2{grid-template-columns:1fr}}
+:root{
+  --bg:#030712;--bg2:#0D1117;--bg3:#161B22;--bg4:#1C2333;
+  --green:#00D68F;--green-dark:#00B077;--green-dim:rgba(0,214,143,.12);
+  --blue:#3B82F6;--red:#EF4444;--yellow:#F59E0B;
+  --text:#E6EDF3;--muted:#7D8590;--muted2:#4B5563;
+  --border:rgba(255,255,255,.08);--card:rgba(22,27,34,.85);
+  --r:16px;
+}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,214,143,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,214,143,.018) 1px,transparent 1px);
+  background-size:64px 64px}
+a{color:inherit;text-decoration:none}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:100;
+  background:rgba(3,7,18,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);height:60px;
+  display:flex;align-items:center;gap:16px;padding:0 28px}
+.tbar-logo{font-size:18px;font-weight:900;letter-spacing:-.5px;margin-right:auto;
+  background:linear-gradient(135deg,var(--green),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tbar-client{font-size:13px;color:var(--muted)}
+.tbar-client strong{color:var(--text)}
+.badge{display:inline-flex;align-items:center;gap:5px;
+  padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700}
+.badge-trial{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.25)}
+.badge-active{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,214,143,.25)}
+.badge-inactive{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;
+  animation:pulse-dot 2s ease infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.btn-topbar{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;
+  cursor:pointer;border:1.5px solid var(--border);background:transparent;
+  color:var(--muted);font-family:inherit;transition:all .2s}
+.btn-topbar:hover{border-color:rgba(239,68,68,.4);color:var(--red);background:rgba(239,68,68,.06)}
+
+/* ── LAYOUT ── */
+.page{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:28px 24px 72px;
+  display:grid;grid-template-columns:1fr 340px;gap:22px;align-items:start}
+
+/* ── FLASH ── */
+.flash{grid-column:1/-1;padding:14px 18px;border-radius:14px;font-size:14px;font-weight:600;
+  display:flex;align-items:center;gap:10px}
+.flash.success{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,214,143,.25)}
+.flash.error{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+
+/* ── WELCOME STRIP ── */
+.welcome{grid-column:1/-1;
+  background:var(--card);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(0,214,143,.15);border-radius:var(--r);
+  padding:24px 28px;display:flex;align-items:center;gap:20px;
+  animation:fadeIn .6s cubic-bezier(.22,1,.36,1)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.welcome-avatar{width:52px;height:52px;border-radius:16px;flex-shrink:0;
+  background:var(--green-dim);border:1px solid rgba(0,214,143,.25);
+  display:flex;align-items:center;justify-content:center;font-size:22px}
+.welcome h2{font-size:19px;font-weight:800;margin-bottom:2px}
+.welcome p{color:var(--muted);font-size:13px}
+.welcome-right{margin-left:auto;text-align:right}
+.progress-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+.progress-bar{width:160px;height:6px;border-radius:3px;background:var(--border);overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--green),var(--blue));
+  transition:width .8s cubic-bezier(.22,1,.36,1)}
+
+/* ── GLASS CARD ── */
+.card{background:var(--card);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+  transition:border-color .3s}
+.card:hover{border-color:rgba(0,214,143,.18)}
+.card-head{padding:18px 24px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.card-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  background:var(--green-dim);border:1px solid rgba(0,214,143,.2)}
+.card-title{font-size:15px;font-weight:700;flex:1}
+.card-chevron{color:var(--muted);font-size:18px;transition:transform .3s}
+.card.open .card-chevron{transform:rotate(180deg)}
+.card-body{padding:22px 24px;display:none}
+.card.open .card-body{display:block}
+.card-body.always{display:block}
+
+/* ── FORM ── */
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
+.label-hint{font-size:11px;color:var(--muted);font-weight:400;margin-left:5px}
+input[type=text],input[type=url],input[type=password],input[type=email],textarea,select{
+  width:100%;background:rgba(13,17,23,.8);border:1.5px solid var(--border);
+  border-radius:12px;padding:11px 15px;font-size:14px;color:var(--text);
+  outline:none;transition:all .2s;font-family:inherit;resize:vertical}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--green);box-shadow:0 0 0 3px rgba(0,214,143,.1);
+  background:rgba(22,27,34,.9)}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+select option{background:var(--bg3);color:var(--text)}
+textarea{min-height:100px;line-height:1.6}
+
+.color-row{display:grid;grid-template-columns:1fr 54px;gap:8px;align-items:center}
+.color-preview{width:54px;height:44px;border-radius:12px;border:1.5px solid var(--border);
+  cursor:pointer;overflow:hidden}
+.color-preview input[type=color]{width:130%;height:130%;margin:-15%;
+  border:none;cursor:pointer;background:none}
+
+.toggle-group{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;border-bottom:1px solid var(--border)}
+.toggle-group:last-child{border-bottom:none;padding-bottom:0}
+.toggle-label{font-size:14px;font-weight:600}
+.toggle-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:var(--bg4);border-radius:12px;
+  cursor:pointer;transition:.3s;border:1px solid var(--border)}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;
+  border-radius:50%;background:var(--muted);bottom:2px;left:2px;transition:.3s}
+.toggle input:checked + .toggle-slider{background:var(--green-dim);border-color:rgba(0,214,143,.3)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px);background:var(--green)}
+
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:42px}
+.pw-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;transition:color .2s}
+.pw-eye:hover{color:var(--text)}
+
+.btn-save{display:block;width:100%;margin-top:20px;padding:13px;
+  border-radius:12px;border:none;cursor:pointer;font-size:15px;font-weight:700;
+  color:#030712;background:linear-gradient(135deg,var(--green),var(--green-dark));
+  font-family:inherit;transition:all .25s;position:relative;overflow:hidden}
+.btn-save::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.25) 50%,transparent 60%);
+  background-size:200% 100%;animation:shimmer 3s infinite}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,214,143,.3)}
+.divider{height:1px;background:var(--border);margin:18px 0}
+
+/* ── SIDEBAR CARDS ── */
+.sidebar{display:flex;flex-direction:column;gap:18px}
+
+.api-key-box{background:rgba(13,17,23,.9);border:1px solid var(--border);
+  border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:8px}
+.api-key-text{flex:1;font-family:monospace;font-size:13px;color:var(--muted);
+  word-break:break-all;line-height:1.4}
+.btn-copy{padding:7px 14px;border-radius:9px;font-size:12px;font-weight:700;
+  cursor:pointer;border:1.5px solid rgba(0,214,143,.3);
+  background:var(--green-dim);color:var(--green);font-family:inherit;transition:all .2s}
+.btn-copy:hover{background:rgba(0,214,143,.2)}
+
+.embed-wrap{background:rgba(7,11,18,.95);border-radius:12px;padding:16px;
+  border:1px solid var(--border);font-family:monospace;font-size:12px;
+  color:#7DD3FC;line-height:1.7;white-space:pre;overflow-x:auto;word-break:break-all;
+  white-space:pre-wrap}
+.embed-wrap .tag-name{color:#F472B6}
+.embed-wrap .attr-name{color:#86EFAC}
+.embed-wrap .attr-val{color:#FDE68A}
+
+.checklist{display:flex;flex-direction:column;gap:8px;padding:20px 22px}
+.check-item{display:flex;align-items:center;gap:10px;font-size:13px}
+.check-icon{width:22px;height:22px;border-radius:6px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:12px}
+.check-ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,214,143,.25)}
+.check-no{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
+
+/* ── STATUS BADGE in card head ── */
+.head-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+.hb-ok{background:var(--green-dim);color:var(--green)}
+.hb-warn{background:rgba(245,158,11,.1);color:var(--yellow)}
+
+@media(max-width:900px){.page{grid-template-columns:1fr}.welcome-right{display:none}}
 </style>
 </head>
 <body>
 
-<div class="topnav">
-  <a class="logo" href="/dashboard.php">Chat<span>Popup</span>.AI</a>
-  <div class="nav-user">Halo, <strong><?= e((string) $user['name']) ?></strong></div>
-  <span class="badge" style="background:<?= e($statusBg) ?>;color:<?= e($statusColor) ?>"><?= e($statusLabel) ?></span>
-  <a class="btn-sm btn-danger" href="/logout.php">Logout</a>
-</div>
+<!-- TOPBAR -->
+<header class="topbar">
+  <a href="/" class="tbar-logo">ChatPopup.AI</a>
+  <span class="tbar-client">
+    <strong><?= e((string) $user['name']) ?></strong>
+    &nbsp;·&nbsp;<?= e((string) $user['client_name']) ?>
+  </span>
+  <?php
+    $badgeClass = match($status) { 'active' => 'badge-active', 'inactive' => 'badge-inactive', default => 'badge-trial' };
+  ?>
+  <span class="badge <?= $badgeClass ?>">
+    <span class="badge-dot"></span> <?= e($statusLabel) ?>
+  </span>
+  <form method="POST" action="/logout.php">
+    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+    <button type="submit" class="btn-topbar">Keluar</button>
+  </form>
+</header>
 
-<div class="layout">
+<div class="page">
 
-  <?php if ($welcome): ?>
-  <div class="welcome" style="grid-column:1/-1">
-    <div>
-      <h2>🎉 Akun berhasil dibuat!</h2>
-      <p>Sekarang atur AI provider, system prompt, dan domain website Anda. Lalu copy embed code dan tempel ke website.</p>
-    </div>
-    <a class="btn-sm btn-sm" style="background:rgba(255,255,255,.2);color:#fff;white-space:nowrap" href="/dashboard.php">Mulai Atur →</a>
-  </div>
-  <?php endif; ?>
-
+  <!-- FLASH -->
   <?php if ($flash): ?>
-  <div class="flash <?= e($flash['type']) ?>" style="grid-column:1/-1"><?= e($flash['message']) ?></div>
+    <div class="flash <?= e($flash['type']) ?>">
+      <?= $flash['type'] === 'success' ? '✓' : '⚠️' ?> <?= e($flash['message']) ?>
+    </div>
+  <?php endif; ?>
+  <?php if ($welcome): ?>
+    <div class="flash success">🎉 Selamat datang! Widget Anda siap dikonfigurasi.</div>
   <?php endif; ?>
 
-  <div class="stats">
-    <div class="stat-card">
-      <div class="stat-label">Widget API Key</div>
-      <div class="stat-val"><code><?= e(substr($user['client_api_key'], 0, 20)) ?>...</code></div>
+  <!-- WELCOME STRIP -->
+  <div class="welcome">
+    <div class="welcome-avatar">👋</div>
+    <div>
+      <h2>Halo, <?= e(explode(' ', (string) $user['name'])[0]) ?>!</h2>
+      <p>Dashboard widget untuk <strong><?= e((string) $user['client_name']) ?></strong></p>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Provider Aktif</div>
-      <div class="stat-val"><?= e((string) $settings['ai_provider']) ?> &middot; <?= e((string) $settings['ai_model']) ?></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Status Akun</div>
-      <div class="stat-val"><span class="badge" style="background:<?= e($statusBg) ?>;color:<?= e($statusColor) ?>"><?= e($statusLabel) ?></span></div>
+    <div class="welcome-right">
+      <div class="progress-label"><?= $checkScore ?>/<?= $checkTotal ?> Setup selesai</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:<?= round($checkScore / $checkTotal * 100) ?>%"></div>
+      </div>
     </div>
   </div>
 
-  <!-- LEFT: SETTINGS FORM -->
-  <div>
-    <form method="post" action="/api/save-settings.php">
-      <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+  <!-- MAIN FORM (left) -->
+  <div style="display:flex;flex-direction:column;gap:18px">
+  <form method="POST" action="/api/save-settings.php">
+    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
-      <!-- TAMPILAN -->
-      <div class="card" style="margin-bottom:16px">
-        <div class="sec-head section-toggle" data-target="sec-tampilan">
-          <div class="sec-title">🎨 Tampilan Widget</div>
-          <span class="chevron">▼</span>
+    <!-- TAMPILAN -->
+    <div class="card open" id="sec-appearance">
+      <div class="card-head" onclick="toggleCard('sec-appearance')">
+        <div class="card-icon">🎨</div>
+        <span class="card-title">Tampilan Widget</span>
+        <span class="card-chevron">⌄</span>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Nama Bot / Asisten</label>
+          <input type="text" name="bot_name" placeholder="e.g. Asisten Jomsite"
+                 value="<?= e((string) $settings['bot_name']) ?>" maxlength="60" required>
         </div>
-        <div class="sec-body" id="sec-tampilan">
-          <div class="row2">
-            <div class="field">
-              <label for="primary_color">Warna Utama</label>
-              <div class="color-row">
-                <input id="primary_color_pick" type="color" value="<?= e((string) $settings['primary_color']) ?>" tabindex="-1">
-                <input id="primary_color" name="primary_color" type="text" value="<?= e((string) $settings['primary_color']) ?>" placeholder="#2563EB" required>
-              </div>
+        <div class="form-group">
+          <label>Pesan Sambutan</label>
+          <textarea name="welcome_message" placeholder="Halo! Ada yang bisa saya bantu hari ini?"
+                    rows="2"><?= e((string) $settings['welcome_message']) ?></textarea>
+        </div>
+        <div class="form-group">
+          <label>Warna Utama</label>
+          <div class="color-row">
+            <input type="text" id="color-hex" name="primary_color"
+                   value="<?= e((string) ($settings['primary_color'] ?? '#00D68F')) ?>"
+                   placeholder="#00D68F" maxlength="9" pattern="#[0-9a-fA-F]{6}">
+            <div class="color-preview">
+              <input type="color" id="color-picker"
+                     value="<?= e((string) ($settings['primary_color'] ?? '#00D68F')) ?>">
             </div>
-            <div class="field">
-              <label for="bot_name">Nama Bot</label>
-              <input id="bot_name" name="bot_name" type="text" value="<?= e((string) $settings['bot_name']) ?>" required placeholder="Assistant">
-            </div>
-          </div>
-          <div class="field">
-            <label for="bot_avatar_url">URL Avatar Bot <span class="hint">(opsional)</span></label>
-            <input id="bot_avatar_url" name="bot_avatar_url" type="url" value="<?= e((string) $settings['bot_avatar_url']) ?>" placeholder="https://...gambar.png">
-          </div>
-          <div class="field">
-            <label for="welcome_message">Welcome Message</label>
-            <textarea id="welcome_message" name="welcome_message" required><?= e((string) $settings['welcome_message']) ?></textarea>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- AI PROVIDER -->
-      <div class="card" style="margin-bottom:16px">
-        <div class="sec-head section-toggle" data-target="sec-ai">
-          <div class="sec-title">🤖 AI Provider &amp; Model</div>
-          <span class="chevron">▼</span>
+    <!-- AI SETTINGS -->
+    <div class="card open" id="sec-ai">
+      <div class="card-head" onclick="toggleCard('sec-ai')">
+        <div class="card-icon">🤖</div>
+        <span class="card-title">Konfigurasi AI</span>
+        <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
+          <?= ($aiKeySet && $providerOk) ? '✓ Aktif' : '⚠ Belum lengkap' ?>
+        </span>
+        <span class="card-chevron">⌄</span>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Provider AI</label>
+          <select name="ai_provider" id="ai-provider-select">
+            <?php
+            $providers = ['openrouter' => 'OpenRouter (Rekomendasi)', 'openai' => 'OpenAI', 'google' => 'Google Gemini', 'deepseek' => 'DeepSeek'];
+            foreach ($providers as $val => $label):
+              $sel = ($settings['ai_provider'] ?? 'openrouter') === $val ? 'selected' : '';
+            ?>
+              <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
         </div>
-        <div class="sec-body" id="sec-ai">
-          <div class="row2">
-            <div class="field">
-              <label for="ai_provider">Provider</label>
-              <select id="ai_provider" name="ai_provider" required>
-                <?php foreach (['openrouter' => '🌐 OpenRouter (Rekomendasi)', 'openai' => '⚡ OpenAI', 'google' => '💎 Google Gemini', 'deepseek' => '🌊 DeepSeek'] as $val => $label): ?>
-                  <option value="<?= e($val) ?>"<?= $settings['ai_provider'] === $val ? ' selected' : '' ?>><?= e($label) ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            <div class="field">
-              <label for="ai_model">Model <span class="hint">contoh: openai/gpt-4o-mini</span></label>
-              <input id="ai_model" name="ai_model" type="text" value="<?= e((string) $settings['ai_model']) ?>" required placeholder="openai/gpt-4o-mini">
-            </div>
-          </div>
-          <div class="field">
-            <label for="ai_api_key">
-              AI API Key
-              <span class="hint">(<?= $aiKeySet ? '✅ Sudah tersimpan' : '⚠️ Belum diisi' ?>)</span>
-            </label>
-            <div class="key-row">
-              <input id="ai_api_key" name="ai_api_key" type="password" autocomplete="new-password"
-                     placeholder="<?= $aiKeySet ? 'Kosongkan untuk tetap pakai key lama' : 'Masukkan API key provider Anda' ?>">
-              <button type="button" id="toggle-key-btn" class="btn-sm btn-ghost">👁 Tampilkan</button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="ai_system_prompt">System Prompt <span class="hint">(instruksi untuk AI)</span></label>
-            <textarea id="ai_system_prompt" name="ai_system_prompt" placeholder="Contoh: Anda adalah asisten customer service ramah untuk toko saya. Jawab singkat dan helpful dalam bahasa Indonesia."><?= e((string) $settings['ai_system_prompt']) ?></textarea>
+        <div class="form-group">
+          <label>Model AI <span class="label-hint">Sesuaikan dengan provider</span></label>
+          <input type="text" name="ai_model" id="ai-model-input"
+                 placeholder="e.g. openai/gpt-4o-mini (OpenRouter)"
+                 value="<?= e((string) $settings['ai_model']) ?>">
+          <div style="margin-top:6px;font-size:12px;color:var(--muted)" id="model-hint"></div>
+        </div>
+        <div class="form-group">
+          <label>API Key Provider</label>
+          <div class="pw-wrap">
+            <input type="password" name="ai_api_key" id="ai-api-key"
+                   placeholder="<?= $aiKeySet ? '••••••• (tersimpan, kosongkan jika tidak ingin mengubah)' : 'sk-...' ?>"
+                   autocomplete="new-password">
+            <button type="button" class="pw-eye" onclick="toggleAiKey()">👁</button>
           </div>
         </div>
-        <div class="provider-row">
-          <?php foreach (['openrouter', 'openai', 'google', 'deepseek'] as $p): ?>
-            <span class="p-chip<?= $settings['ai_provider'] === $p ? ' active' : '' ?>"><?= e($p) ?></span>
-          <?php endforeach; ?>
+        <div class="divider"></div>
+        <div class="form-group">
+          <label>System Prompt <span class="label-hint">Kepribadian dan instruksi bot</span></label>
+          <textarea name="ai_system_prompt" rows="5"
+                    placeholder="Kamu adalah asisten ramah untuk [Nama Bisnis]. Jawab dalam bahasa Indonesia yang sopan. Fokus hanya pada produk kami."><?= e((string) $settings['ai_system_prompt']) ?></textarea>
         </div>
       </div>
+    </div>
 
-      <!-- DOMAIN -->
-      <div class="card" style="margin-bottom:16px">
-        <div class="sec-head section-toggle" data-target="sec-domain">
-          <div class="sec-title">🌐 Domain &amp; Akses</div>
-          <span class="chevron">▼</span>
-        </div>
-        <div class="sec-body" id="sec-domain">
-          <div class="field">
-            <label for="allowed_origins">Allowed Origins</label>
-            <textarea id="allowed_origins" name="allowed_origins" style="min-height:70px"
-                      placeholder="https://website-anda.com&#10;https://www.website-anda.com"><?= e((string) $settings['allowed_origins']) ?></textarea>
-            <p style="font-size:12px;color:var(--muted);margin-top:6px">
-              Pisahkan dengan koma atau baris baru. Gunakan <code>*</code> untuk mengizinkan semua domain (tidak disarankan untuk produksi).
-            </p>
-          </div>
-          <div class="field">
-            <label for="n8n_webhook_url">n8n Webhook URL <span class="hint">(opsional — fallback jika AI key belum diisi)</span></label>
-            <input id="n8n_webhook_url" name="n8n_webhook_url" type="url" value="<?= e((string) $settings['n8n_webhook_url']) ?>" placeholder="https://n8n.yourdomain.com/webhook/...">
+    <!-- DOMAIN -->
+    <div class="card" id="sec-domain">
+      <div class="card-head" onclick="toggleCard('sec-domain')">
+        <div class="card-icon">🔒</div>
+        <span class="card-title">Keamanan Domain</span>
+        <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
+          <?= $domainSet ? '✓ Diatur' : '⚠ Dibuka' ?>
+        </span>
+        <span class="card-chevron">⌄</span>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Allowed Origins <span class="label-hint">Pisahkan dengan koma</span></label>
+          <input type="text" name="allowed_origins"
+                 value="<?= e((string) $settings['allowed_origins']) ?>"
+                 placeholder="https://website-anda.com, https://www.website-anda.com">
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5">
+            Kosongkan atau isi <code style="background:rgba(0,214,143,.1);color:var(--green);padding:1px 5px;border-radius:4px">*</code> untuk izinkan semua domain.
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- TELEGRAM -->
-      <div class="card" style="margin-bottom:16px">
-        <div class="sec-head section-toggle" data-target="sec-tg">
-          <div class="sec-title">📱 Notifikasi Telegram</div>
-          <span class="chevron">▶</span>
+    <!-- TELEGRAM -->
+    <div class="card" id="sec-tg">
+      <div class="card-head" onclick="toggleCard('sec-tg')">
+        <div class="card-icon">📱</div>
+        <span class="card-title">Notifikasi Telegram</span>
+        <span class="head-badge <?= $tgSet ? 'hb-ok' : '' ?>" style="<?= $tgSet ? '' : 'display:none' ?>">✓ Aktif</span>
+        <span class="card-chevron">⌄</span>
+      </div>
+      <div class="card-body">
+        <div class="toggle-group">
+          <div>
+            <div class="toggle-label">Kirim notifikasi ke Telegram</div>
+            <div class="toggle-sub">Menerima ping setiap ada pesan baru di widget</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" name="telegram_notify_enabled" value="1"
+                   <?= !empty($settings['telegram_notify_enabled']) ? 'checked' : '' ?>>
+            <span class="toggle-slider"></span>
+          </label>
         </div>
-        <div class="sec-body" id="sec-tg" style="display:none">
-          <div class="field">
-            <div class="checkbox-row">
-              <input id="telegram_notify_enabled" name="telegram_notify_enabled" type="checkbox" value="1"<?= (int) $settings['telegram_notify_enabled'] === 1 ? ' checked' : '' ?>>
-              <label for="telegram_notify_enabled">Kirim notifikasi ke Telegram setiap ada pesan masuk</label>
-            </div>
+        <div style="height:14px"></div>
+        <div class="form-group">
+          <label>Telegram Chat ID</label>
+          <input type="text" name="telegram_chat_id"
+                 value="<?= e((string) $settings['telegram_chat_id']) ?>"
+                 placeholder="Contoh: -100123456789">
+          <div style="font-size:12px;color:var(--muted);margin-top:5px">
+            Kirim <code style="background:rgba(0,214,143,.1);color:var(--green);padding:1px 5px;border-radius:4px">/start</code> ke @userinfobot untuk dapat Chat ID Anda.
           </div>
-          <div class="field">
-            <label for="telegram_chat_id">Telegram Chat ID</label>
-            <input id="telegram_chat_id" name="telegram_chat_id" type="text" value="<?= e((string) $settings['telegram_chat_id']) ?>" placeholder="-1001234567890 atau 123456789">
-          </div>
-          <p style="font-size:12px;color:var(--muted)">
-            Pastikan <code>TELEGRAM_BOT_TOKEN</code> sudah diisi di <code>config.php</code>.
-            Dapatkan Chat ID dengan mengirim pesan ke bot Anda lalu buka <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code>.
-          </p>
         </div>
       </div>
+    </div>
 
-      <div class="save-bar" style="border-radius:0 0 18px 18px;margin-top:-16px">
-        <button class="btn-save" type="submit">💾 Simpan Semua Pengaturan</button>
-        <span class="save-note">AI API Key kosong = pakai key lama</span>
-      </div>
-
-    </form>
+    <button type="submit" class="btn-save">Simpan Semua Pengaturan</button>
+  </form>
   </div>
 
-  <!-- RIGHT: EMBED + STATUS -->
-  <div>
-    <div class="card embed-card" style="margin-bottom:16px">
-      <div class="sec-head" style="cursor:default">
-        <div class="sec-title">🚀 Kode Embed Widget</div>
+  <!-- SIDEBAR (right) -->
+  <div class="sidebar">
+
+    <!-- API KEY -->
+    <div class="card">
+      <div class="card-head" style="cursor:default">
+        <div class="card-icon">🔑</div>
+        <span class="card-title">Widget API Key</span>
       </div>
-      <div class="sec-body">
-        <p style="font-size:13px;color:var(--muted);margin-bottom:12px">
-          Tempel kode ini sebelum tag <code>&lt;/body&gt;</code> di website Anda.
-          Di WordPress: <strong>Appearance → Theme Editor → footer.php</strong> atau pakai plugin <strong>Insert Headers and Footers</strong>.
+      <div class="card-body always" style="padding:14px 18px">
+        <div class="api-key-box">
+          <span class="api-key-text" id="apiKeyText">
+            <?= e(substr((string) $user['client_api_key'], 0, 8)) ?>••••••••••••••••••••••••<?= e(substr((string) $user['client_api_key'], -4)) ?>
+          </span>
+          <button type="button" class="btn-copy" onclick="copyApiKey()">Salin</button>
+        </div>
+        <input type="hidden" id="apiKeyFull" value="<?= e((string) $user['client_api_key']) ?>">
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">
+          Kunci ini digunakan di embed code. Jangan bagikan ke publik.
         </p>
-        <pre id="embed-code-box"><?= e($embedCode) ?></pre>
-        <button class="btn-copy" id="copy-embed-btn">📋 Copy Kode Embed</button>
       </div>
     </div>
 
-    <div class="card" style="margin-bottom:16px">
-      <div class="sec-head" style="cursor:default">
-        <div class="sec-title">✅ Checklist Go-Live</div>
+    <!-- EMBED CODE -->
+    <div class="card">
+      <div class="card-head" style="cursor:default">
+        <div class="card-icon">📋</div>
+        <span class="card-title">Kode Embed</span>
+      </div>
+      <div class="card-body always" style="padding:14px 18px">
+        <div class="embed-wrap" id="embedCodeBlock"><span class="tag-name">&lt;script</span>
+  <span class="attr-name">src</span>=<span class="attr-val">"<?= e($baseUrl) ?>/widget/widget.js"</span>
+  <span class="attr-name">data-api-key</span>=<span class="attr-val">"<?= e((string) $user['client_api_key']) ?>"</span>
+  <span class="attr-name">data-base-url</span>=<span class="attr-val">"<?= e($baseUrl) ?>"</span>
+  <span class="attr-name">async</span>
+<span class="tag-name">&gt;&lt;/script&gt;</span></div>
+        <button type="button" class="btn-save" style="margin-top:12px;font-size:13px;padding:10px"
+                onclick="copyEmbed()">📋 Salin Kode</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">
+          Tempel sebelum <code style="color:var(--green)">&lt;/body&gt;</code> di website Anda.
+        </p>
+      </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div class="card">
+      <div class="card-head" style="cursor:default">
+        <div class="card-icon">✅</div>
+        <span class="card-title">Checklist Setup</span>
+        <span class="head-badge <?= $checkScore === $checkTotal ? 'hb-ok' : 'hb-warn' ?>">
+          <?= $checkScore ?>/<?= $checkTotal ?>
+        </span>
       </div>
       <div class="checklist">
+        <?php foreach ($checklist as $item): ?>
+          <div class="check-item">
+            <span class="check-icon <?= $item['ok'] ? 'check-ok' : 'check-no' ?>">
+              <?= $item['ok'] ? '✓' : '!' ?>
+            </span>
+            <?= e($item['label']) ?>
+          </div>
+        <?php endforeach; ?>
         <div class="check-item">
-          <div class="check-icon <?= $aiKeySet ? 'ok' : 'no' ?>"><?= $aiKeySet ? '✓' : '!' ?></div>
-          <span><?= $aiKeySet ? 'AI API key sudah diisi' : 'Isi AI API key di bagian AI Provider' ?></span>
-        </div>
-        <div class="check-item">
-          <div class="check-icon <?= $providerOk ? 'ok' : 'no' ?>"><?= $providerOk ? '✓' : '!' ?></div>
-          <span><?= $providerOk ? 'AI model sudah dipilih' : 'Pilih AI provider dan isi model' ?></span>
-        </div>
-        <div class="check-item">
-          <div class="check-icon <?= $domainSet ? 'ok' : 'no' ?>"><?= $domainSet ? '✓' : '!' ?></div>
-          <span><?= $domainSet ? 'Domain website sudah terdaftar' : 'Isi Allowed Origins dengan domain website' ?></span>
-        </div>
-        <div class="check-item">
-          <div class="check-icon ok">✓</div>
-          <span>Kode embed siap dicopy dan ditempel</span>
+          <span class="check-icon check-ok">✓</span>
+          Embed code siap disalin
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="sec-head" style="cursor:default">
-        <div class="sec-title">🔑 Widget API Key Lengkap</div>
-      </div>
-      <div class="sec-body">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
-          Key ini sudah otomatis ada di embed code. Catat jika perlu.
-        </p>
-        <textarea style="font-size:11px;min-height:60px;font-family:monospace" readonly><?= e($user['client_api_key']) ?></textarea>
-      </div>
-    </div>
-  </div>
+  </div><!-- /sidebar -->
+</div><!-- /page -->
 
-</div>
+<script>
+// Color picker sync
+(function(){
+  var hex=document.getElementById('color-hex');
+  var picker=document.getElementById('color-picker');
+  if(!hex||!picker)return;
+  picker.addEventListener('input',function(){hex.value=this.value});
+  hex.addEventListener('input',function(){
+    if(/^#[0-9a-fA-F]{6}$/.test(this.value)) picker.value=this.value;
+  });
+})();
 
-<script src="/js/dashboard.js"></script>
+// Toggle card accordion
+function toggleCard(id){
+  var c=document.getElementById(id);
+  if(c) c.classList.toggle('open');
+}
+
+// AI provider model hints
+var hints={
+  openrouter:'Format: openai/gpt-4o-mini atau meta-llama/llama-3.1-8b-instruct. Lihat openrouter.ai/models',
+  openai:'Format: gpt-4o atau gpt-4o-mini',
+  google:'Format: gemini-1.5-flash atau gemini-1.5-pro',
+  deepseek:'Format: deepseek-chat atau deepseek-coder'
+};
+var sel=document.getElementById('ai-provider-select');
+var hint=document.getElementById('model-hint');
+if(sel&&hint){
+  function updateHint(){hint.textContent=hints[sel.value]||''}
+  sel.addEventListener('change',updateHint);
+  updateHint();
+}
+
+// Toggle AI key visibility
+function toggleAiKey(){
+  var f=document.getElementById('ai-api-key');
+  if(f) f.type=f.type==='password'?'text':'password';
+}
+
+// Copy helpers
+function copyApiKey(){
+  var v=document.getElementById('apiKeyFull').value;
+  navigator.clipboard.writeText(v).then(function(){
+    var btn=event.target;
+    var orig=btn.textContent;
+    btn.textContent='✓ Tersalin';
+    btn.style.background='rgba(0,214,143,.25)';
+    setTimeout(function(){btn.textContent=orig;btn.style.background='';},2000);
+  });
+}
+
+function copyEmbed(){
+  var raw='<script\n  src="<?= e($baseUrl) ?>/widget/widget.js"\n  data-api-key="<?= e((string) $user['client_api_key']) ?>"\n  data-base-url="<?= e($baseUrl) ?>"\n  async\n><\/script>';
+  navigator.clipboard.writeText(raw).then(function(){
+    var btn=event.target;
+    var orig=btn.textContent;
+    btn.textContent='✓ Berhasil Disalin!';
+    setTimeout(function(){btn.textContent=orig;},2500);
+  });
+}
+</script>
 </body>
 </html>

@@ -22,9 +22,16 @@ set_time_limit(60);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/ai_providers.php';
 
-// ── 1. Handle preflight OPTIONS ──────────────────────────────
+// ── 1. CORS — harus dikirim SEBELUM semua validasi ───────────
+// Ditetapkan ke '*' dulu agar semua error response bisa dibaca
+// browser. Akan diganti dengan origin spesifik klien setelah
+// data client berhasil diambil dari DB (langkah 8).
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, X-Api-Key');
+header('Access-Control-Max-Age: 86400');
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    set_cors_headers();
     http_response_code(204);
     exit;
 }
@@ -130,18 +137,18 @@ if (!$has_ai && !$n8n_ok) {
     ], 503);
 }
 
-// ── 8. Set CORS ──────────────────────────────────────────────
+// ── 8. Perketat CORS ke origin spesifik klien ────────────────
 $allowed_origin = $client['allowed_origins'] ?? '*';
 $request_origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
 
 if ($allowed_origin !== '*') {
-    $origins_list   = array_map('trim', explode(',', $allowed_origin));
-    $allowed_origin = in_array($request_origin, $origins_list, true)
+    $origins_list = array_map('trim', explode(',', $allowed_origin));
+    $origins_list = array_filter(array_map('trim', $origins_list));
+    $matched      = in_array($request_origin, $origins_list, true)
         ? $request_origin
-        : $origins_list[0];
+        : ($origins_list[0] ?? '*');
+    header('Access-Control-Allow-Origin: ' . $matched, true);
 }
-
-set_cors_headers($allowed_origin);
 
 $user_ip = get_client_ip();
 
