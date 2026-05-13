@@ -56,11 +56,19 @@ function csrf_token(): string
 
 function verify_csrf_or_die(?string $token): void
 {
-    $session_token = $_SESSION['csrf_token'] ?? '';
-    if (!is_string($session_token) || !is_string($token) || !hash_equals($session_token, $token)) {
+    if (!verify_csrf($token)) {
         http_response_code(419);
         exit('CSRF token mismatch.');
     }
+}
+
+function verify_csrf(?string $token): bool
+{
+    $session_token = $_SESSION['csrf_token'] ?? '';
+    return is_string($session_token)
+        && is_string($token)
+        && $session_token !== ''
+        && hash_equals($session_token, $token);
 }
 
 function current_user(): ?array
@@ -79,49 +87,75 @@ function require_login(): array
     return $user;
 }
 
-function login_attempt(string $email, string $password): bool
+/**
+ * Login attempt dengan error message yang ramah.
+ *
+ * @return array{ok: bool, error: ?string}
+ */
+function attempt_login(string $email, string $password): array
 {
     $email = trim(mb_strtolower($email, 'UTF-8'));
-    if ($email === '' || $password === '') {
-        return false;
+
+    if ($email === '') {
+        return ['ok' => false, 'error' => 'Email wajib diisi.'];
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return ['ok' => false, 'error' => 'Format email tidak valid.'];
+    }
+    if ($password === '') {
+        return ['ok' => false, 'error' => 'Password wajib diisi.'];
     }
 
-    $pdo  = get_db();
-    $stmt = $pdo->prepare(
-        'SELECT u.id, u.client_id, u.name, u.email, u.password_hash, u.role, u.is_active,
-                c.name AS client_name, c.api_key, c.subscription_status
-         FROM users u
-         INNER JOIN clients c ON c.id = u.client_id
-         WHERE u.email = :email
-         LIMIT 1'
-    );
-    $stmt->execute([':email' => $email]);
-    $row = $stmt->fetch();
+    try {
+        $pdo  = get_db();
+        $stmt = $pdo->prepare(
+            'SELECT u.id, u.client_id, u.name, u.email, u.password_hash, u.role, u.is_active,
+                    c.name AS client_name, c.api_key, c.subscription_status
+             FROM users u
+             INNER JOIN clients c ON c.id = u.client_id
+             WHERE u.email = :email
+             LIMIT 1'
+        );
+        $stmt->execute([':email' => $email]);
+        $row = $stmt->fetch();
 
-    if (!$row || (int) $row['is_active'] !== 1) {
-        return false;
+        if (!$row) {
+            return ['ok' => false, 'error' => 'Email belum terdaftar. Silakan cek email atau daftar dulu.'];
+        }
+        if ((int) $row['is_active'] !== 1) {
+            return ['ok' => false, 'error' => 'Akun Anda dinonaktifkan. Hubungi support.'];
+        }
+        if (!password_verify($password, (string) $row['password_hash'])) {
+            return ['ok' => false, 'error' => 'Password salah. Coba lagi atau gunakan "Lupa password?"'];
+        }
+
+        session_regenerate_id(true);
+        $_SESSION['auth_user'] = [
+            'id'                  => (int) $row['id'],
+            'client_id'           => (int) $row['client_id'],
+            'name'                => (string) $row['name'],
+            'email'               => (string) $row['email'],
+            'role'                => (string) $row['role'],
+            'client_name'         => (string) $row['client_name'],
+            'client_api_key'      => (string) $row['api_key'],
+            'subscription_status' => (string) $row['subscription_status'],
+        ];
+
+        $pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')
+            ->execute([':id' => (int) $row['id']]);
+
+        return ['ok' => true, 'error' => null];
+
+    } catch (Throwable $e) {
+        error_log('[login] ' . $e->getMessage());
+        return ['ok' => false, 'error' => 'Terjadi kesalahan sistem. Silakan coba lagi sebentar.'];
     }
+}
 
-    if (!password_verify($password, (string) $row['password_hash'])) {
-        return false;
-    }
-
-    session_regenerate_id(true);
-    $_SESSION['auth_user'] = [
-        'id'                  => (int) $row['id'],
-        'client_id'           => (int) $row['client_id'],
-        'name'                => (string) $row['name'],
-        'email'               => (string) $row['email'],
-        'role'                => (string) $row['role'],
-        'client_name'         => (string) $row['client_name'],
-        'client_api_key'      => (string) $row['api_key'],
-        'subscription_status' => (string) $row['subscription_status'],
-    ];
-
-    $pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')
-        ->execute([':id' => (int) $row['id']]);
-
-    return true;
+/** Backward-compat alias (lama: bool). */
+function login_attempt(string $email, string $password): bool
+{
+    return attempt_login($email, $password)['ok'];
 }
 
 /**
@@ -268,7 +302,7 @@ function fetch_dashboard_settings(int $client_id): ?array
     $stmt = $pdo->prepare(
         'SELECT c.name AS client_name, c.email AS client_email, c.api_key, c.subscription_status,
                 ws.primary_color, ws.bot_name, ws.bot_avatar_url, ws.welcome_message,
-                ws.allowed_origins, ws.ai_provider, ws.ai_model, ws.ai_system_prompt,
+                ws.allowed_origins, ws.ai_provider, ws.ai_api_key, ws.ai_model, ws.ai_system_prompt,
                 ws.n8n_webhook_url, ws.telegram_notify_enabled, ws.telegram_chat_id
          FROM clients c
          INNER JOIN widget_settings ws ON ws.client_id = c.id
@@ -277,4 +311,147 @@ function fetch_dashboard_settings(int $client_id): ?array
     );
     $stmt->execute([':client_id' => $client_id]);
     return $stmt->fetch() ?: null;
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * PASSWORD RESET
+ * ─────────────────────────────────────────────────────────── */
+
+/**
+ * Buat token reset password, simpan hash-nya di DB, kembalikan token plain
+ * untuk dikirim via email/Telegram. Selalu kembalikan struktur sukses agar
+ * email yang tidak terdaftar tidak bocor.
+ *
+ * @return array{ok: bool, token: ?string, user_email: ?string, exists: bool, error: ?string}
+ */
+function create_password_reset_token(string $email): array
+{
+    $email = trim(mb_strtolower($email, 'UTF-8'));
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return ['ok' => false, 'token' => null, 'user_email' => null, 'exists' => false, 'error' => 'Format email tidak valid.'];
+    }
+
+    try {
+        $pdo  = get_db();
+        $stmt = $pdo->prepare('SELECT id, email FROM users WHERE email = :email AND is_active = 1 LIMIT 1');
+        $stmt->execute([':email' => $email]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            return ['ok' => true, 'token' => null, 'user_email' => $email, 'exists' => false, 'error' => null];
+        }
+
+        $pdo->prepare('DELETE FROM password_resets WHERE user_id = :uid')
+            ->execute([':uid' => (int) $user['id']]);
+
+        $token      = bin2hex(random_bytes(32));
+        $token_hash = hash('sha256', $token);
+        $expires_at = (new DateTime('+60 minutes'))->format('Y-m-d H:i:s');
+
+        $pdo->prepare(
+            'INSERT INTO password_resets (user_id, token_hash, expires_at)
+             VALUES (:uid, :hash, :exp)'
+        )->execute([
+            ':uid'  => (int) $user['id'],
+            ':hash' => $token_hash,
+            ':exp'  => $expires_at,
+        ]);
+
+        return ['ok' => true, 'token' => $token, 'user_email' => $email, 'exists' => true, 'error' => null];
+
+    } catch (Throwable $e) {
+        error_log('[pwreset:create] ' . $e->getMessage());
+        return ['ok' => false, 'token' => null, 'user_email' => $email, 'exists' => false, 'error' => 'Terjadi kesalahan sistem.'];
+    }
+}
+
+/** Kembalikan user_id jika token valid & belum kedaluwarsa. */
+function find_user_by_reset_token(string $token): ?int
+{
+    if ($token === '' || strlen($token) !== 64 || !ctype_xdigit($token)) {
+        return null;
+    }
+    try {
+        $pdo  = get_db();
+        $hash = hash('sha256', $token);
+        $stmt = $pdo->prepare(
+            'SELECT user_id FROM password_resets
+             WHERE token_hash = :hash AND used_at IS NULL AND expires_at > NOW()
+             LIMIT 1'
+        );
+        $stmt->execute([':hash' => $hash]);
+        $row = $stmt->fetch();
+        return $row ? (int) $row['user_id'] : null;
+    } catch (Throwable $e) {
+        error_log('[pwreset:find] ' . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Konsumsi token + set password baru.
+ *
+ * @return array{ok: bool, error: ?string}
+ */
+function consume_password_reset(string $token, string $new_password, string $confirm): array
+{
+    if (strlen($new_password) < 8) {
+        return ['ok' => false, 'error' => 'Password baru minimal 8 karakter.'];
+    }
+    if ($new_password !== $confirm) {
+        return ['ok' => false, 'error' => 'Konfirmasi password tidak cocok.'];
+    }
+
+    $user_id = find_user_by_reset_token($token);
+    if ($user_id === null) {
+        return ['ok' => false, 'error' => 'Link reset sudah kedaluwarsa atau tidak valid. Mohon ajukan ulang.'];
+    }
+
+    try {
+        $pdo  = get_db();
+        $hash = password_hash($new_password, PASSWORD_DEFAULT);
+
+        $pdo->beginTransaction();
+        $pdo->prepare('UPDATE users SET password_hash = :h WHERE id = :uid')
+            ->execute([':h' => $hash, ':uid' => $user_id]);
+        $pdo->prepare('UPDATE password_resets SET used_at = NOW() WHERE user_id = :uid AND used_at IS NULL')
+            ->execute([':uid' => $user_id]);
+        $pdo->commit();
+
+        return ['ok' => true, 'error' => null];
+
+    } catch (Throwable $e) {
+        if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+        error_log('[pwreset:consume] ' . $e->getMessage());
+        return ['ok' => false, 'error' => 'Gagal memperbarui password. Silakan coba lagi.'];
+    }
+}
+
+/** Kirim link reset password via email (best-effort PHP mail()). */
+function send_password_reset_email(string $to_email, string $reset_link): bool
+{
+    $subject = '=?UTF-8?B?' . base64_encode('Reset Password — ChatPopup.AI') . '?=';
+    $body =
+        "Halo,\n\n".
+        "Kami menerima permintaan reset password untuk akun Anda.\n".
+        "Klik link berikut untuk membuat password baru (berlaku 60 menit):\n\n".
+        $reset_link . "\n\n".
+        "Jika Anda tidak meminta ini, abaikan email ini — password Anda tidak berubah.\n\n".
+        "— ChatPopup.AI";
+
+    $host    = parse_url(dashboard_base_url(), PHP_URL_HOST) ?: 'chat.jomsite.com';
+    $from    = 'no-reply@' . $host;
+    $headers = [
+        'From: ChatPopup.AI <' . $from . '>',
+        'Reply-To: ' . $from,
+        'X-Mailer: PHP/' . PHP_VERSION,
+        'Content-Type: text/plain; charset=UTF-8',
+        'MIME-Version: 1.0',
+    ];
+
+    $ok = @mail($to_email, $subject, $body, implode("\r\n", $headers));
+    if (!$ok) {
+        error_log('[pwreset:mail] gagal kirim ke ' . $to_email);
+    }
+    return (bool) $ok;
 }

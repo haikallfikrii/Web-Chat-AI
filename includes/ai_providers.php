@@ -6,6 +6,51 @@
 
 declare(strict_types=1);
 
+/**
+ * Sesuaikan field "model" dengan format API masing-masing provider.
+ *
+ * Banyak user mengisi model ala OpenRouter (mis. "openai/gpt-4o-mini") lalu
+ * mengganti provider ke "openai" — API resmi OpenAI menolak ID tersebut (HTTP 400).
+ */
+function ai_normalize_model_for_provider(string $provider, string $model): string
+{
+    $model = trim($model);
+    if ($model === '') {
+        return $model;
+    }
+
+    switch ($provider) {
+        case 'openai':
+        case 'deepseek':
+            // "openai/gpt-4o-mini" → "gpt-4o-mini"
+            // "meta-llama/llama-3.1-8b-instruct" → "llama-3.1-8b-instruct" (DeepSeek mungkin tidak punya; tetap aman)
+            if (preg_match('#^[a-z0-9][a-z0-9_.-]*/([a-z0-9][a-z0-9_.:-]*)$#i', $model, $m)) {
+                return $m[1];
+            }
+
+            return $model;
+
+        case 'openrouter':
+            // OpenRouter wajib slug penuh vendor/model — jangan strip
+            return $model;
+
+        case 'google':
+            // "google/gemini-1.5-flash" → "gemini-1.5-flash"
+            if (preg_match('#^google/(.+)$#i', $model, $m)) {
+                $model = $m[1];
+            }
+            // "models/gemini-1.5-flash" → "gemini-1.5-flash" (URL kita sudah pakai prefix models/)
+            if (preg_match('#^models/(.+)$#i', $model, $m)) {
+                $model = $m[1];
+            }
+
+            return trim($model);
+
+        default:
+            return $model;
+    }
+}
+
 /** @return list<array{role:string,body:string}> */
 function fetch_chat_history_rows(
     PDO $pdo,
@@ -44,7 +89,9 @@ function fetch_chat_history_rows(
  */
 function ai_chat_complete(array $widget, string $provider_api_key, array $history_rows, string $user_message): array
 {
-    $provider = $widget['ai_provider'] ?? '';
+    $provider = (string) ($widget['ai_provider'] ?? '');
+    $rawModel = (string) ($widget['ai_model'] ?? '');
+    $widget['ai_model'] = ai_normalize_model_for_provider($provider, $rawModel);
 
     switch ($provider) {
         case 'openai':
