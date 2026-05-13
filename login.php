@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/theme.css">
+<script src="/js/ui.js" defer></script>
 <style>
 .auth-shell{min-height:100vh;display:flex;flex-direction:column;padding:0 20px}
 .auth-top{position:sticky;top:0;z-index:30;
@@ -132,8 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span class="input-icon"><?= icon('lock', 16) ?></span>
             <input type="password" id="password" name="password" class="input"
                    placeholder="••••••••" required autocomplete="current-password">
-            <button type="button" class="input-action" data-toggle="password" aria-label="Tampilkan password">
-              <?= icon('eye', 18) ?>
+            <button type="button" class="input-action pw-toggle-btn" data-pw-target="password" aria-label="Tampilkan password" aria-pressed="false">
+              <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
+              <span class="pw-ico-hide" hidden><?= icon('eye-off', 18) ?></span>
             </button>
           </div>
         </div>
@@ -158,22 +160,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 
 </div>
-
-<script>
-// Password visibility toggle
-document.querySelectorAll('[data-toggle]').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    var id = btn.getAttribute('data-toggle');
-    var input = document.getElementById(id);
-    if(!input) return;
-    var show = input.type === 'password';
-    input.type = show ? 'text' : 'password';
-    btn.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
-    btn.innerHTML = show
-      ? '<?= addslashes(icon('eye-off', 18)) ?>'
-      : '<?= addslashes(icon('eye', 18)) ?>';
-  });
-});
-</script>
 </body>
 </html>
