@@ -86,7 +86,7 @@ $base = dashboard_base_url();
 .mock-skel .ln.w70{width:70%}.mock-skel .ln.w40{width:40%}
 .mock-skel .ln.w90{width:90%}
 .mock-chat{position:absolute;bottom:18px;right:18px;
-  display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  display:flex;flex-direction:column;align-items:flex-end;gap:8px;z-index:10}
 .mock-bubble.bot{
   background:var(--bg-2);border:1px solid var(--border-2);
   border-radius:14px 14px 4px 14px;padding:9px 13px;font-size:12.5px;color:var(--text);
@@ -115,10 +115,14 @@ $base = dashboard_base_url();
   box-shadow:0 12px 32px rgba(0,0,0,.5);
   font-size:12px;font-weight:600;color:var(--text);
   display:flex;align-items:center;gap:8px;
+  z-index:20;white-space:nowrap;
 }
 .float-card svg{width:16px;height:16px;color:var(--green)}
-.float-1{top:-14px;left:-22px;animation:floatA 5s ease-in-out infinite}
-.float-2{bottom:-14px;right:-22px;animation:floatB 6s ease-in-out infinite}
+/* Geser ke kiri lebih jauh agar tidak tutupi chat bubbles di kanan */
+.float-1{top:-18px;left:-18px;animation:floatA 5s ease-in-out infinite}
+.float-2{bottom:-18px;right:-18px;animation:floatB 6s ease-in-out infinite}
+/* Mock-wrap memerlukan overflow visible agar float-card tidak terpotong */
+.mock-wrap{overflow:visible!important}
 @keyframes floatA{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @keyframes floatB{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
 
@@ -266,7 +270,7 @@ footer a{color:var(--green)}
     </a>
     <button class="nav-burger" id="navBurger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="navLinks">
       <span class="nav-ico-menu"><?= icon('menu', 20) ?></span>
-      <span class="nav-ico-close" hidden><?= icon('x', 20) ?></span>
+      <span class="nav-ico-close pw-hidden"><?= icon('x', 20) ?></span>
     </button>
     <nav class="nav-links" id="navLinks" aria-label="Navigasi utama">
       <a class="nav-link" href="#features">Fitur</a>
@@ -470,8 +474,9 @@ footer a{color:var(--green)}
     btn.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
     document.body.style.overflow = open ? 'hidden' : '';
     if (icoM && icoX) {
-      icoM.hidden = !!open;
-      icoX.hidden = !open;
+      /* Gunakan class bukan hidden attr, karena display:grid di CSS bisa override */
+      icoM.classList.toggle('pw-hidden', !!open);
+      icoX.classList.toggle('pw-hidden', !open);
     }
   }
 

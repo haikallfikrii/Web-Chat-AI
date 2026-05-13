@@ -604,8 +604,10 @@
       sendBtn.disabled = inputEl.value.trim() === "" || STATE.isLoading;
     });
 
-    // Kirim dengan Enter (Shift+Enter = newline)
+    // Kirim dengan Enter; stop semua keydown agar tidak scroll halaman host
     inputEl.addEventListener("keydown", (e) => {
+      // Selalu hentikan propagasi ke host page (cegah space scroll, dll.)
+      e.stopPropagation();
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         if (!sendBtn.disabled) handleSend();

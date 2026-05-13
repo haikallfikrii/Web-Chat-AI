@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      oninput="checkStrength(this.value)">
               <button type="button" class="input-action pw-toggle-btn" data-pw-target="password" aria-label="Tampilkan password" aria-pressed="false">
                 <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
-                <span class="pw-ico-hide" hidden><?= icon('eye-off', 18) ?></span>
+                <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
               </button>
             </div>
             <div class="pw-meter"><div class="pw-meter-fill" id="pwBar"></div></div>
@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      placeholder="Ulangi password" required autocomplete="new-password">
               <button type="button" class="input-action pw-toggle-btn" data-pw-target="password_confirm" aria-label="Tampilkan password" aria-pressed="false">
                 <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
-                <span class="pw-ico-hide" hidden><?= icon('eye-off', 18) ?></span>
+                <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
               </button>
             </div>
           </div>
