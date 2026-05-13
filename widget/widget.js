@@ -640,8 +640,13 @@
         }
       } catch (err) {
         hideTyping(messagesEl);
-        appendBubble(messagesEl, "error", "Maaf, terjadi kesalahan. Silakan coba lagi.");
-        console.error("[ChatWidget] Error:", err.message);
+        const raw = err.message || "";
+        const isBrowserNetworkErr = raw === "" || raw.startsWith("Failed to fetch") || raw.startsWith("NetworkError") || raw.startsWith("Load failed");
+        const displayMsg = (!isBrowserNetworkErr && raw.length > 0 && raw.length < 300)
+          ? raw
+          : "Maaf, tidak bisa terhubung ke server. Periksa koneksi dan coba lagi.";
+        appendBubble(messagesEl, "error", displayMsg);
+        console.error("[ChatWidget] Error:", raw);
       } finally {
         STATE.isLoading = false;
         sendBtn.disabled = inputEl.value.trim() === "";
