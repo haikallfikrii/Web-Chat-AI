@@ -37,6 +37,12 @@ $checkPct   = (int) round($checkScore / $checkTotal * 100);
 
 $primaryColor = (string) ($settings['primary_color'] ?? '#00E59A');
 $firstName    = explode(' ', (string) $user['name'])[0];
+
+$embedSnippet = '<script src="' . $baseUrl . '/widget/widget.js"' . "\n"
+    . '  data-api-key="' . (string) $user['client_api_key'] . '"' . "\n"
+    . '  data-base-url="' . $baseUrl . '"' . "\n"
+    . '  async' . "\n"
+    . '></script>';
 ?>
 <!doctype html>
 <html lang="id">
@@ -111,6 +117,13 @@ $firstName    = explode(' ', (string) $user['name'])[0];
 .sec:last-child{margin-bottom:0}
 .sec-head{padding:18px 22px;display:flex;align-items:center;gap:12px;cursor:pointer;
   border-bottom:1px solid var(--border);user-select:none;transition:background .2s}
+button.sec-head{
+  width:100%;text-align:left;background:transparent;border:0;font:inherit;color:inherit;
+  appearance:none;-webkit-appearance:none;padding:18px 22px;
+}
+.glass.sec{position:relative;isolation:isolate}
+.glass.sec > .sec-head{position:relative;z-index:5}
+.glass.sec > .sec-body{position:relative;z-index:4}
 .sec-head:hover{background:rgba(255,255,255,.02)}
 .sec-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;
   background:var(--green-dim);border:1px solid var(--green-line);color:var(--green)}
@@ -209,9 +222,14 @@ $firstName    = explode(' ', (string) $user['name'])[0];
   .dash-user-info{display:none}
   .hero-strip{padding:18px;flex-direction:column;align-items:flex-start;text-align:left}
   .prov-grid{grid-template-columns:1fr 1fr}
-  .sec-head{padding:14px 16px}
+  .sec-head,button.sec-head{padding:14px 16px}
   .sec-body{padding:16px}
   .head-badge{display:none}
+}
+@media (max-width:420px){
+  .dash-nav{height:auto;min-height:56px;padding:10px 12px;flex-wrap:wrap;gap:8px}
+  .dash-user{margin-left:0;width:100%;justify-content:space-between;flex-wrap:wrap}
+  .dash-page{padding:16px 12px 48px}
 }
 </style>
 </head>
@@ -280,11 +298,11 @@ $firstName    = explode(' ', (string) $user['name'])[0];
 
       <!-- TAMPILAN -->
       <div class="glass sec open" data-sec>
-        <div class="sec-head" data-sec-toggle>
+        <button type="button" class="sec-head" data-sec-toggle>
           <span class="sec-icon"><?= icon('palette', 18) ?></span>
           <span class="sec-title">Tampilan Widget</span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
-        </div>
+        </button>
         <div class="sec-body">
           <div class="field">
             <label class="field-label" for="bot_name"><?= icon('bot', 14) ?> Nama Bot</label>
@@ -314,14 +332,14 @@ $firstName    = explode(' ', (string) $user['name'])[0];
 
       <!-- AI -->
       <div class="glass sec open" data-sec>
-        <div class="sec-head" data-sec-toggle>
+        <button type="button" class="sec-head" data-sec-toggle>
           <span class="sec-icon"><?= icon('bot', 18) ?></span>
           <span class="sec-title">Konfigurasi AI</span>
           <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
             <?= ($aiKeySet && $providerOk) ? 'Aktif' : 'Belum lengkap' ?>
           </span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
-        </div>
+        </button>
         <div class="sec-body">
 
           <div class="field">
@@ -365,8 +383,9 @@ $firstName    = explode(' ', (string) $user['name'])[0];
               <input type="password" id="ai_api_key" name="ai_api_key" class="input"
                      placeholder="<?= $aiKeySet ? '••••••• (tersimpan, kosongkan untuk tidak mengubah)' : 'sk-...' ?>"
                      autocomplete="new-password">
-              <button type="button" class="input-action" data-toggle="ai_api_key" aria-label="Tampilkan API key">
-                <?= icon('eye', 18) ?>
+              <button type="button" class="input-action pw-toggle-btn" data-pw-target="ai_api_key" aria-label="Tampilkan API key" aria-pressed="false">
+                <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
+                <span class="pw-ico-hide" hidden><?= icon('eye-off', 18) ?></span>
               </button>
             </div>
           </div>
@@ -384,14 +403,14 @@ $firstName    = explode(' ', (string) $user['name'])[0];
 
       <!-- DOMAIN -->
       <div class="glass sec" data-sec>
-        <div class="sec-head" data-sec-toggle>
+        <button type="button" class="sec-head" data-sec-toggle>
           <span class="sec-icon"><?= icon('shield', 18) ?></span>
           <span class="sec-title">Keamanan Domain</span>
           <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
             <?= $domainSet ? 'Diatur' : 'Dibuka' ?>
           </span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
-        </div>
+        </button>
         <div class="sec-body">
           <div class="field">
             <label class="field-label" for="allowed_origins">
@@ -410,12 +429,12 @@ $firstName    = explode(' ', (string) $user['name'])[0];
 
       <!-- TELEGRAM -->
       <div class="glass sec" data-sec>
-        <div class="sec-head" data-sec-toggle>
+        <button type="button" class="sec-head" data-sec-toggle>
           <span class="sec-icon"><?= icon('phone', 18) ?></span>
           <span class="sec-title">Notifikasi Telegram</span>
           <?php if ($tgSet): ?><span class="head-badge hb-ok">Aktif</span><?php endif; ?>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
-        </div>
+        </button>
         <div class="sec-body">
           <div class="tg" style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
             <div class="tg-info">
@@ -459,7 +478,7 @@ $firstName    = explode(' ', (string) $user['name'])[0];
         <span class="api-key-text">
           <?= e(substr((string) $user['client_api_key'], 0, 8)) ?>••••••••••••••••<?= e(substr((string) $user['client_api_key'], -4)) ?>
         </span>
-        <button type="button" class="btn-icon-sm" data-copy="<?= e((string) $user['client_api_key']) ?>">
+        <button type="button" class="btn-icon-sm" data-copy="<?= htmlspecialchars((string) $user['client_api_key'], ENT_QUOTES, 'UTF-8') ?>">
           <?= icon('copy', 13) ?> Salin
         </button>
       </div>
@@ -515,31 +534,63 @@ $firstName    = explode(' ', (string) $user['name'])[0];
 
 </div>
 
+<script src="/js/ui.js"></script>
+<script>
+window.__CP_EMBED = <?= json_encode($embedSnippet, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+</script>
 <script>
 /* ── Section accordion ── */
-document.querySelectorAll('[data-sec-toggle]').forEach(function(head){
-  head.addEventListener('click', function(){
-    head.closest('[data-sec]').classList.toggle('open');
+document.querySelectorAll('[data-sec-toggle]').forEach(function (head) {
+  head.addEventListener('click', function (ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    var sec = head.closest('[data-sec]');
+    if (sec) sec.classList.toggle('open');
   });
 });
 
-/* ── Color picker sync ── */
-(function(){
+/* ── Color picker ↔ hex text (picker + manual hex) ── */
+(function () {
   var hex = document.getElementById('color-hex');
   var pick = document.getElementById('color-picker');
-  if(!hex || !pick) return;
-  pick.addEventListener('input', function(){ hex.value = pick.value; });
-  hex.addEventListener('input', function(){
-    if(/^#[0-9a-fA-F]{6}$/.test(hex.value)) pick.value = hex.value;
+  if (!hex || !pick) return;
+
+  function normalizeHex(v) {
+    v = String(v || '').trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) return v.toUpperCase();
+    return null;
+  }
+
+  function syncPickerFromHex() {
+    var h = normalizeHex(hex.value);
+    if (h) {
+      pick.value = h;
+      hex.value = h;
+    }
+  }
+
+  function syncHexFromPicker() {
+    hex.value = String(pick.value || '').toUpperCase();
+  }
+
+  pick.addEventListener('input', syncHexFromPicker);
+  pick.addEventListener('change', syncHexFromPicker);
+  hex.addEventListener('input', function () {
+    var h = normalizeHex(hex.value);
+    if (h) pick.value = h;
   });
+  hex.addEventListener('blur', syncPickerFromHex);
+  hex.addEventListener('change', syncPickerFromHex);
+  syncPickerFromHex();
 })();
 
 /* ── Provider radio pills ── */
-document.querySelectorAll('.prov-pill').forEach(function(pill){
-  pill.addEventListener('click', function(){
-    document.querySelectorAll('.prov-pill').forEach(function(p){ p.classList.remove('active'); });
+document.querySelectorAll('.prov-pill').forEach(function (pill) {
+  pill.addEventListener('click', function () {
+    document.querySelectorAll('.prov-pill').forEach(function (p) { p.classList.remove('active'); });
     pill.classList.add('active');
-    pill.querySelector('input').checked = true;
+    var inp = pill.querySelector('input[type=radio]');
+    if (inp) inp.checked = true;
     updateModelHint();
   });
 });
@@ -551,50 +602,33 @@ var hints = {
   google:     'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>',
   deepseek:   'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>'
 };
-function updateModelHint(){
+function updateModelHint() {
   var checked = document.querySelector('input[name=ai_provider]:checked');
   var hintBox = document.getElementById('modelHint');
-  if(checked && hintBox) hintBox.innerHTML = hints[checked.value] || '';
+  if (checked && hintBox) hintBox.innerHTML = hints[checked.value] || '';
 }
 updateModelHint();
 
-/* ── Password / API key visibility toggle ── */
-document.querySelectorAll('[data-toggle]').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    var id = btn.getAttribute('data-toggle');
-    var input = document.getElementById(id);
-    if(!input) return;
-    var show = input.type === 'password';
-    input.type = show ? 'text' : 'password';
-    btn.innerHTML = show
-      ? '<?= addslashes(icon('eye-off', 18)) ?>'
-      : '<?= addslashes(icon('eye', 18)) ?>';
-  });
-});
-
-/* ── Copy helpers ── */
-function showCopied(btn, original){
-  var orig = original || btn.innerHTML;
-  btn.innerHTML = '<?= addslashes(icon('check', 14)) ?> Tersalin';
-  btn.style.background = 'rgba(0,229,154,.25)';
-  setTimeout(function(){
-    btn.innerHTML = orig;
-    btn.style.background = '';
-  }, 1800);
-}
-document.querySelectorAll('[data-copy]').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    var orig = btn.innerHTML;
-    navigator.clipboard.writeText(btn.getAttribute('data-copy'))
-      .then(function(){ showCopied(btn, orig); });
-  });
-});
+/* ── Copy embed (aman untuk parser HTML) ── */
 var btnEmbed = document.getElementById('btnCopyEmbed');
-if(btnEmbed){
-  btnEmbed.addEventListener('click', function(){
-    var raw = '<script\n  src="<?= e($baseUrl) ?>/widget/widget.js"\n  data-api-key="<?= e((string) $user['client_api_key']) ?>"\n  data-base-url="<?= e($baseUrl) ?>"\n  async\n><\/script>';
+if (btnEmbed && window.__CP_EMBED && window.CPUI) {
+  btnEmbed.addEventListener('click', function (e) {
+    e.preventDefault();
     var orig = btnEmbed.innerHTML;
-    navigator.clipboard.writeText(raw).then(function(){ showCopied(btnEmbed, orig); });
+    CPUI.copyToClipboard(window.__CP_EMBED)
+      .then(function () {
+        btnEmbed.innerHTML =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg> Berhasil disalin';
+        btnEmbed.style.background = 'rgba(0,229,154,.22)';
+        setTimeout(function () {
+          btnEmbed.innerHTML = orig;
+          btnEmbed.style.background = '';
+        }, 2000);
+      })
+      .catch(function () {
+        btnEmbed.textContent = 'Gagal salin — coba HTTPS atau izin clipboard';
+        setTimeout(function () { btnEmbed.innerHTML = orig; }, 2600);
+      });
   });
 }
 </script>

@@ -240,6 +240,14 @@ footer a{color:var(--green)}
   .hero p{font-size:16px}
   .float-card{display:none}
 }
+@media (max-width:400px){
+  .hero{padding:48px 12px 40px}
+  .hero-cta{flex-direction:column;width:100%;gap:10px}
+  .hero-cta .btn{width:100%;justify-content:center}
+  .stats{padding:0 12px 56px}
+  .section{padding:0 12px 64px}
+  .cta-wrap{padding:0 12px 72px}
+}
 </style>
 </head>
 <body>
@@ -256,10 +264,11 @@ footer a{color:var(--green)}
       <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
       <span class="brand-text">ChatPopup.AI</span>
     </a>
-    <button class="nav-burger" id="navBurger" aria-label="Menu" aria-expanded="false">
-      <?= icon('menu', 20) ?>
+    <button class="nav-burger" id="navBurger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="navLinks">
+      <span class="nav-ico-menu"><?= icon('menu', 20) ?></span>
+      <span class="nav-ico-close" hidden><?= icon('x', 20) ?></span>
     </button>
-    <nav class="nav-links" id="navLinks">
+    <nav class="nav-links" id="navLinks" aria-label="Navigasi utama">
       <a class="nav-link" href="#features">Fitur</a>
       <a class="nav-link" href="#how">Cara Kerja</a>
       <a class="nav-link" href="#providers">Provider</a>
@@ -268,6 +277,7 @@ footer a{color:var(--green)}
     </nav>
   </div>
 </header>
+<div class="nav-backdrop" id="navBackdrop"></div>
 
 <section class="hero">
   <div>
@@ -443,25 +453,40 @@ footer a{color:var(--green)}
 
 <script src="/js/animations.js"></script>
 <script>
-// Mobile nav toggle
-(function(){
+(function () {
   var btn = document.getElementById('navBurger');
   var menu = document.getElementById('navLinks');
-  if(!btn || !menu) return;
-  btn.addEventListener('click', function(){
-    var open = menu.classList.toggle('open');
-    btn.setAttribute('aria-expanded', open);
-    btn.innerHTML = open
-      ? '<?= addslashes(icon('x', 20)) ?>'
-      : '<?= addslashes(icon('menu', 20)) ?>';
+  var bd = document.getElementById('navBackdrop');
+  var icoM = btn && btn.querySelector('.nav-ico-menu');
+  var icoX = btn && btn.querySelector('.nav-ico-close');
+  if (!btn || !menu) return;
+
+  function setOpen(open) {
+    menu.classList.toggle('open', open);
+    if (bd) {
+      bd.classList.toggle('is-open', open);
+    }
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (icoM && icoX) {
+      icoM.hidden = !!open;
+      icoX.hidden = !open;
+    }
+  }
+
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!menu.classList.contains('open'));
   });
-  // Close on link click
-  menu.querySelectorAll('a').forEach(function(a){
-    a.addEventListener('click', function(){
-      menu.classList.remove('open');
-      btn.setAttribute('aria-expanded','false');
-      btn.innerHTML = '<?= addslashes(icon('menu', 20)) ?>';
-    });
+  if (bd) {
+    bd.addEventListener('click', function () { setOpen(false); });
+  }
+  menu.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () { setOpen(false); });
+  });
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 780) setOpen(false);
   });
 })();
 </script>
