@@ -202,45 +202,30 @@ button.sec-head{
 /* ── PROVIDER PILLS ────────────────────────────────────────── */
 .prov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
 .prov-pill{
-  padding:14px 12px 12px;border-radius:10px;cursor:pointer;text-align:center;
-  font-size:13px;font-weight:600;line-height:1.3;
-  background:rgba(10,15,26,.6);border:1.5px solid rgba(255,255,255,.10);
-  color:rgba(169,180,194,.7);
-  transition:all .2s ease;position:relative;user-select:none;
+  padding:13px 12px;border-radius:10px;cursor:pointer;text-align:center;
+  font-size:13px;font-weight:600;line-height:1.35;
+  background:rgba(8,13,28,.7);
+  border:2px solid rgba(255,255,255,.08);
+  color:rgba(169,180,194,.65);
+  transition:border-color .18s,background .18s,color .18s,box-shadow .18s;
+  user-select:none;position:relative;
 }
+/* Hover: warna hijau samar */
 .prov-pill:hover{
-  border-color:rgba(0,229,154,.4);
+  border-color:rgba(0,229,154,.45);
   color:var(--text);
   background:rgba(0,229,154,.06);
 }
-/* === ACTIVE STATE — sangat kontras === */
+/* Active: hijau penuh, jelas, tidak bisa salah lihat */
 .prov-pill.active{
-  background:rgba(0,229,154,.15) !important;
-  border:2px solid var(--green) !important;
-  color:var(--green) !important;
-  box-shadow:
-    0 0 0 3px rgba(0,229,154,.15),
-    0 0 20px rgba(0,229,154,.18),
-    inset 0 1px 0 rgba(0,229,154,.2);
-  transform:scale(1.02);
-}
-/* Centang melayang di pojok kanan atas */
-.prov-pill::after{
-  content:'';display:block;
-  position:absolute;top:6px;right:8px;
-  width:16px;height:16px;border-radius:50%;
-  border:1.5px solid rgba(255,255,255,.12);
-  transition:all .2s;
-}
-.prov-pill.active::after{
-  background:var(--green);
+  background:rgba(0,229,154,.14);
   border-color:var(--green);
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23031018' stroke-width='3.5'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:center;background-size:10px;
-  box-shadow:0 0 8px rgba(0,229,154,.6);
+  color:var(--green);
+  box-shadow:0 0 0 3px rgba(0,229,154,.18),inset 0 1px 0 rgba(0,229,154,.15);
 }
-/* Nama provider lebih tebal saat aktif */
-.prov-pill.active .prov-name{font-weight:800;letter-spacing:-.2px}
+.prov-pill.active > div:first-of-type{
+  font-weight:800;
+}
 
 /* ── HINT BOX ──────────────────────────────────────────────── */
 .hint-box{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.55;
@@ -333,8 +318,8 @@ button.sec-head{
       <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
       <!-- TAMPILAN -->
-      <div class="glass sec open" data-sec="1">
-        <button type="button" class="sec-head" data-sec-toggle="1">
+      <div class="glass sec open" id="sec-tampilan" data-sec="1">
+        <button type="button" class="sec-head" onclick="document.getElementById('sec-tampilan').classList.toggle('open')">
           <span class="sec-icon"><?= icon('palette', 18) ?></span>
           <span class="sec-title">Tampilan Widget</span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
@@ -367,8 +352,8 @@ button.sec-head{
       </div>
 
       <!-- AI -->
-      <div class="glass sec open" data-sec="1">
-        <button type="button" class="sec-head" data-sec-toggle="1">
+      <div class="glass sec open" id="sec-ai" data-sec="1">
+        <button type="button" class="sec-head" onclick="document.getElementById('sec-ai').classList.toggle('open')">
           <span class="sec-icon"><?= icon('bot', 18) ?></span>
           <span class="sec-title">Konfigurasi AI</span>
           <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
@@ -438,8 +423,8 @@ button.sec-head{
       </div>
 
       <!-- DOMAIN -->
-      <div class="glass sec" data-sec="1">
-        <button type="button" class="sec-head" data-sec-toggle="1">
+      <div class="glass sec" id="sec-domain" data-sec="1">
+        <button type="button" class="sec-head" onclick="document.getElementById('sec-domain').classList.toggle('open')">
           <span class="sec-icon"><?= icon('shield', 18) ?></span>
           <span class="sec-title">Keamanan Domain</span>
           <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
@@ -464,8 +449,8 @@ button.sec-head{
       </div>
 
       <!-- TELEGRAM -->
-      <div class="glass sec" data-sec="1">
-        <button type="button" class="sec-head" data-sec-toggle="1">
+      <div class="glass sec" id="sec-telegram" data-sec="1">
+        <button type="button" class="sec-head" onclick="document.getElementById('sec-telegram').classList.toggle('open')">
           <span class="sec-icon"><?= icon('phone', 18) ?></span>
           <span class="sec-title">Notifikasi Telegram</span>
           <?php if ($tgSet): ?><span class="head-badge hb-ok">Aktif</span><?php endif; ?>
@@ -573,110 +558,104 @@ button.sec-head{
 <script src="/js/ui.js"></script>
 <script>
 /* ==========================================================
- * Dashboard – interactive scripts (event-delegation pattern)
+ * Dashboard – interactive scripts
+ * Semua fungsi global agar dapat dipanggil dari onclick attr
  * ========================================================== */
+
+/* ── 1. COLOR PICKER ↔ HEX TEXT ── */
 (function () {
-
-  /* ── 1. ACCORDION (event delegation – paling reliable) ── */
-  document.addEventListener('click', function (e) {
-    var toggle = e.target.closest('[data-sec-toggle]');
-    if (!toggle) return;
-    /* cari parent yang punya data-sec */
-    var sec = toggle.parentElement;
-    while (sec && !sec.hasAttribute('data-sec')) sec = sec.parentElement;
-    if (!sec) return;
-    sec.classList.toggle('open');
-  });
-
-  /* ── 2. COLOR PICKER ↔ HEX TEXT (dual event, event delegation) ── */
   var hexEl  = document.getElementById('color-hex');
   var pickEl = document.getElementById('color-picker');
+  if (!hexEl || !pickEl) return;
 
-  function onPickerChange(v) {
-    if (hexEl) hexEl.value = v.toUpperCase();
-  }
   function isValidHex(v) {
     return /^#[0-9a-fA-F]{6}$/.test(String(v).trim());
   }
 
-  if (pickEl) {
-    /* Kedua event: 'input' saat drag, 'change' saat tutup picker */
-    pickEl.addEventListener('input',  function () { onPickerChange(this.value); });
-    pickEl.addEventListener('change', function () { onPickerChange(this.value); });
-  }
-  if (hexEl) {
-    hexEl.addEventListener('input', function () {
-      if (isValidHex(this.value) && pickEl) pickEl.value = this.value;
-    });
-    hexEl.addEventListener('blur', function () {
-      if (!isValidHex(this.value)) { this.value = pickEl ? pickEl.value.toUpperCase() : ''; }
-    });
-  }
+  pickEl.addEventListener('input',  function () { hexEl.value = this.value.toUpperCase(); });
+  pickEl.addEventListener('change', function () { hexEl.value = this.value.toUpperCase(); });
 
-  /* ── 3. PROVIDER PILLS ── */
-  document.addEventListener('click', function (e) {
-    var pill = e.target.closest('.prov-pill');
-    if (!pill) return;
+  hexEl.addEventListener('input', function () {
+    if (isValidHex(this.value)) pickEl.value = this.value;
+  });
+  hexEl.addEventListener('blur', function () {
+    if (!isValidHex(this.value)) this.value = pickEl.value.toUpperCase();
+  });
+})();
+
+/* ── 2. PROVIDER PILLS ── */
+var _hints = {
+  openrouter: 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>',
+  openai:     'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>',
+  google:     'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>',
+  deepseek:   'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>'
+};
+
+function updateModelHint() {
+  var checked = document.querySelector('input[name=ai_provider]:checked');
+  var box = document.getElementById('modelHint');
+  if (box) box.innerHTML = checked ? (_hints[checked.value] || '') : '';
+}
+
+document.querySelectorAll('.prov-pill').forEach(function (pill) {
+  pill.addEventListener('click', function () {
     document.querySelectorAll('.prov-pill').forEach(function (p) { p.classList.remove('active'); });
-    pill.classList.add('active');
-    var radio = pill.querySelector('input[type=radio]');
+    this.classList.add('active');
+    var radio = this.querySelector('input[type=radio]');
     if (radio) radio.checked = true;
     updateModelHint();
   });
+});
 
-  /* ── 4. MODEL HINTS ── */
-  var hints = {
-    openrouter: 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>',
-    openai:     'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>',
-    google:     'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>',
-    deepseek:   'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>'
-  };
-  window.updateModelHint = function () {
-    var checked = document.querySelector('input[name=ai_provider]:checked');
-    var box = document.getElementById('modelHint');
-    if (box) box.innerHTML = checked ? (hints[checked.value] || '') : '';
-  };
-  updateModelHint();
+updateModelHint();
 
-  /* ── 5. COPY EMBED ── */
-  var _embedText = <?= json_encode($embedSnippet, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-  var _checkSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
+/* ── COPY EMBED (global, dipanggil via onclick) ── */
+function cpCopyEmbed() {
+  /* Ambil teks langsung dari elemen yang terlihat user – paling reliable */
+  var pre  = document.getElementById('embedPre');
+  var btn  = document.getElementById('btnCopyEmbed');
+  if (!pre || !btn) return;
 
-  window.cpCopyEmbed = function () {
-    var btn = document.getElementById('btnCopyEmbed');
-    if (!btn) return;
-    var orig = btn.innerHTML;
+  /* innerText membaca teks yang sudah di-render (entitas HTML ter-decode) */
+  var text = pre.innerText || pre.textContent || '';
+  text = text.trim();
 
-    function done() {
-      btn.innerHTML = _checkSVG + 'Tersalin!';
-      btn.style.background = 'rgba(0,229,154,.35)';
-      btn.style.color = '#031018';
-      setTimeout(function () { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2200);
-    }
+  var orig    = btn.innerHTML;
+  var checkSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
 
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(_embedText).then(done).catch(function () {
-        /* fallback */
-        var ta = document.createElement('textarea');
-        ta.value = _embedText;
-        ta.style.cssText = 'position:fixed;left:-9999px;top:0';
-        document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); } catch(x) {}
-        document.body.removeChild(ta);
-        done();
-      });
-    } else {
-      var ta = document.createElement('textarea');
-      ta.value = _embedText;
-      ta.style.cssText = 'position:fixed;left:-9999px;top:0';
-      document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); } catch(x) {}
-      document.body.removeChild(ta);
-      done();
-    }
-  };
+  function showOK() {
+    btn.innerHTML = checkSVG + ' Tersalin!';
+    btn.style.background = 'rgba(0,229,154,.4)';
+    btn.style.color = '#031018';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(function () {
+      btn.innerHTML = orig;
+      btn.style.background = btn.style.color = btn.style.borderColor = '';
+    }, 2200);
+  }
 
-})();
+  function fallback() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    showOK();
+  }
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(showOK).catch(fallback);
+  } else {
+    fallback();
+  }
+}
 </script>
 </body>
 </html>
