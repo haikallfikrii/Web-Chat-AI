@@ -60,13 +60,19 @@
   --shadow-card-hover:0 18px 60px rgba(0,0,0,.5),0 0 0 1px rgba(0,229,154,.12);
 }
 
+/* Cegah horizontal scroll dari orb & elemen lain yg melewati viewport */
+html,body{
+  overflow-x:hidden;
+  max-width:100%;
+}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
   font-feature-settings:'cv11','ss01','ss03';
   background:var(--bg);color:var(--text);line-height:1.6;
-  min-height:100vh;overflow-x:hidden;
+  min-height:100vh;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  position:relative;
 }
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
@@ -91,16 +97,32 @@ svg{flex-shrink:0}
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-.orb{position:fixed;border-radius:50%;filter:blur(110px);pointer-events:none;z-index:0;will-change:transform}
-.orb-1{width:680px;height:680px;top:-220px;right:-160px;
-  background:radial-gradient(circle,rgba(0,229,154,.16),transparent 70%);
-  animation:orbFloat1 18s ease-in-out infinite}
-.orb-2{width:580px;height:580px;bottom:-200px;left:-140px;
-  background:radial-gradient(circle,rgba(59,130,246,.12),transparent 70%);
-  animation:orbFloat2 22s ease-in-out infinite}
-.orb-3{width:420px;height:420px;top:45%;left:40%;
-  background:radial-gradient(circle,rgba(168,85,247,.08),transparent 70%);
-  animation:orbFloat1 26s ease-in-out infinite reverse}
+.orb{
+  position:fixed;border-radius:50%;filter:blur(90px);
+  pointer-events:none;z-index:0;will-change:transform;
+  /* Kunci di dalam viewport agar tidak buat horizontal scroll */
+  max-width:100vw;max-height:100vh;
+}
+.orb-1{
+  width:min(600px,90vw);height:min(600px,90vw);
+  top:-15%;right:0;         /* right:0 — mulai dari tepi, bukan keluar */
+  transform:translate(30%,-10%);
+  background:radial-gradient(circle,rgba(0,229,154,.15),transparent 70%);
+  animation:orbFloat1 18s ease-in-out infinite;
+}
+.orb-2{
+  width:min(500px,80vw);height:min(500px,80vw);
+  bottom:-10%;left:0;       /* left:0 — mulai dari tepi */
+  transform:translate(-30%,10%);
+  background:radial-gradient(circle,rgba(59,130,246,.11),transparent 70%);
+  animation:orbFloat2 22s ease-in-out infinite;
+}
+.orb-3{
+  width:min(380px,70vw);height:min(380px,70vw);
+  top:42%;left:38%;
+  background:radial-gradient(circle,rgba(168,85,247,.07),transparent 70%);
+  animation:orbFloat1 26s ease-in-out infinite reverse;
+}
 @keyframes orbFloat1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-40px,30px) scale(1.08)}66%{transform:translate(20px,-25px) scale(.92)}}
 @keyframes orbFloat2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(50px,-30px) scale(1.06)}}
 
@@ -325,11 +347,11 @@ h1,h2,h3,h4{letter-spacing:-.5px}
 /* ── MOBILE NAV (drawer + backdrop) ─────────────────────────── */
 .nav-backdrop{
   display:none;position:fixed;inset:0;z-index:55;
-  background:rgba(0,0,0,.58);
+  background:rgba(0,0,0,.62);
   backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
-  opacity:0;transition:opacity .28s ease;pointer-events:none;
 }
-.nav-backdrop.is-open{display:block;opacity:1;pointer-events:auto}
+/* JS menambah .is-open via classList */
+.nav-backdrop.is-open{display:block}
 
 @media (max-width:780px){
   .nav-in{
@@ -348,29 +370,44 @@ h1,h2,h3,h4{letter-spacing:-.5px}
     display:inline-grid;order:3;flex-shrink:0;z-index:70;
     width:42px;height:42px;
   }
+  /* ── MOBILE DRAWER: hidden by default, shown when .is-open ── */
   .nav-links{
-    position:fixed;top:56px;right:0;bottom:0;left:auto;
-    width:min(300px,calc(100vw - 36px));
-    max-width:100%;
-    margin:0;padding:10px 14px 22px;
+    /* Sembunyikan dari flow & layar; JS toggle display */
+    display:none !important;
+    position:fixed;top:56px;right:0;bottom:0;
+    width:min(300px,90vw);
     flex-direction:column;align-items:stretch;gap:4px;
-    background:rgba(5,9,16,.97);
-    backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);
-    border-left:1px solid var(--border-2);
-    box-shadow:-16px 0 48px rgba(0,0,0,.5);
-    transform:translate3d(105%,0,0);
-    transition:transform .32s cubic-bezier(.22,1,.36,1),visibility .32s,opacity .32s;
+    margin:0;padding:12px 14px 30px;
+    background:rgba(4,8,20,.97);
+    backdrop-filter:blur(24px) saturate(160%);
+    -webkit-backdrop-filter:blur(24px) saturate(160%);
+    border-left:1px solid rgba(0,229,154,.15);
+    box-shadow:-20px 0 60px rgba(0,0,0,.6);
     z-index:60;
-    visibility:hidden;opacity:0;pointer-events:none;
     overflow-y:auto;-webkit-overflow-scrolling:touch;
-    border-bottom:none;border-radius:0;
+    animation:none;
   }
-  .nav-links.open{
-    transform:translate3d(0,0,0);
-    visibility:visible;opacity:1;pointer-events:auto;
+  /* JS menambah .is-open — display:flex override !important */
+  .nav-links.is-open{
+    display:flex !important;
+    animation:slideInRight .28s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes slideInRight{
+    from{opacity:0;transform:translate3d(100%,0,0)}
+    to  {opacity:1;transform:translate3d(0,0,0)}
   }
   .nav-link{padding:14px 12px;border-radius:10px;font-size:15px}
-  .nav-link.btn{margin-top:8px;justify-content:center;padding:14px 16px;width:100%}
+  .nav-link.btn{
+    margin-top:10px;justify-content:center;
+    padding:14px 16px;width:100%;
+    font-size:15px;
+  }
+  /* Divider antar link biasa & tombol di mobile */
+  .nav-links::before{
+    content:'';display:block;height:1px;
+    background:rgba(255,255,255,.07);
+    margin:6px 0 2px;order:-1; /* pushed to start; tombol di bawah pakai margin-top */
+  }
 }
 
 @media (max-width:380px){

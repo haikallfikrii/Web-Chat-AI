@@ -457,39 +457,48 @@ footer a{color:var(--green)}
 
 <script src="/js/animations.js"></script>
 <script>
+/* ── Mobile nav burger ── */
 (function () {
-  var btn = document.getElementById('navBurger');
+  var btn  = document.getElementById('navBurger');
   var menu = document.getElementById('navLinks');
-  var bd = document.getElementById('navBackdrop');
-  var icoM = btn && btn.querySelector('.nav-ico-menu');
-  var icoX = btn && btn.querySelector('.nav-ico-close');
+  var bd   = document.getElementById('navBackdrop');
   if (!btn || !menu) return;
 
+  var icoM = btn.querySelector('.nav-ico-menu');
+  var icoX = btn.querySelector('.nav-ico-close');
+
   function setOpen(open) {
-    menu.classList.toggle('open', open);
-    if (bd) {
-      bd.classList.toggle('is-open', open);
-    }
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    /* CSS kelas .is-open override display:none !important */
+    menu.classList.toggle('is-open', open);
+    if (bd) bd.classList.toggle('is-open', open);
+
+    btn.setAttribute('aria-expanded', String(open));
     btn.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+
+    /* Sembunyikan/tampilkan ikon burger ↔ silang */
+    if (icoM) { icoM.style.display = open ? 'none' : ''; }
+    if (icoX) { icoX.style.display = open ? 'grid' : 'none'; }
+
+    /* Kunci scroll body saat menu terbuka */
     document.body.style.overflow = open ? 'hidden' : '';
-    if (icoM && icoX) {
-      /* Gunakan class bukan hidden attr, karena display:grid di CSS bisa override */
-      icoM.classList.toggle('pw-hidden', !!open);
-      icoX.classList.toggle('pw-hidden', !open);
-    }
   }
+
+  /* Inisialisasi: pastikan ikoX tersembunyi */
+  if (icoX) icoX.style.display = 'none';
 
   btn.addEventListener('click', function (e) {
     e.stopPropagation();
-    setOpen(!menu.classList.contains('open'));
+    setOpen(!menu.classList.contains('is-open'));
   });
-  if (bd) {
-    bd.addEventListener('click', function () { setOpen(false); });
-  }
+
+  if (bd) bd.addEventListener('click', function () { setOpen(false); });
+
+  /* Tutup saat klik link di dalam menu */
   menu.querySelectorAll('a').forEach(function (a) {
     a.addEventListener('click', function () { setOpen(false); });
   });
+
+  /* Tutup saat resize ke desktop */
   window.addEventListener('resize', function () {
     if (window.innerWidth > 780) setOpen(false);
   });
