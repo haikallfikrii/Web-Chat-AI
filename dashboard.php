@@ -202,24 +202,45 @@ button.sec-head{
 /* ── PROVIDER PILLS ────────────────────────────────────────── */
 .prov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
 .prov-pill{
-  padding:12px 12px;border-radius:10px;cursor:pointer;text-align:center;font-size:13px;font-weight:600;
-  background:rgba(10,15,26,.5);border:1.5px solid var(--border-2);color:var(--text-2);
-  transition:all .2s;position:relative;
+  padding:14px 12px 12px;border-radius:10px;cursor:pointer;text-align:center;
+  font-size:13px;font-weight:600;line-height:1.3;
+  background:rgba(10,15,26,.6);border:1.5px solid rgba(255,255,255,.10);
+  color:rgba(169,180,194,.7);
+  transition:all .2s ease;position:relative;user-select:none;
 }
-.prov-pill:hover{border-color:rgba(0,229,154,.35);color:var(--text);background:rgba(255,255,255,.04)}
+.prov-pill:hover{
+  border-color:rgba(0,229,154,.4);
+  color:var(--text);
+  background:rgba(0,229,154,.06);
+}
+/* === ACTIVE STATE — sangat kontras === */
 .prov-pill.active{
-  background:rgba(0,229,154,.18);
-  border:2px solid var(--green);
-  color:var(--green);
-  box-shadow:0 0 0 3px rgba(0,229,154,.12),0 4px 16px rgba(0,229,154,.2);
+  background:rgba(0,229,154,.15) !important;
+  border:2px solid var(--green) !important;
+  color:var(--green) !important;
+  box-shadow:
+    0 0 0 3px rgba(0,229,154,.15),
+    0 0 20px rgba(0,229,154,.18),
+    inset 0 1px 0 rgba(0,229,154,.2);
+  transform:scale(1.02);
 }
-.prov-pill.active::before{
-  content:'✓';
+/* Centang melayang di pojok kanan atas */
+.prov-pill::after{
+  content:'';display:block;
   position:absolute;top:6px;right:8px;
-  font-size:11px;font-weight:900;
-  color:var(--green);opacity:1;
+  width:16px;height:16px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.12);
+  transition:all .2s;
 }
-.prov-pill.active > div:first-child{color:var(--green);font-weight:800}
+.prov-pill.active::after{
+  background:var(--green);
+  border-color:var(--green);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23031018' stroke-width='3.5'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center;background-size:10px;
+  box-shadow:0 0 8px rgba(0,229,154,.6);
+}
+/* Nama provider lebih tebal saat aktif */
+.prov-pill.active .prov-name{font-weight:800;letter-spacing:-.2px}
 
 /* ── HINT BOX ──────────────────────────────────────────────── */
 .hint-box{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.55;
@@ -338,9 +359,7 @@ button.sec-head{
                      value="<?= e($primaryColor) ?>" placeholder="#00E59A"
                      maxlength="9" pattern="#[0-9a-fA-F]{6}">
               <div class="color-swatch" title="Klik untuk buka palet warna">
-                <input type="color" id="color-picker" value="<?= e($primaryColor) ?>"
-                  oninput="(function(v){var h=document.getElementById('color-hex');if(h)h.value=v.toUpperCase();})(this.value)"
-                  onchange="(function(v){var h=document.getElementById('color-hex');if(h)h.value=v.toUpperCase();})(this.value)">
+                <input type="color" id="color-picker" value="<?= e($primaryColor) ?>">
               </div>
             </div>
           </div>
@@ -516,7 +535,7 @@ button.sec-head{
   <span class="an">data-base-url</span>=<span class="av">"<?= e($baseUrl) ?>"</span>
   <span class="an">async</span>
 <span class="tn">&gt;&lt;/script&gt;</span></div>
-      <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;padding:10px;font-size:13px" id="btnCopyEmbed">
+      <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;padding:10px;font-size:13px" id="btnCopyEmbed" onclick="cpCopyEmbed()">
         <?= icon('copy', 14) ?> Salin Embed Code
       </button>
       <p style="font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5">
@@ -553,133 +572,110 @@ button.sec-head{
 
 <script src="/js/ui.js"></script>
 <script>
-/* ======================================================
- * Dashboard interactive scripts
- * ====================================================== */
-
-/* ── 1. ACCORDION ── */
+/* ==========================================================
+ * Dashboard – interactive scripts (event-delegation pattern)
+ * ========================================================== */
 (function () {
-  function initAccordion() {
-    var btns = document.querySelectorAll('[data-sec-toggle]');
-    btns.forEach(function (btn) {
-      if (btn._secBound) return;
-      btn._secBound = true;
-      btn.addEventListener('click', function (ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        /* climb up until we find element with data-sec attribute */
-        var el = btn.parentElement;
-        while (el && !el.hasAttribute('data-sec')) el = el.parentElement;
-        if (el) el.classList.toggle('open');
-      });
-    });
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccordion);
-  } else {
-    initAccordion();
-  }
-})();
 
-/* ── 2. COLOR PICKER ↔ HEX TEXT ── */
-(function () {
-  var hex  = document.getElementById('color-hex');
-  var pick = document.getElementById('color-picker');
-  if (!hex || !pick) return;
-
-  function validHex(v) {
-    v = String(v || '').trim();
-    return /^#[0-9a-fA-F]{6}$/.test(v) ? v.toUpperCase() : null;
-  }
-
-  /* picker → hex field */
-  ['input', 'change'].forEach(function (ev) {
-    pick.addEventListener(ev, function () {
-      hex.value = String(pick.value).toUpperCase();
-    });
+  /* ── 1. ACCORDION (event delegation – paling reliable) ── */
+  document.addEventListener('click', function (e) {
+    var toggle = e.target.closest('[data-sec-toggle]');
+    if (!toggle) return;
+    /* cari parent yang punya data-sec */
+    var sec = toggle.parentElement;
+    while (sec && !sec.hasAttribute('data-sec')) sec = sec.parentElement;
+    if (!sec) return;
+    sec.classList.toggle('open');
   });
 
-  /* hex field → picker */
-  ['input', 'blur', 'change'].forEach(function (ev) {
-    hex.addEventListener(ev, function () {
-      var h = validHex(hex.value);
-      if (h) { pick.value = h; hex.value = h; }
-    });
-  });
-})();
+  /* ── 2. COLOR PICKER ↔ HEX TEXT (dual event, event delegation) ── */
+  var hexEl  = document.getElementById('color-hex');
+  var pickEl = document.getElementById('color-picker');
 
-/* ── 3. PROVIDER PILLS ── */
-(function () {
-  document.querySelectorAll('.prov-pill').forEach(function (pill) {
-    pill.addEventListener('click', function () {
-      document.querySelectorAll('.prov-pill').forEach(function (p) {
-        p.classList.remove('active');
-      });
-      pill.classList.add('active');
-      var inp = pill.querySelector('input[type=radio]');
-      if (inp) { inp.checked = true; }
-      updateModelHint();
-    });
-  });
-})();
-
-/* ── 4. MODEL HINTS ── */
-var hints = {
-  openrouter: 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>',
-  openai:     'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>',
-  google:     'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>',
-  deepseek:   'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>'
-};
-function updateModelHint() {
-  var checked = document.querySelector('input[name=ai_provider]:checked');
-  var box = document.getElementById('modelHint');
-  if (box) box.innerHTML = checked ? (hints[checked.value] || '') : '';
-}
-updateModelHint();
-
-/* ── 5. COPY EMBED (reliable, cross-browser) ── */
-(function () {
-  var embedText = <?= json_encode($embedSnippet, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-  var btn = document.getElementById('btnCopyEmbed');
-  if (!btn) return;
-
-  function fallbackCopy(text) {
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    try { document.execCommand('copy'); } catch(e) {}
-    document.body.removeChild(ta);
+  function onPickerChange(v) {
+    if (hexEl) hexEl.value = v.toUpperCase();
+  }
+  function isValidHex(v) {
+    return /^#[0-9a-fA-F]{6}$/.test(String(v).trim());
   }
 
-  btn.addEventListener('click', function (e) {
-    e.preventDefault();
+  if (pickEl) {
+    /* Kedua event: 'input' saat drag, 'change' saat tutup picker */
+    pickEl.addEventListener('input',  function () { onPickerChange(this.value); });
+    pickEl.addEventListener('change', function () { onPickerChange(this.value); });
+  }
+  if (hexEl) {
+    hexEl.addEventListener('input', function () {
+      if (isValidHex(this.value) && pickEl) pickEl.value = this.value;
+    });
+    hexEl.addEventListener('blur', function () {
+      if (!isValidHex(this.value)) { this.value = pickEl ? pickEl.value.toUpperCase() : ''; }
+    });
+  }
+
+  /* ── 3. PROVIDER PILLS ── */
+  document.addEventListener('click', function (e) {
+    var pill = e.target.closest('.prov-pill');
+    if (!pill) return;
+    document.querySelectorAll('.prov-pill').forEach(function (p) { p.classList.remove('active'); });
+    pill.classList.add('active');
+    var radio = pill.querySelector('input[type=radio]');
+    if (radio) radio.checked = true;
+    updateModelHint();
+  });
+
+  /* ── 4. MODEL HINTS ── */
+  var hints = {
+    openrouter: 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>',
+    openai:     'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>',
+    google:     'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>',
+    deepseek:   'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>'
+  };
+  window.updateModelHint = function () {
+    var checked = document.querySelector('input[name=ai_provider]:checked');
+    var box = document.getElementById('modelHint');
+    if (box) box.innerHTML = checked ? (hints[checked.value] || '') : '';
+  };
+  updateModelHint();
+
+  /* ── 5. COPY EMBED ── */
+  var _embedText = <?= json_encode($embedSnippet, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+  var _checkSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  window.cpCopyEmbed = function () {
+    var btn = document.getElementById('btnCopyEmbed');
+    if (!btn) return;
     var orig = btn.innerHTML;
-    var checkSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
 
-    function onSuccess() {
-      btn.innerHTML = checkSvg + ' Tersalin!';
-      btn.style.background = 'linear-gradient(135deg,rgba(0,229,154,.4),rgba(0,229,154,.25))';
-      btn.style.borderColor = 'var(--green)';
-      setTimeout(function () {
-        btn.innerHTML = orig;
-        btn.style.background = '';
-        btn.style.borderColor = '';
-      }, 2200);
-    }
-    function onFail() {
-      fallbackCopy(embedText);
-      onSuccess(); /* assume execCommand worked */
+    function done() {
+      btn.innerHTML = _checkSVG + 'Tersalin!';
+      btn.style.background = 'rgba(0,229,154,.35)';
+      btn.style.color = '#031018';
+      setTimeout(function () { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2200);
     }
 
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(embedText).then(onSuccess).catch(onFail);
+      navigator.clipboard.writeText(_embedText).then(done).catch(function () {
+        /* fallback */
+        var ta = document.createElement('textarea');
+        ta.value = _embedText;
+        ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(x) {}
+        document.body.removeChild(ta);
+        done();
+      });
     } else {
-      fallbackCopy(embedText);
-      onSuccess();
+      var ta = document.createElement('textarea');
+      ta.value = _embedText;
+      ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch(x) {}
+      document.body.removeChild(ta);
+      done();
     }
-  });
+  };
+
 })();
 </script>
 </body>

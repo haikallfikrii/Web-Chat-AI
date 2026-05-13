@@ -259,13 +259,42 @@
 
       /* ─ Input Area ─ */
       #cw-input-area {
-        padding: 12px 14px;
+        padding: 8px 12px 10px;
         border-top: 1px solid #F3F4F6;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex-shrink: 0;
+        background: #fff;
+      }
+      /* Preview gambar sebelum kirim */
+      #cw-img-preview {
+        display: none;
+        position: relative;
+        width: 64px; height: 64px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid ${primaryColor};
+        margin-left: 4px;
+        flex-shrink: 0;
+      }
+      #cw-img-preview img {
+        width: 100%; height: 100%;
+        object-fit: cover; display: block;
+      }
+      #cw-img-preview-remove {
+        position: absolute; top: 2px; right: 2px;
+        width: 18px; height: 18px; border-radius: 50%;
+        background: rgba(0,0,0,.65); color: #fff;
+        border: none; cursor: pointer;
+        font-size: 12px; line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        padding: 0;
+      }
+      #cw-input-row {
         display: flex;
         gap: 8px;
         align-items: flex-end;
-        flex-shrink: 0;
-        background: #fff;
       }
       #cw-input {
         flex: 1;
@@ -286,8 +315,36 @@
       #cw-input:focus { border-color: ${primaryColor}; background: #fff; }
       #cw-input::placeholder { color: #9CA3AF; }
 
+      #cw-img-btn {
+        width: 36px; height: 36px;
+        flex-shrink: 0;
+        background: #F3F4F6;
+        border: 1.5px solid #E5E7EB;
+        border-radius: 9px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background .15s, border-color .15s;
+        outline: none;
+        color: #6B7280;
+        margin-bottom: 2px;
+      }
+      #cw-img-btn:hover { background: #E5E7EB; border-color: ${primaryColor}; color: ${primaryColor}; }
+      #cw-img-btn svg { width: 17px; height: 17px; }
+      #cw-img-file { display: none; }
+
+      /* Bubble gambar */
+      .cw-bubble img.cw-img-attach {
+        max-width: 200px; max-height: 200px;
+        border-radius: 10px;
+        display: block;
+        margin-top: 4px;
+        cursor: pointer;
+      }
+
       #cw-send {
-        width: 40px; height: 40px;
+        width: 38px; height: 38px;
         flex-shrink: 0;
         background: ${primaryColor};
         border: none;
@@ -298,6 +355,7 @@
         justify-content: center;
         transition: opacity .15s, transform .1s;
         outline: none;
+        margin-bottom: 2px;
       }
       #cw-send:hover:not(:disabled)   { opacity: .88; }
       #cw-send:active:not(:disabled)  { transform: scale(.94); }
@@ -373,16 +431,29 @@
         <div id="cw-messages" role="log" aria-live="polite" aria-atomic="false"></div>
 
         <div id="cw-input-area">
-          <textarea
-            id="cw-input"
-            placeholder="Tulis pesan..."
-            rows="1"
-            maxlength="4000"
-            aria-label="Tulis pesan"
-          ></textarea>
-          <button id="cw-send" aria-label="Kirim pesan" disabled>
-            ${ICON_SEND}
-          </button>
+          <div id="cw-img-preview">
+            <img id="cw-img-preview-img" src="" alt="preview">
+            <button id="cw-img-preview-remove" aria-label="Hapus gambar">&#x2715;</button>
+          </div>
+          <div id="cw-input-row">
+            <input type="file" id="cw-img-file" accept="image/*" aria-hidden="true">
+            <button id="cw-img-btn" type="button" title="Lampirkan foto" aria-label="Upload foto">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </button>
+            <textarea
+              id="cw-input"
+              placeholder="Tulis pesan..."
+              rows="1"
+              maxlength="4000"
+              aria-label="Tulis pesan"
+            ></textarea>
+            <button id="cw-send" aria-label="Kirim pesan" disabled>
+              ${ICON_SEND}
+            </button>
+          </div>
         </div>
 
         <div id="cw-footer">
@@ -411,12 +482,23 @@
   }
 
   // ── Tambah bubble pesan ────────────────────────────────────
-  function appendBubble(messagesEl, role, text) {
+  function appendBubble(messagesEl, role, text, imageDataUrl) {
     const wrapper = document.createElement("div");
 
     const bubble = document.createElement("div");
     bubble.className = "cw-bubble " + role;
-    bubble.textContent = text;
+    if (text) bubble.textContent = text;
+
+    // Tampilkan gambar di dalam bubble
+    if (imageDataUrl) {
+      const img = document.createElement("img");
+      img.className = "cw-img-attach";
+      img.src = imageDataUrl;
+      img.alt = "Foto yang dikirim";
+      img.loading = "lazy";
+      img.onclick = () => window.open(imageDataUrl, "_blank");
+      bubble.appendChild(img);
+    }
 
     const time = document.createElement("div");
     time.className = "cw-time";
@@ -465,17 +547,21 @@
   }
 
   // ── Kirim pesan ke backend ─────────────────────────────────
-  async function sendMessage(message) {
+  async function sendMessage(message, imageDataUrl) {
+    const body = {
+      session_id: STATE.sessionId,
+      message:    message || "",
+    };
+    // Sertakan gambar sebagai base64 jika ada (untuk provider vision-capable)
+    if (imageDataUrl) body.image = imageDataUrl;
+
     const res = await fetch(`${BASE_URL}/api/chat.php`, {
       method:  "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Api-Key":    API_KEY,
       },
-      body: JSON.stringify({
-        session_id: STATE.sessionId,
-        message:    message,
-      }),
+      body: JSON.stringify(body),
     });
 
     const data = await res.json();
@@ -547,13 +633,19 @@
     shadow.appendChild(container);
 
     // ── Referensi elemen ───────────────────────────────────
-    const toggleBtn  = shadow.getElementById("cw-toggle");
-    const chatWindow = shadow.getElementById("cw-window");
-    const messagesEl = shadow.getElementById("cw-messages");
-    const inputEl    = shadow.getElementById("cw-input");
-    const sendBtn    = shadow.getElementById("cw-send");
-    const badge      = shadow.getElementById("cw-badge");
+    const toggleBtn    = shadow.getElementById("cw-toggle");
+    const chatWindow   = shadow.getElementById("cw-window");
+    const messagesEl   = shadow.getElementById("cw-messages");
+    const inputEl      = shadow.getElementById("cw-input");
+    const sendBtn      = shadow.getElementById("cw-send");
+    const badge        = shadow.getElementById("cw-badge");
+    const imgBtn       = shadow.getElementById("cw-img-btn");
+    const imgFile      = shadow.getElementById("cw-img-file");
+    const imgPreview   = shadow.getElementById("cw-img-preview");
+    const imgPreviewEl = shadow.getElementById("cw-img-preview-img");
+    const imgRemoveBtn = shadow.getElementById("cw-img-preview-remove");
 
+    let pendingImageB64 = null; // base64 data URL gambar yang dipilih
     let unreadCount = 0;
 
     // ── Tampilkan welcome message ──────────────────────────
@@ -598,10 +690,47 @@
       }
     });
 
+    // ── Image upload handler ────────────────────────────────
+    function setPendingImage(dataUrl) {
+      pendingImageB64 = dataUrl;
+      imgPreviewEl.src = dataUrl;
+      imgPreview.style.display = "block";
+      // Aktifkan tombol kirim meski textarea kosong
+      sendBtn.disabled = STATE.isLoading;
+    }
+    function clearPendingImage() {
+      pendingImageB64 = null;
+      imgPreview.style.display = "none";
+      imgPreviewEl.src = "";
+      imgFile.value = "";
+      sendBtn.disabled = inputEl.value.trim() === "" || STATE.isLoading;
+    }
+
+    if (imgBtn) {
+      imgBtn.addEventListener("click", () => imgFile && imgFile.click());
+    }
+    if (imgFile) {
+      imgFile.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+          alert("Ukuran foto maksimal 5 MB.");
+          imgFile.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => setPendingImage(ev.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+    if (imgRemoveBtn) {
+      imgRemoveBtn.addEventListener("click", clearPendingImage);
+    }
+
     // ── Validasi input & aktifkan tombol kirim ─────────────
     inputEl.addEventListener("input", () => {
       autoResize(inputEl);
-      sendBtn.disabled = inputEl.value.trim() === "" || STATE.isLoading;
+      sendBtn.disabled = (inputEl.value.trim() === "" && !pendingImageB64) || STATE.isLoading;
     });
 
     // Kirim dengan Enter; stop semua keydown agar tidak scroll halaman host
@@ -619,19 +748,26 @@
     // ── Handler kirim pesan ────────────────────────────────
     async function handleSend() {
       const message = inputEl.value.trim();
-      if (!message || STATE.isLoading) return;
+      const imageToSend = pendingImageB64;
+
+      if (!message && !imageToSend) return;
+      if (STATE.isLoading) return;
 
       STATE.isLoading = true;
       sendBtn.disabled = true;
       inputEl.value = "";
       autoResize(inputEl);
 
-      appendBubble(messagesEl, "user", message);
+      // Tampilkan bubble user (teks + gambar jika ada)
+      appendBubble(messagesEl, "user", message, imageToSend);
+
+      // Bersihkan pending image setelah ambil referensinya
+      clearPendingImage();
 
       const typingEl = showTyping(messagesEl);
 
       try {
-        const reply = await sendMessage(message);
+        const reply = await sendMessage(message, imageToSend);
         hideTyping(messagesEl);
         appendBubble(messagesEl, "bot", reply);
 
@@ -651,7 +787,7 @@
         console.error("[ChatWidget] Error:", raw);
       } finally {
         STATE.isLoading = false;
-        sendBtn.disabled = inputEl.value.trim() === "";
+        sendBtn.disabled = inputEl.value.trim() === "" && !pendingImageB64;
         inputEl.focus();
       }
     }
