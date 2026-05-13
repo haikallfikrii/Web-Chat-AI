@@ -201,10 +201,25 @@ button.sec-head{
 
 /* ── PROVIDER PILLS ────────────────────────────────────────── */
 .prov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
-.prov-pill{padding:10px 12px;border-radius:10px;cursor:pointer;text-align:center;font-size:13px;font-weight:600;
-  background:rgba(10,15,26,.5);border:1.5px solid var(--border-2);color:var(--text-2);transition:all .2s}
-.prov-pill:hover{border-color:var(--green-line);color:var(--text)}
-.prov-pill.active{background:var(--green-dim);border-color:var(--green-line);color:var(--green)}
+.prov-pill{
+  padding:12px 12px;border-radius:10px;cursor:pointer;text-align:center;font-size:13px;font-weight:600;
+  background:rgba(10,15,26,.5);border:1.5px solid var(--border-2);color:var(--text-2);
+  transition:all .2s;position:relative;
+}
+.prov-pill:hover{border-color:rgba(0,229,154,.35);color:var(--text);background:rgba(255,255,255,.04)}
+.prov-pill.active{
+  background:rgba(0,229,154,.18);
+  border:2px solid var(--green);
+  color:var(--green);
+  box-shadow:0 0 0 3px rgba(0,229,154,.12),0 4px 16px rgba(0,229,154,.2);
+}
+.prov-pill.active::before{
+  content:'✓';
+  position:absolute;top:6px;right:8px;
+  font-size:11px;font-weight:900;
+  color:var(--green);opacity:1;
+}
+.prov-pill.active > div:first-child{color:var(--green);font-weight:800}
 
 /* ── HINT BOX ──────────────────────────────────────────────── */
 .hint-box{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.55;
@@ -297,8 +312,8 @@ button.sec-head{
       <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
       <!-- TAMPILAN -->
-      <div class="glass sec open" data-sec>
-        <button type="button" class="sec-head" data-sec-toggle>
+      <div class="glass sec open" data-sec="1">
+        <button type="button" class="sec-head" data-sec-toggle="1">
           <span class="sec-icon"><?= icon('palette', 18) ?></span>
           <span class="sec-title">Tampilan Widget</span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
@@ -322,8 +337,10 @@ button.sec-head{
               <input type="text" id="color-hex" name="primary_color" class="input"
                      value="<?= e($primaryColor) ?>" placeholder="#00E59A"
                      maxlength="9" pattern="#[0-9a-fA-F]{6}">
-              <div class="color-swatch">
-                <input type="color" id="color-picker" value="<?= e($primaryColor) ?>">
+              <div class="color-swatch" title="Klik untuk buka palet warna">
+                <input type="color" id="color-picker" value="<?= e($primaryColor) ?>"
+                  oninput="(function(v){var h=document.getElementById('color-hex');if(h)h.value=v.toUpperCase();})(this.value)"
+                  onchange="(function(v){var h=document.getElementById('color-hex');if(h)h.value=v.toUpperCase();})(this.value)">
               </div>
             </div>
           </div>
@@ -331,8 +348,8 @@ button.sec-head{
       </div>
 
       <!-- AI -->
-      <div class="glass sec open" data-sec>
-        <button type="button" class="sec-head" data-sec-toggle>
+      <div class="glass sec open" data-sec="1">
+        <button type="button" class="sec-head" data-sec-toggle="1">
           <span class="sec-icon"><?= icon('bot', 18) ?></span>
           <span class="sec-title">Konfigurasi AI</span>
           <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
@@ -385,7 +402,7 @@ button.sec-head{
                      autocomplete="new-password">
               <button type="button" class="input-action pw-toggle-btn" data-pw-target="ai_api_key" aria-label="Tampilkan API key" aria-pressed="false">
                 <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
-                <span class="pw-ico-hide" hidden><?= icon('eye-off', 18) ?></span>
+                <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
               </button>
             </div>
           </div>
@@ -402,8 +419,8 @@ button.sec-head{
       </div>
 
       <!-- DOMAIN -->
-      <div class="glass sec" data-sec>
-        <button type="button" class="sec-head" data-sec-toggle>
+      <div class="glass sec" data-sec="1">
+        <button type="button" class="sec-head" data-sec-toggle="1">
           <span class="sec-icon"><?= icon('shield', 18) ?></span>
           <span class="sec-title">Keamanan Domain</span>
           <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
@@ -428,8 +445,8 @@ button.sec-head{
       </div>
 
       <!-- TELEGRAM -->
-      <div class="glass sec" data-sec>
-        <button type="button" class="sec-head" data-sec-toggle>
+      <div class="glass sec" data-sec="1">
+        <button type="button" class="sec-head" data-sec-toggle="1">
           <span class="sec-icon"><?= icon('phone', 18) ?></span>
           <span class="sec-title">Notifikasi Telegram</span>
           <?php if ($tgSet): ?><span class="head-badge hb-ok">Aktif</span><?php endif; ?>
@@ -536,66 +553,77 @@ button.sec-head{
 
 <script src="/js/ui.js"></script>
 <script>
-window.__CP_EMBED = <?= json_encode($embedSnippet, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-</script>
-<script>
-/* ── Section accordion ── */
-document.querySelectorAll('[data-sec-toggle]').forEach(function (head) {
-  head.addEventListener('click', function (ev) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    var sec = head.closest('[data-sec]');
-    if (sec) sec.classList.toggle('open');
-  });
-});
+/* ======================================================
+ * Dashboard interactive scripts
+ * ====================================================== */
 
-/* ── Color picker ↔ hex text (picker + manual hex) ── */
+/* ── 1. ACCORDION ── */
 (function () {
-  var hex = document.getElementById('color-hex');
+  function initAccordion() {
+    var btns = document.querySelectorAll('[data-sec-toggle]');
+    btns.forEach(function (btn) {
+      if (btn._secBound) return;
+      btn._secBound = true;
+      btn.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        /* climb up until we find element with data-sec attribute */
+        var el = btn.parentElement;
+        while (el && !el.hasAttribute('data-sec')) el = el.parentElement;
+        if (el) el.classList.toggle('open');
+      });
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccordion);
+  } else {
+    initAccordion();
+  }
+})();
+
+/* ── 2. COLOR PICKER ↔ HEX TEXT ── */
+(function () {
+  var hex  = document.getElementById('color-hex');
   var pick = document.getElementById('color-picker');
   if (!hex || !pick) return;
 
-  function normalizeHex(v) {
+  function validHex(v) {
     v = String(v || '').trim();
-    if (/^#[0-9a-fA-F]{6}$/.test(v)) return v.toUpperCase();
-    return null;
+    return /^#[0-9a-fA-F]{6}$/.test(v) ? v.toUpperCase() : null;
   }
 
-  function syncPickerFromHex() {
-    var h = normalizeHex(hex.value);
-    if (h) {
-      pick.value = h;
-      hex.value = h;
-    }
-  }
-
-  function syncHexFromPicker() {
-    hex.value = String(pick.value || '').toUpperCase();
-  }
-
-  pick.addEventListener('input', syncHexFromPicker);
-  pick.addEventListener('change', syncHexFromPicker);
-  hex.addEventListener('input', function () {
-    var h = normalizeHex(hex.value);
-    if (h) pick.value = h;
+  /* picker → hex field */
+  ['input', 'change'].forEach(function (ev) {
+    pick.addEventListener(ev, function () {
+      hex.value = String(pick.value).toUpperCase();
+    });
   });
-  hex.addEventListener('blur', syncPickerFromHex);
-  hex.addEventListener('change', syncPickerFromHex);
-  syncPickerFromHex();
+
+  /* hex field → picker */
+  ['input', 'blur', 'change'].forEach(function (ev) {
+    hex.addEventListener(ev, function () {
+      var h = validHex(hex.value);
+      if (h) { pick.value = h; hex.value = h; }
+    });
+  });
 })();
 
-/* ── Provider radio pills ── */
-document.querySelectorAll('.prov-pill').forEach(function (pill) {
-  pill.addEventListener('click', function () {
-    document.querySelectorAll('.prov-pill').forEach(function (p) { p.classList.remove('active'); });
-    pill.classList.add('active');
-    var inp = pill.querySelector('input[type=radio]');
-    if (inp) inp.checked = true;
-    updateModelHint();
+/* ── 3. PROVIDER PILLS ── */
+(function () {
+  document.querySelectorAll('.prov-pill').forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      document.querySelectorAll('.prov-pill').forEach(function (p) {
+        p.classList.remove('active');
+      });
+      pill.classList.add('active');
+      var inp = pill.querySelector('input[type=radio]');
+      if (inp) { inp.checked = true; }
+      updateModelHint();
+    });
   });
-});
+})();
 
-/* ── Model hints ── */
+/* ── 4. MODEL HINTS ── */
 var hints = {
   openrouter: 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>',
   openai:     'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>',
@@ -604,33 +632,55 @@ var hints = {
 };
 function updateModelHint() {
   var checked = document.querySelector('input[name=ai_provider]:checked');
-  var hintBox = document.getElementById('modelHint');
-  if (checked && hintBox) hintBox.innerHTML = hints[checked.value] || '';
+  var box = document.getElementById('modelHint');
+  if (box) box.innerHTML = checked ? (hints[checked.value] || '') : '';
 }
 updateModelHint();
 
-/* ── Copy embed (aman untuk parser HTML) ── */
-var btnEmbed = document.getElementById('btnCopyEmbed');
-if (btnEmbed && window.__CP_EMBED && window.CPUI) {
-  btnEmbed.addEventListener('click', function (e) {
+/* ── 5. COPY EMBED (reliable, cross-browser) ── */
+(function () {
+  var embedText = <?= json_encode($embedSnippet, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+  var btn = document.getElementById('btnCopyEmbed');
+  if (!btn) return;
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+
+  btn.addEventListener('click', function (e) {
     e.preventDefault();
-    var orig = btnEmbed.innerHTML;
-    CPUI.copyToClipboard(window.__CP_EMBED)
-      .then(function () {
-        btnEmbed.innerHTML =
-          '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg> Berhasil disalin';
-        btnEmbed.style.background = 'rgba(0,229,154,.22)';
-        setTimeout(function () {
-          btnEmbed.innerHTML = orig;
-          btnEmbed.style.background = '';
-        }, 2000);
-      })
-      .catch(function () {
-        btnEmbed.textContent = 'Gagal salin — coba HTTPS atau izin clipboard';
-        setTimeout(function () { btnEmbed.innerHTML = orig; }, 2600);
-      });
+    var orig = btn.innerHTML;
+    var checkSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
+
+    function onSuccess() {
+      btn.innerHTML = checkSvg + ' Tersalin!';
+      btn.style.background = 'linear-gradient(135deg,rgba(0,229,154,.4),rgba(0,229,154,.25))';
+      btn.style.borderColor = 'var(--green)';
+      setTimeout(function () {
+        btn.innerHTML = orig;
+        btn.style.background = '';
+        btn.style.borderColor = '';
+      }, 2200);
+    }
+    function onFail() {
+      fallbackCopy(embedText);
+      onSuccess(); /* assume execCommand worked */
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(embedText).then(onSuccess).catch(onFail);
+    } else {
+      fallbackCopy(embedText);
+      onSuccess();
+    }
   });
-}
+})();
 </script>
 </body>
 </html>

@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    placeholder="••••••••" required autocomplete="current-password">
             <button type="button" class="input-action pw-toggle-btn" data-pw-target="password" aria-label="Tampilkan password" aria-pressed="false">
               <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
-              <span class="pw-ico-hide" hidden><?= icon('eye-off', 18) ?></span>
+              <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
             </button>
           </div>
         </div>

@@ -170,8 +170,12 @@ svg{flex-shrink:0}
   place-items:center;position:relative;padding:0;
   flex-shrink:0;
 }
+/* Kedua ikon saling menumpuk di satu cell, toggle dengan .pw-hidden */
 .nav-burger .nav-ico-menu,.nav-burger .nav-ico-close{
-  grid-area:1/1;display:grid;place-items:center;
+  grid-area:1/1;display:grid;place-items:center;transition:opacity .2s,transform .2s;
+}
+.nav-burger .nav-ico-menu.pw-hidden,.nav-burger .nav-ico-close.pw-hidden{
+  display:none!important;
 }
 .nav-burger .nav-ico-menu svg,.nav-burger .nav-ico-close svg{width:20px;height:20px}
 
@@ -262,8 +266,11 @@ svg{flex-shrink:0}
   color:var(--muted);cursor:pointer;display:grid;place-items:center;
   transition:all .2s;z-index:3;padding:0;
 }
-.input-wrap .input-action:hover{color:var(--text);background:rgba(255,255,255,.06)}
-.pw-toggle-btn .pw-ico-hide[hidden]{display:none!important}
+/* Hover hijau agar tidak bentrok dgn background input yg terang */
+.input-wrap .input-action:hover{color:var(--green);background:rgba(0,229,154,.12)}
+.input-wrap .input-action:hover svg{filter:drop-shadow(0 0 4px rgba(0,229,154,.5))}
+/* Sembunyikan span ikon via class (menimpa display:grid yg tersirat) */
+.pw-ico-show.pw-hidden,.pw-ico-hide.pw-hidden{display:none!important}
 .input-wrap .input-action svg{width:18px;height:18px}
 .input-wrap .input-action ~ .input,
 .input-wrap .input:has(~ .input-action){padding-right:46px}

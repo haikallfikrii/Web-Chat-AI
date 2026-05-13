@@ -33,6 +33,13 @@
     root.querySelectorAll('[data-pw-target]').forEach(function (btn) {
       if (btn.dataset.cpPwBound) return;
       btn.dataset.cpPwBound = '1';
+      /* Pastikan state awal benar: show visible, hide tersembunyi */
+      var initA = btn.querySelector('.pw-ico-show');
+      var initB = btn.querySelector('.pw-ico-hide');
+      if (initA && initB) {
+        initA.classList.remove('pw-hidden');
+        initB.classList.add('pw-hidden');
+      }
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -46,8 +53,9 @@
         var a = btn.querySelector('.pw-ico-show');
         var b = btn.querySelector('.pw-ico-hide');
         if (a && b) {
-          a.hidden = !!showPlain;
-          b.hidden = !showPlain;
+          /* Use CSS class so display:grid on .nav-ico-* can't override it */
+          a.classList.toggle('pw-hidden', !!showPlain);
+          b.classList.toggle('pw-hidden', !showPlain);
         }
       });
     });
