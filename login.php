@@ -1,29 +1,28 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/icons.php';
 
 if (current_user() !== null) { header('Location: /dashboard.php'); exit; }
 
-$error   = '';
-$success = '';
+$error    = '';
+$success  = '';
+$prefill  = trim((string) ($_POST['email'] ?? $_GET['email'] ?? ''));
 
-if (isset($_GET['logged_out'])) {
-    $success = 'Anda berhasil keluar. Sampai jumpa! 👋';
-}
+if (isset($_GET['logged_out']))     $success = 'Anda berhasil keluar. Sampai jumpa!';
+if (isset($_GET['password_reset'])) $success = 'Password baru tersimpan. Silakan masuk kembali.';
+if (isset($_GET['registered']))     $success = 'Akun berhasil dibuat. Selamat datang!';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf($_POST['csrf_token'] ?? '')) {
-        $error = 'Sesi tidak valid. Muat ulang halaman dan coba lagi.';
+        $error = 'Sesi tidak valid. Muat ulang halaman lalu coba lagi.';
     } else {
-        $result = attempt_login(
-            trim($_POST['email'] ?? ''),
-            $_POST['password'] ?? ''
-        );
+        $result = attempt_login($prefill, (string) ($_POST['password'] ?? ''));
         if ($result['ok']) {
             header('Location: /dashboard.php');
             exit;
         }
-        $error = $result['error'];
+        $error = $result['error'] ?? 'Login gagal.';
     }
 }
 ?>
@@ -31,150 +30,150 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030712">
 <title>Masuk — ChatPopup.AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/theme.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#030712;--bg2:#0D1117;--bg3:#161B22;--green:#00D68F;--green-dark:#00B077;
-  --green-dim:rgba(0,214,143,.15);--blue:#3B82F6;--purple:#8B5CF6;
-  --text:#E6EDF3;--muted:#7D8590;--border:rgba(255,255,255,.08);--card:rgba(22,27,34,.85);--r:18px}
-html{height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);min-height:100vh;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:linear-gradient(rgba(0,214,143,.025) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(0,214,143,.025) 1px,transparent 1px);
-  background-size:64px 64px}
-.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
-.orb1{width:600px;height:600px;top:-180px;right:-150px;
-  background:radial-gradient(circle,rgba(0,214,143,.12),transparent 70%);
-  animation:orb1 16s ease-in-out infinite}
-.orb2{width:500px;height:500px;bottom:-180px;left:-120px;
-  background:radial-gradient(circle,rgba(59,130,246,.1),transparent 70%);
-  animation:orb2 20s ease-in-out infinite}
-@keyframes orb1{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,20px)}}
-@keyframes orb2{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-20px)}}
-/* ── LOGO ── */
-.logo{position:fixed;top:0;left:0;right:0;z-index:10;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 32px;background:rgba(3,7,18,.7);backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--border)}
-.logo-text{font-size:18px;font-weight:900;letter-spacing:-.5px;
-  background:linear-gradient(135deg,var(--green),var(--blue));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.logo-link{font-size:14px;color:var(--muted);transition:color .2s}
-.logo-link:hover{color:var(--green)}
-/* ── CARD ── */
-.card{position:relative;z-index:1;
-  width:100%;max-width:420px;
-  background:var(--card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border:1px solid rgba(0,214,143,.15);border-radius:24px;
-  padding:40px 36px;
-  box-shadow:0 24px 80px rgba(0,0,0,.5),0 0 0 1px rgba(0,214,143,.05);
-  animation:cardIn .7s cubic-bezier(.22,1,.36,1) both}
-@keyframes cardIn{from{opacity:0;transform:translateY(32px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-.card-head{text-align:center;margin-bottom:32px}
-.card-icon{width:56px;height:56px;border-radius:18px;margin:0 auto 16px;
-  display:flex;align-items:center;justify-content:center;font-size:26px;
-  background:var(--green-dim);border:1px solid rgba(0,214,143,.25)}
-.card-head h1{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
-.card-head p{color:var(--muted);font-size:14px}
-/* ── ALERTS ── */
-.alert{padding:12px 16px;border-radius:12px;font-size:14px;margin-bottom:20px;
-  display:flex;align-items:flex-start;gap:8px;line-height:1.5}
-.alert-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#FCA5A5}
-.alert-success{background:rgba(0,214,143,.08);border:1px solid rgba(0,214,143,.2);color:var(--green)}
-/* ── FORM ── */
-.form-group{margin-bottom:18px}
-label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
-input{width:100%;background:rgba(13,17,23,.8);border:1.5px solid var(--border);
-  border-radius:12px;padding:12px 16px;font-size:15px;color:var(--text);
-  outline:none;transition:all .2s;font-family:inherit}
-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,214,143,.12);background:rgba(22,27,34,.9)}
-input::placeholder{color:var(--muted)}
-.pw-wrap{position:relative}
-.pw-wrap input{padding-right:44px}
-.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  cursor:pointer;color:var(--muted);background:none;border:none;padding:4px;font-size:16px;
-  transition:color .2s}
-.pw-toggle:hover{color:var(--text)}
-.forgot{font-size:13px;color:var(--muted);margin-top:6px;display:block;
-  text-align:right}
-.forgot:hover{color:var(--green)}
-/* ── BUTTON ── */
-.btn-submit{width:100%;padding:14px;border-radius:12px;border:none;cursor:pointer;
-  font-size:16px;font-weight:700;color:#030712;
-  background:linear-gradient(135deg,var(--green),var(--green-dark));
-  position:relative;overflow:hidden;transition:all .25s;font-family:inherit;margin-top:8px}
-.btn-submit::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.3) 50%,transparent 60%);
-  background-size:200% 100%;animation:shimmer 3s infinite}
-@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-.btn-submit:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,214,143,.3)}
-.btn-submit:active{transform:translateY(0)}
-/* ── DIVIDER ── */
-.divider{display:flex;align-items:center;gap:12px;margin:24px 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.divider span{font-size:12px;color:var(--muted)}
-/* ── REGISTER LINK ── */
-.register-link{text-align:center;font-size:14px;color:var(--muted)}
-.register-link a{color:var(--green);font-weight:700;transition:opacity .2s}
-.register-link a:hover{opacity:.8}
+.auth-shell{min-height:100vh;display:flex;flex-direction:column;padding:0 20px}
+.auth-top{position:sticky;top:0;z-index:30;
+  background:rgba(3,7,18,.72);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  margin:0 -20px;padding:0 24px;height:64px;
+  display:flex;align-items:center;justify-content:space-between}
+.auth-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2);transition:color .2s}
+.auth-back:hover{color:var(--green)}
+.auth-back svg{width:16px;height:16px}
+.auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 0}
+.auth-card{
+  position:relative;z-index:1;width:100%;max-width:440px;
+  background:var(--glass-2);
+  backdrop-filter:blur(28px) saturate(150%);
+  -webkit-backdrop-filter:blur(28px) saturate(150%);
+  border:1px solid var(--border-2);border-radius:var(--r-xl);
+  padding:42px 38px;
+  box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 0 1px rgba(0,229,154,.04);
+  animation:cardIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.auth-card::before{
+  content:'';position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(135deg,rgba(0,229,154,.3),transparent 40%,transparent 60%,rgba(34,211,238,.18));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:1px;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(28px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.auth-head{text-align:center;margin-bottom:30px}
+.auth-icon{
+  width:60px;height:60px;border-radius:18px;margin:0 auto 18px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--green),var(--green-2));color:#031018;
+  box-shadow:0 12px 32px rgba(0,229,154,.35),inset 0 1px 0 rgba(255,255,255,.4);
+}
+.auth-icon svg{width:28px;height:28px;stroke-width:2.4}
+.auth-title{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:7px}
+.auth-sub{color:var(--text-2);font-size:14.5px}
+.auth-row-meta{display:flex;align-items:center;justify-content:space-between;margin-top:-6px;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.auth-row-meta a{font-size:13px;color:var(--green);font-weight:600;transition:opacity .2s}
+.auth-row-meta a:hover{opacity:.8}
+.auth-checkbox{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-2);cursor:pointer;user-select:none}
+.auth-checkbox input{width:16px;height:16px;accent-color:var(--green);cursor:pointer}
+.auth-foot{text-align:center;font-size:14px;color:var(--text-2);margin-top:4px}
+.auth-foot a{color:var(--green);font-weight:700}
 </style>
 </head>
 <body>
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
-<div class="logo">
-  <a href="/" class="logo-text">ChatPopup.AI</a>
-  <a href="/" class="logo-link">← Kembali</a>
-</div>
+<div class="auth-shell">
 
-<div class="card">
-  <div class="card-head">
-    <div class="card-icon">🚀</div>
-    <h1>Selamat Datang</h1>
-    <p>Masuk ke dashboard Anda</p>
+  <div class="auth-top">
+    <a href="/" class="brand">
+      <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
+      <span class="brand-text">ChatPopup.AI</span>
+    </a>
+    <a href="/" class="auth-back"><?= icon('arrow-left', 16) ?> Beranda</a>
   </div>
 
-  <?php if ($error): ?>
-    <div class="alert alert-error">⚠️ <?= e($error) ?></div>
-  <?php endif; ?>
-  <?php if ($success): ?>
-    <div class="alert alert-success">✓ <?= e($success) ?></div>
-  <?php endif; ?>
-
-  <form method="POST" action="/login.php" autocomplete="on">
-    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="anda@email.com"
-             value="<?= e($_POST['email'] ?? '') ?>" required autocomplete="email">
-    </div>
-    <div class="form-group">
-      <label for="password">Password</label>
-      <div class="pw-wrap">
-        <input type="password" id="password" name="password" placeholder="••••••••"
-               required autocomplete="current-password">
-        <button type="button" class="pw-toggle" onclick="togglePw()">👁</button>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="auth-icon"><?= icon('rocket', 28) ?></div>
+        <h1 class="auth-title">Selamat Datang</h1>
+        <p class="auth-sub">Masuk ke dashboard Anda</p>
       </div>
-    </div>
-    <button type="submit" class="btn-submit">Masuk ke Dashboard</button>
-  </form>
 
-  <div class="divider"><span>Belum punya akun?</span></div>
-  <p class="register-link">
-    <a href="/register.php">Daftar gratis sekarang →</a>
-  </p>
+      <?php if ($error): ?>
+        <div class="alert alert-error"><?= icon('alert', 18) ?> <span><?= e($error) ?></span></div>
+      <?php endif; ?>
+      <?php if ($success): ?>
+        <div class="alert alert-success"><?= icon('check-circle', 18) ?> <span><?= e($success) ?></span></div>
+      <?php endif; ?>
+
+      <form method="POST" action="/login.php" autocomplete="on" novalidate>
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+
+        <div class="field">
+          <label class="field-label" for="email"><?= icon('mail', 14) ?> Email</label>
+          <div class="input-wrap">
+            <span class="input-icon"><?= icon('mail', 16) ?></span>
+            <input type="email" id="email" name="email" class="input"
+                   placeholder="anda@email.com" value="<?= e($prefill) ?>"
+                   required autocomplete="email" autofocus>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="password"><?= icon('lock', 14) ?> Password</label>
+          <div class="input-wrap">
+            <span class="input-icon"><?= icon('lock', 16) ?></span>
+            <input type="password" id="password" name="password" class="input"
+                   placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" class="input-action" data-toggle="password" aria-label="Tampilkan password">
+              <?= icon('eye', 18) ?>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-row-meta">
+          <label class="auth-checkbox">
+            <input type="checkbox" name="remember" value="1"> Ingat saya
+          </label>
+          <a href="/forgot-password.php<?= $prefill ? '?email=' . urlencode($prefill) : '' ?>">Lupa password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          Masuk ke Dashboard <?= icon('arrow-right', 16) ?>
+        </button>
+      </form>
+
+      <div class="divider">Belum punya akun?</div>
+      <p class="auth-foot">
+        <a href="/register.php">Daftar gratis sekarang <?= icon('arrow-right', 14) ?></a>
+      </p>
+    </div>
+  </div>
+
 </div>
 
 <script>
-function togglePw(){
-  var f=document.getElementById('password');
-  f.type = f.type==='password' ? 'text' : 'password';
-}
+// Password visibility toggle
+document.querySelectorAll('[data-toggle]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var id = btn.getAttribute('data-toggle');
+    var input = document.getElementById(id);
+    if(!input) return;
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+    btn.innerHTML = show
+      ? '<?= addslashes(icon('eye-off', 18)) ?>'
+      : '<?= addslashes(icon('eye', 18)) ?>';
+  });
+});
 </script>
 </body>
 </html>
