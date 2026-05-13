@@ -75,6 +75,28 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
+-- Tabel: users
+-- Login dashboard per client untuk mengatur widget sendiri
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS users (
+    id               INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    client_id        INT UNSIGNED    NOT NULL,
+    name             VARCHAR(120)    NOT NULL,
+    email            VARCHAR(255)    NOT NULL UNIQUE,
+    password_hash    VARCHAR(255)    NOT NULL,
+    role             ENUM('owner','admin') NOT NULL DEFAULT 'owner',
+    is_active        TINYINT(1)      NOT NULL DEFAULT 1,
+    last_login_at    DATETIME        NULL DEFAULT NULL,
+    created_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX idx_users_client (client_id),
+    INDEX idx_users_email_active (email, is_active),
+    CONSTRAINT fk_users_client FOREIGN KEY (client_id)
+        REFERENCES clients (id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ------------------------------------------------------------
 -- Contoh data dummy (isi ai_api_key dengan ciphertext dari encrypt_secret PHP)
 -- ------------------------------------------------------------
 INSERT INTO clients (name, email, api_key, subscription_status) VALUES
@@ -114,4 +136,25 @@ VALUES (
     '',
     0,
     NULL
+);
+
+-- ------------------------------------------------------------
+-- Contoh user dashboard
+-- Password contoh di bawah adalah placeholder hasil password_hash().
+-- Buat hash baru dengan: php scripts/generate_password_hash.php "PasswordKuatAnda"
+-- ------------------------------------------------------------
+INSERT INTO users (
+    client_id,
+    name,
+    email,
+    password_hash,
+    role,
+    is_active
+) VALUES (
+    (SELECT id FROM clients WHERE email = 'admin@toko-abc.com' LIMIT 1),
+    'Owner Toko ABC',
+    'owner@toko-abc.com',
+    '$2y$10$CHANGE_ME_WITH_PASSWORD_HASH',
+    'owner',
+    1
 );
