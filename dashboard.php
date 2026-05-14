@@ -131,14 +131,38 @@ button.sec-head{
 .sec-title{flex:1;font-size:15.5px;font-weight:700;color:var(--text)}
 .sec-chev{color:var(--muted);transition:transform .3s}
 .sec.open .sec-chev{transform:rotate(180deg)}
-.sec-body{padding:22px;display:none;animation:secIn .35s ease}
-.sec.open .sec-body{display:block}
-@keyframes secIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+/* Sec-body: hidden by default, animation HANYA saat expand */
+.sec-body{
+  padding:22px;
+  display:none!important;
+}
+.sec.open .sec-body{
+  display:block!important;
+  animation:secIn .3s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes secIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
 .head-badge{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;
   border:1px solid}
 .hb-ok{background:var(--green-dim);color:var(--green);border-color:var(--green-line)}
 .hb-warn{background:var(--yellow-dim);color:var(--yellow);border-color:var(--yellow-line)}
+
+/* ── AVATAR UPLOAD ─────────────────────────────────────────── */
+.avatar-row{display:flex;align-items:center;gap:16px}
+.avatar-preview{
+  width:72px;height:72px;border-radius:14px;flex-shrink:0;
+  background:var(--green-dim);border:2px solid var(--border-2);
+  display:grid;place-items:center;overflow:hidden;
+}
+.avatar-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar-placeholder{color:var(--green);display:flex;align-items:center;justify-content:center}
+.avatar-controls{flex:1}
+.btn-sm{padding:7px 14px;font-size:12.5px;border-radius:8px}
+.btn-outline{
+  background:transparent;border:1.5px solid var(--border-2);
+  color:var(--text-2);transition:all .2s;
+}
+.btn-outline:hover{border-color:var(--green);color:var(--green);background:var(--green-dim)}
 
 /* ── COLOR PICKER ──────────────────────────────────────────── */
 .color-row{display:grid;grid-template-columns:1fr 56px;gap:10px;align-items:center}
@@ -202,30 +226,35 @@ button.sec-head{
 /* ── PROVIDER PILLS ────────────────────────────────────────── */
 .prov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
 .prov-pill{
-  padding:13px 12px;border-radius:10px;cursor:pointer;text-align:center;
+  padding:12px 14px;border-radius:10px;cursor:pointer;text-align:left;
   font-size:13px;font-weight:600;line-height:1.35;
   background:rgba(8,13,28,.7);
   border:2px solid rgba(255,255,255,.08);
   color:rgba(169,180,194,.65);
   transition:border-color .18s,background .18s,color .18s,box-shadow .18s;
-  user-select:none;position:relative;
+  user-select:none;position:relative;display:block;
 }
-/* Hover: warna hijau samar */
+/* Hover = hijau samar */
 .prov-pill:hover{
   border-color:rgba(0,229,154,.45);
   color:var(--text);
-  background:rgba(0,229,154,.06);
+  background:rgba(0,229,154,.07);
 }
-/* Active: hijau penuh, jelas, tidak bisa salah lihat */
+/* Active = sama seperti hover tapi lebih kuat + garis kiri */
 .prov-pill.active{
-  background:rgba(0,229,154,.14);
   border-color:var(--green);
+  background:rgba(0,229,154,.13);
   color:var(--green);
-  box-shadow:0 0 0 3px rgba(0,229,154,.18),inset 0 1px 0 rgba(0,229,154,.15);
+  box-shadow:0 0 0 3px rgba(0,229,154,.18);
 }
-.prov-pill.active > div:first-of-type{
-  font-weight:800;
+/* Garis kiri hijau sebagai penanda aktif */
+.prov-pill.active::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;
+  width:3px;border-radius:2px 0 0 2px;
+  background:var(--green);
 }
+.prov-pill.active > div:first-of-type{font-weight:800}
 
 /* ── HINT BOX ──────────────────────────────────────────────── */
 .hint-box{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.55;
@@ -319,12 +348,44 @@ button.sec-head{
 
       <!-- TAMPILAN -->
       <div class="glass sec open" id="sec-tampilan" data-sec="1">
-        <button type="button" class="sec-head" onclick="document.getElementById('sec-tampilan').classList.toggle('open')">
+        <button type="button" class="sec-head" onclick="this.parentElement.classList.toggle('open')">
           <span class="sec-icon"><?= icon('palette', 18) ?></span>
           <span class="sec-title">Tampilan Widget</span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
         <div class="sec-body">
+
+          <?php
+            /* Avatar saat ini */
+            $avatarUrl = trim((string) ($settings['bot_avatar_url'] ?? ''));
+          ?>
+          <!-- AVATAR BOT -->
+          <div class="field">
+            <label class="field-label"><?= icon('image', 14) ?> Avatar Bot</label>
+            <div class="avatar-row">
+              <div class="avatar-preview" id="avatarPreviewWrap">
+                <?php if ($avatarUrl): ?>
+                  <img id="avatarPreview" src="<?= e($avatarUrl) ?>" alt="avatar">
+                <?php else: ?>
+                  <span id="avatarPreview" class="avatar-placeholder"><?= icon('bot', 22) ?></span>
+                <?php endif; ?>
+              </div>
+              <div class="avatar-controls">
+                <label class="btn btn-sm btn-outline" for="avatarFile" style="cursor:pointer">
+                  <?= icon('upload', 13) ?> Upload Foto
+                </label>
+                <input type="file" id="avatarFile" name="bot_avatar_file"
+                       accept="image/png,image/jpeg,image/webp,image/gif"
+                       style="display:none">
+                <input type="hidden" id="avatarUrlHidden" name="bot_avatar_url"
+                       value="<?= e($avatarUrl) ?>">
+                <p style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5">
+                  PNG/JPG/WEBP, max 2 MB.<br>Tampil di pojok atas jendela chat.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div class="field">
             <label class="field-label" for="bot_name"><?= icon('bot', 14) ?> Nama Bot</label>
             <input type="text" id="bot_name" name="bot_name" class="input"
@@ -353,7 +414,7 @@ button.sec-head{
 
       <!-- AI -->
       <div class="glass sec open" id="sec-ai" data-sec="1">
-        <button type="button" class="sec-head" onclick="document.getElementById('sec-ai').classList.toggle('open')">
+        <button type="button" class="sec-head" onclick="this.parentElement.classList.toggle('open')">
           <span class="sec-icon"><?= icon('bot', 18) ?></span>
           <span class="sec-title">Konfigurasi AI</span>
           <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
@@ -424,7 +485,7 @@ button.sec-head{
 
       <!-- DOMAIN -->
       <div class="glass sec" id="sec-domain" data-sec="1">
-        <button type="button" class="sec-head" onclick="document.getElementById('sec-domain').classList.toggle('open')">
+        <button type="button" class="sec-head" onclick="this.parentElement.classList.toggle('open')">
           <span class="sec-icon"><?= icon('shield', 18) ?></span>
           <span class="sec-title">Keamanan Domain</span>
           <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
@@ -450,7 +511,7 @@ button.sec-head{
 
       <!-- TELEGRAM -->
       <div class="glass sec" id="sec-telegram" data-sec="1">
-        <button type="button" class="sec-head" onclick="document.getElementById('sec-telegram').classList.toggle('open')">
+        <button type="button" class="sec-head" onclick="this.parentElement.classList.toggle('open')">
           <span class="sec-icon"><?= icon('phone', 18) ?></span>
           <span class="sec-title">Notifikasi Telegram</span>
           <?php if ($tgSet): ?><span class="head-badge hb-ok">Aktif</span><?php endif; ?>
@@ -562,6 +623,38 @@ button.sec-head{
  * Semua fungsi global agar dapat dipanggil dari onclick attr
  * ========================================================== */
 
+/* ── 0. AVATAR PREVIEW ── */
+(function () {
+  var fileInput = document.getElementById('avatarFile');
+  var preview   = document.getElementById('avatarPreview');
+  var hidden    = document.getElementById('avatarUrlHidden');
+  var wrap      = document.getElementById('avatarPreviewWrap');
+  if (!fileInput || !wrap) return;
+
+  fileInput.addEventListener('change', function () {
+    var file = this.files && this.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Ukuran foto maksimal 2 MB');
+      this.value = '';
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      /* Ganti/buat elemen img di dalam preview */
+      var img = document.createElement('img');
+      img.src = e.target.result;
+      img.id  = 'avatarPreview';
+      img.alt = 'avatar';
+      wrap.innerHTML = '';
+      wrap.appendChild(img);
+      /* Simpan base64 ke hidden field agar dapat dikirim bersama form */
+      if (hidden) hidden.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+})();
+
 /* ── 1. COLOR PICKER ↔ HEX TEXT ── */
 (function () {
   var hexEl  = document.getElementById('color-hex');
@@ -583,7 +676,7 @@ button.sec-head{
   });
 })();
 
-/* ── 2. PROVIDER PILLS ── */
+/* ── 2. PROVIDER PILLS (event delegation – reliable di semua browser) ── */
 var _hints = {
   openrouter: 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>',
   openai:     'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>',
@@ -597,63 +690,73 @@ function updateModelHint() {
   if (box) box.innerHTML = checked ? (_hints[checked.value] || '') : '';
 }
 
-document.querySelectorAll('.prov-pill').forEach(function (pill) {
-  pill.addEventListener('click', function () {
-    document.querySelectorAll('.prov-pill').forEach(function (p) { p.classList.remove('active'); });
-    this.classList.add('active');
-    var radio = this.querySelector('input[type=radio]');
-    if (radio) radio.checked = true;
-    updateModelHint();
+/* Event delegation: klik di mana saja dalam prov-grid akan ketangkap */
+document.addEventListener('click', function (e) {
+  var pill = e.target.closest && e.target.closest('.prov-pill');
+  if (!pill) return;
+  /* Reset semua, aktifkan yang diklik */
+  document.querySelectorAll('.prov-pill').forEach(function (p) {
+    p.classList.remove('active');
   });
+  pill.classList.add('active');
+  var radio = pill.querySelector('input[type=radio]');
+  if (radio) { radio.checked = true; }
+  updateModelHint();
 });
 
 updateModelHint();
 
-/* ── COPY EMBED (global, dipanggil via onclick) ── */
+/* ── COPY EMBED (global, dipanggil via onclick btn) ── */
 function cpCopyEmbed() {
-  /* Ambil teks langsung dari elemen yang terlihat user – paling reliable */
+  var btn = document.getElementById('btnCopyEmbed');
+  if (!btn) return;
+
+  /* Ambil teks plain dari elemen #embedPre (innerText decode HTML entities) */
   var pre  = document.getElementById('embedPre');
-  var btn  = document.getElementById('btnCopyEmbed');
-  if (!pre || !btn) return;
+  var text = (pre ? (pre.innerText || pre.textContent) : '').trim();
 
-  /* innerText membaca teks yang sudah di-render (entitas HTML ter-decode) */
-  var text = pre.innerText || pre.textContent || '';
-  text = text.trim();
+  /* Jika embedPre kosong atau tidak ada, fallback ke teks PHP inject */
+  if (!text) {
+    text = <?= json_encode($embedSnippet, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_SLASHES) ?>;
+  }
 
-  var orig    = btn.innerHTML;
+  var orig     = btn.innerHTML;
   var checkSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
 
   function showOK() {
-    btn.innerHTML = checkSVG + ' Tersalin!';
-    btn.style.background = 'rgba(0,229,154,.4)';
+    btn.innerHTML = checkSVG + '&nbsp;Tersalin!';
+    btn.style.background = 'linear-gradient(135deg,rgba(0,229,154,.5),rgba(0,229,154,.3))';
     btn.style.color = '#031018';
-    btn.style.borderColor = 'var(--green)';
     setTimeout(function () {
       btn.innerHTML = orig;
-      btn.style.background = btn.style.color = btn.style.borderColor = '';
-    }, 2200);
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 2400);
   }
 
-  function fallback() {
+  /* Fallback execCommand untuk browser non-HTTPS atau lama */
+  function doCopy() {
     var ta = document.createElement('textarea');
     ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
-    ta.style.top = '0';
-    ta.style.opacity = '0';
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
     document.body.appendChild(ta);
     ta.focus();
     ta.select();
     ta.setSelectionRange(0, ta.value.length);
-    try { document.execCommand('copy'); } catch(e) {}
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(_) {}
     document.body.removeChild(ta);
-    showOK();
+    return ok;
   }
 
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(showOK).catch(fallback);
+    navigator.clipboard.writeText(text)
+      .then(showOK)
+      .catch(function() { doCopy(); showOK(); });
   } else {
-    fallback();
+    doCopy();
+    showOK();
   }
 }
 </script>
