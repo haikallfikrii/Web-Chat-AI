@@ -270,7 +270,7 @@ footer a{color:var(--green)}
     </a>
     <button class="nav-burger" id="navBurger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="navLinks">
       <span class="nav-ico-menu"><?= icon('menu', 20) ?></span>
-      <span class="nav-ico-close pw-hidden"><?= icon('x', 20) ?></span>
+      <span class="nav-ico-close" style="display:none"><?= icon('x', 20) ?></span>
     </button>
     <nav class="nav-links" id="navLinks" aria-label="Navigasi utama">
       <a class="nav-link" href="#features">Fitur</a>
@@ -457,50 +457,63 @@ footer a{color:var(--green)}
 
 <script src="/js/animations.js"></script>
 <script>
-/* ── Mobile nav burger ── */
+/* ── Mobile nav burger (drawer slide-in) ── */
 (function () {
-  var btn  = document.getElementById('navBurger');
-  var menu = document.getElementById('navLinks');
-  var bd   = document.getElementById('navBackdrop');
-  if (!btn || !menu) return;
+  var burger = document.getElementById('navBurger');
+  var drawer = document.getElementById('navLinks');
+  var backdrop = document.getElementById('navBackdrop');
+  if (!burger || !drawer) return;
 
-  var icoM = btn.querySelector('.nav-ico-menu');
-  var icoX = btn.querySelector('.nav-ico-close');
+  var icoMenu  = burger.querySelector('.nav-ico-menu');
+  var icoClose = burger.querySelector('.nav-ico-close');
+  var isOpen   = false;
 
-  function setOpen(open) {
-    /* CSS kelas .is-open override display:none !important */
-    menu.classList.toggle('is-open', open);
-    if (bd) bd.classList.toggle('is-open', open);
+  function toggle(open) {
+    isOpen = open;
+    /* Toggle class .is-open pada drawer dan backdrop */
+    drawer.classList.toggle('is-open', open);
+    if (backdrop) backdrop.classList.toggle('is-open', open);
 
-    btn.setAttribute('aria-expanded', String(open));
-    btn.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+    /* Accessibility */
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
 
-    /* Sembunyikan/tampilkan ikon burger ↔ silang */
-    if (icoM) { icoM.style.display = open ? 'none' : ''; }
-    if (icoX) { icoX.style.display = open ? 'grid' : 'none'; }
+    /* Swap ikon: burger ↔ silang */
+    if (icoMenu)  icoMenu.style.display  = open ? 'none' : 'grid';
+    if (icoClose) icoClose.style.display = open ? 'grid' : 'none';
 
-    /* Kunci scroll body saat menu terbuka */
+    /* Kunci scroll body */
     document.body.style.overflow = open ? 'hidden' : '';
   }
 
-  /* Inisialisasi: pastikan ikoX tersembunyi */
-  if (icoX) icoX.style.display = 'none';
+  /* Init: pastikan icon close tersembunyi */
+  if (icoMenu) icoMenu.style.display = 'grid';
+  if (icoClose) icoClose.style.display = 'none';
 
-  btn.addEventListener('click', function (e) {
+  /* Klik burger toggle drawer */
+  burger.addEventListener('click', function (e) {
+    e.preventDefault();
     e.stopPropagation();
-    setOpen(!menu.classList.contains('is-open'));
+    toggle(!isOpen);
   });
 
-  if (bd) bd.addEventListener('click', function () { setOpen(false); });
+  /* Klik backdrop tutup drawer */
+  if (backdrop) {
+    backdrop.addEventListener('click', function () {
+      toggle(false);
+    });
+  }
 
-  /* Tutup saat klik link di dalam menu */
-  menu.querySelectorAll('a').forEach(function (a) {
-    a.addEventListener('click', function () { setOpen(false); });
+  /* Klik link di dalam drawer tutup drawer */
+  drawer.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      toggle(false);
+    });
   });
 
-  /* Tutup saat resize ke desktop */
+  /* Resize ke desktop tutup drawer */
   window.addEventListener('resize', function () {
-    if (window.innerWidth > 780) setOpen(false);
+    if (window.innerWidth > 780 && isOpen) toggle(false);
   });
 })();
 </script>

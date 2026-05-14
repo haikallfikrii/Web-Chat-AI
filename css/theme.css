@@ -346,12 +346,15 @@ h1,h2,h3,h4{letter-spacing:-.5px}
 
 /* ── MOBILE NAV (drawer + backdrop) ─────────────────────────── */
 .nav-backdrop{
-  display:none;position:fixed;inset:0;z-index:55;
-  background:rgba(0,0,0,.62);
-  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  position:fixed;inset:0;z-index:55;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .25s ease,visibility .25s ease;
 }
-/* JS menambah .is-open via classList */
-.nav-backdrop.is-open{display:block}
+.nav-backdrop.is-open{
+  opacity:1;visibility:visible;pointer-events:auto;
+}
 
 @media (max-width:780px){
   .nav-in{
@@ -370,43 +373,44 @@ h1,h2,h3,h4{letter-spacing:-.5px}
     display:inline-grid;order:3;flex-shrink:0;z-index:70;
     width:42px;height:42px;
   }
-  /* ── MOBILE DRAWER: hidden by default, shown when .is-open ── */
+  /* Ikon burger dan close overlap di grid, toggle via JS style.display */
+  .nav-burger .nav-ico-menu,
+  .nav-burger .nav-ico-close{
+    grid-area:1/1;display:grid;place-items:center;
+  }
+
+  /* ── MOBILE DRAWER ── */
   .nav-links{
-    /* Sembunyikan dari flow & layar; JS toggle display */
-    display:none !important;
     position:fixed;top:56px;right:0;bottom:0;
-    width:min(300px,90vw);
-    flex-direction:column;align-items:stretch;gap:4px;
-    margin:0;padding:12px 14px 30px;
+    width:min(300px,85vw);
+    flex-direction:column;align-items:stretch;gap:6px;
+    margin:0;padding:16px 14px 30px;
     background:rgba(4,8,20,.97);
     backdrop-filter:blur(24px) saturate(160%);
     -webkit-backdrop-filter:blur(24px) saturate(160%);
-    border-left:1px solid rgba(0,229,154,.15);
+    border-left:1px solid rgba(0,229,154,.2);
     box-shadow:-20px 0 60px rgba(0,0,0,.6);
     z-index:60;
     overflow-y:auto;-webkit-overflow-scrolling:touch;
-    animation:none;
+    /* Default: tersembunyi di kanan */
+    transform:translate3d(100%,0,0);
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .25s ease,visibility .25s ease;
   }
-  /* JS menambah .is-open — display:flex override !important */
+  /* JS menambah .is-open — drawer slide in */
   .nav-links.is-open{
-    display:flex !important;
-    animation:slideInRight .28s cubic-bezier(.22,1,.36,1) both;
+    transform:translate3d(0,0,0);
+    opacity:1;visibility:visible;pointer-events:auto;
   }
-  @keyframes slideInRight{
-    from{opacity:0;transform:translate3d(100%,0,0)}
-    to  {opacity:1;transform:translate3d(0,0,0)}
+  .nav-link{
+    padding:14px 14px;border-radius:10px;font-size:15px;
+    color:var(--text-2);transition:all .2s;
   }
-  .nav-link{padding:14px 12px;border-radius:10px;font-size:15px}
+  .nav-link:hover{background:rgba(255,255,255,.05);color:var(--text)}
   .nav-link.btn{
-    margin-top:10px;justify-content:center;
+    margin-top:12px;justify-content:center;
     padding:14px 16px;width:100%;
     font-size:15px;
-  }
-  /* Divider antar link biasa & tombol di mobile */
-  .nav-links::before{
-    content:'';display:block;height:1px;
-    background:rgba(255,255,255,.07);
-    margin:6px 0 2px;order:-1; /* pushed to start; tombol di bawah pakai margin-top */
   }
 }
 

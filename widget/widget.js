@@ -184,9 +184,12 @@
         gap: 10px;
         scroll-behavior: smooth;
       }
-      #cw-messages::-webkit-scrollbar       { width: 4px; }
-      #cw-messages::-webkit-scrollbar-track { background: transparent; }
-      #cw-messages::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
+      /* Scrollbar transparan dengan radius */
+      #cw-messages{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.12) transparent}
+      #cw-messages::-webkit-scrollbar{width:5px}
+      #cw-messages::-webkit-scrollbar-track{background:transparent;margin:8px 0}
+      #cw-messages::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:999px}
+      #cw-messages::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25)}
 
       /* Bubble */
       .cw-bubble {
@@ -282,21 +285,14 @@
         transition: border-color .15s;
         color: #111827;
         background: #F9FAFB;
-        /* Scrollbar halus, transparan, radius */
-        scrollbar-width: thin;
-        scrollbar-color: rgba(0,0,0,.15) transparent;
+        /* Scrollbar halus, transparan, radius — tetap di dalam textarea */
+        scrollbar-width:thin;
+        scrollbar-color:rgba(0,0,0,.12) transparent;
       }
-      #cw-input::-webkit-scrollbar {
-        width: 4px;
-      }
-      #cw-input::-webkit-scrollbar-track {
-        background: transparent;
-        border-radius: 999px;
-      }
-      #cw-input::-webkit-scrollbar-thumb {
-        background: rgba(0,0,0,.18);
-        border-radius: 999px;
-      }
+      #cw-input::-webkit-scrollbar{width:4px}
+      #cw-input::-webkit-scrollbar-track{background:transparent;border-radius:999px;margin:4px 0}
+      #cw-input::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:999px}
+      #cw-input::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.22)}
       #cw-input:focus { border-color: ${primaryColor}; background: #fff; }
       #cw-input::placeholder { color: #9CA3AF; }
 
