@@ -56,7 +56,9 @@ if ($ai_model === '' || mb_strlen($ai_model, 'UTF-8') > 120) {
     exit;
 }
 
-if ($bot_avatar_url !== '' && filter_var($bot_avatar_url, FILTER_VALIDATE_URL) === false) {
+/* Avatar bisa berupa URL eksternal atau data:image base64 dari upload */
+$is_data_url = str_starts_with($bot_avatar_url, 'data:image/');
+if ($bot_avatar_url !== '' && !$is_data_url && filter_var($bot_avatar_url, FILTER_VALIDATE_URL) === false) {
     set_flash('error', 'URL avatar bot tidak valid.');
     header('Location: /dashboard.php');
     exit;
