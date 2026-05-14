@@ -112,35 +112,42 @@ $embedSnippet = '<script src="' . $baseUrl . '/widget/widget.js"' . "\n"
 /* ── FLASH ──────────────────────────────────────────────────── */
 .flash{grid-column:1/-1}
 
-/* ── SECTION CARDS ──────────────────────────────────────────── */
+/* ── SECTION CARDS (ACCORDION) ──────────────────────────────── */
 .sec{margin-bottom:18px}
 .sec:last-child{margin-bottom:0}
-.sec-head{padding:18px 22px;display:flex;align-items:center;gap:12px;cursor:pointer;
-  border-bottom:1px solid var(--border);user-select:none;transition:background .2s}
-button.sec-head{
-  width:100%;text-align:left;background:transparent;border:0;font:inherit;color:inherit;
-  appearance:none;-webkit-appearance:none;padding:18px 22px;
+.sec-head{
+  padding:18px 22px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;user-select:none;transition:background .2s;
+  border-bottom:1px solid var(--border);
 }
+button.sec-head{
+  width:100%;text-align:left;background:transparent;border:0;
+  font:inherit;color:inherit;appearance:none;-webkit-appearance:none;
+  padding:18px 22px;outline:none;
+}
+button.sec-head:focus{outline:none;box-shadow:none}
 .glass.sec{position:relative;isolation:isolate}
 .glass.sec > .sec-head{position:relative;z-index:5}
 .glass.sec > .sec-body{position:relative;z-index:4}
-.sec-head:hover{background:rgba(255,255,255,.02)}
+.sec-head:hover{background:rgba(255,255,255,.03)}
 .sec-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;
   background:var(--green-dim);border:1px solid var(--green-line);color:var(--green)}
 .sec-icon svg{width:18px;height:18px}
 .sec-title{flex:1;font-size:15.5px;font-weight:700;color:var(--text)}
-.sec-chev{color:var(--muted);transition:transform .3s}
-.sec.open .sec-chev{transform:rotate(180deg)}
-/* Sec-body: hidden by default, animation HANYA saat expand */
+.sec-chev{color:var(--muted);transition:transform .3s ease}
 .sec-body{
   padding:22px;
-  display:none!important;
+  overflow:hidden;
 }
+.sec-body[hidden]{display:none!important}
+.sec.open .sec-chev{transform:rotate(180deg)}
 .sec.open .sec-body{
-  display:block!important;
-  animation:secIn .3s cubic-bezier(.22,1,.36,1) both;
+  animation:secSlideIn .32s cubic-bezier(.22,1,.36,1) both;
 }
-@keyframes secIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes secSlideIn{
+  from{opacity:0;transform:translateY(-10px)}
+  to{opacity:1;transform:translateY(0)}
+}
 
 .head-badge{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;
   border:1px solid}
@@ -224,37 +231,51 @@ button.sec-head{
 .cl-item.done .cl-item-text{color:var(--text)}
 
 /* ── PROVIDER PILLS ────────────────────────────────────────── */
-.prov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.prov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
 .prov-pill{
-  padding:12px 14px;border-radius:10px;cursor:pointer;text-align:left;
+  padding:14px 16px;border-radius:12px;cursor:pointer;text-align:left;
   font-size:13px;font-weight:600;line-height:1.35;
-  background:rgba(8,13,28,.7);
-  border:2px solid rgba(255,255,255,.08);
-  color:rgba(169,180,194,.65);
-  transition:border-color .18s,background .18s,color .18s,box-shadow .18s;
+  background:rgba(8,13,28,.75);
+  border:2px solid rgba(255,255,255,.10);
+  color:rgba(180,190,200,.7);
+  transition:all .2s ease;
   user-select:none;position:relative;display:block;
 }
-/* Hover = hijau samar */
+/* Hover = border hijau + bg hijau samar */
 .prov-pill:hover{
-  border-color:rgba(0,229,154,.45);
+  border-color:rgba(0,229,154,.55);
   color:var(--text);
-  background:rgba(0,229,154,.07);
+  background:rgba(0,229,154,.08);
 }
-/* Active = sama seperti hover tapi lebih kuat + garis kiri */
+/* ACTIVE = border hijau solid + bg lebih kuat + glow */
 .prov-pill.active{
-  border-color:var(--green);
-  background:rgba(0,229,154,.13);
-  color:var(--green);
-  box-shadow:0 0 0 3px rgba(0,229,154,.18);
+  border-color:#00E59A !important;
+  background:rgba(0,229,154,.15) !important;
+  color:#00E59A !important;
+  box-shadow:0 0 0 3px rgba(0,229,154,.2), 0 4px 20px rgba(0,229,154,.15);
 }
-/* Garis kiri hijau sebagai penanda aktif */
+/* Garis kiri hijau + centang untuk penanda aktif */
 .prov-pill.active::before{
   content:'';
-  position:absolute;left:0;top:0;bottom:0;
-  width:3px;border-radius:2px 0 0 2px;
-  background:var(--green);
+  position:absolute;left:-2px;top:-2px;bottom:-2px;
+  width:4px;border-radius:4px 0 0 4px;
+  background:#00E59A;
 }
-.prov-pill.active > div:first-of-type{font-weight:800}
+.prov-pill.active::after{
+  content:'✓';
+  position:absolute;top:10px;right:12px;
+  font-size:14px;font-weight:800;color:#00E59A;
+}
+.prov-pill.active .prov-name{font-weight:800;color:#00E59A}
+.prov-desc{
+  font-size:11px;
+  color:var(--muted);
+  font-weight:500;
+  margin-top:2px;
+  transition:color .2s ease;
+}
+.prov-pill:hover .prov-desc{color:var(--text-2)}
+.prov-pill.active .prov-desc{color:rgba(0,229,154,.82)}
 
 /* ── HINT BOX ──────────────────────────────────────────────── */
 .hint-box{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.55;
@@ -348,12 +369,12 @@ button.sec-head{
 
       <!-- TAMPILAN -->
       <div class="glass sec open" id="sec-tampilan" data-sec="1">
-        <button type="button" class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="true" aria-controls="sec-tampilan-body">
           <span class="sec-icon"><?= icon('palette', 18) ?></span>
           <span class="sec-title">Tampilan Widget</span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
-        <div class="sec-body">
+        <div class="sec-body" id="sec-tampilan-body">
 
           <?php
             /* Avatar saat ini */
@@ -414,7 +435,7 @@ button.sec-head{
 
       <!-- AI -->
       <div class="glass sec open" id="sec-ai" data-sec="1">
-        <button type="button" class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="true" aria-controls="sec-ai-body">
           <span class="sec-icon"><?= icon('bot', 18) ?></span>
           <span class="sec-title">Konfigurasi AI</span>
           <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
@@ -422,7 +443,7 @@ button.sec-head{
           </span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
-        <div class="sec-body">
+        <div class="sec-body" id="sec-ai-body">
 
           <div class="field">
             <label class="field-label"><?= icon('layers', 14) ?> Provider AI</label>
@@ -440,8 +461,8 @@ button.sec-head{
               ?>
                 <label class="prov-pill <?= $active ?>" data-prov="<?= $val ?>">
                   <input type="radio" name="ai_provider" value="<?= $val ?>" <?= $currentProvider === $val ? 'checked' : '' ?> style="display:none">
-                  <div><?= e($label) ?></div>
-                  <div style="font-size:11px;color:var(--muted);font-weight:500;margin-top:2px"><?= e($desc) ?></div>
+                  <div class="prov-name"><?= e($label) ?></div>
+                  <div class="prov-desc"><?= e($desc) ?></div>
                 </label>
               <?php endforeach; ?>
             </div>
@@ -485,7 +506,7 @@ button.sec-head{
 
       <!-- DOMAIN -->
       <div class="glass sec" id="sec-domain" data-sec="1">
-        <button type="button" class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="false" aria-controls="sec-domain-body">
           <span class="sec-icon"><?= icon('shield', 18) ?></span>
           <span class="sec-title">Keamanan Domain</span>
           <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
@@ -493,7 +514,7 @@ button.sec-head{
           </span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
-        <div class="sec-body">
+        <div class="sec-body" id="sec-domain-body" hidden>
           <div class="field">
             <label class="field-label" for="allowed_origins">
               <?= icon('globe', 14) ?> Allowed Origins
@@ -511,13 +532,13 @@ button.sec-head{
 
       <!-- TELEGRAM -->
       <div class="glass sec" id="sec-telegram" data-sec="1">
-        <button type="button" class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="false" aria-controls="sec-telegram-body">
           <span class="sec-icon"><?= icon('phone', 18) ?></span>
           <span class="sec-title">Notifikasi Telegram</span>
           <?php if ($tgSet): ?><span class="head-badge hb-ok">Aktif</span><?php endif; ?>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
-        <div class="sec-body">
+        <div class="sec-body" id="sec-telegram-body" hidden>
           <div class="tg" style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
             <div class="tg-info">
               <div class="tg-label">Kirim notifikasi ke Telegram</div>
@@ -581,6 +602,7 @@ button.sec-head{
   <span class="an">data-base-url</span>=<span class="av">"<?= e($baseUrl) ?>"</span>
   <span class="an">async</span>
 <span class="tn">&gt;&lt;/script&gt;</span></div>
+      <textarea id="embedCodeRaw" hidden readonly><?= e($embedSnippet) ?></textarea>
       <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;padding:10px;font-size:13px" id="btnCopyEmbed" onclick="cpCopyEmbed()">
         <?= icon('copy', 14) ?> Salin Embed Code
       </button>
@@ -655,6 +677,28 @@ button.sec-head{
   });
 })();
 
+/* ── 0b. ACCORDION INIT + TOGGLE ── */
+function toggleDashboardSection(btn) {
+  var sec = btn && btn.closest ? btn.closest('.sec') : null;
+  if (!sec) return;
+  var body = sec.querySelector('.sec-body');
+  var open = !sec.classList.contains('open');
+  sec.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (body) body.hidden = !open;
+}
+
+(function () {
+  document.querySelectorAll('.sec').forEach(function (sec) {
+    var btn = sec.querySelector('.sec-head');
+    var body = sec.querySelector('.sec-body');
+    if (!btn || !body) return;
+    var open = sec.classList.contains('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    body.hidden = !open;
+  });
+})();
+
 /* ── 1. COLOR PICKER ↔ HEX TEXT ── */
 (function () {
   var hexEl  = document.getElementById('color-hex');
@@ -709,13 +753,11 @@ updateModelHint();
 /* ── COPY EMBED (global, dipanggil via onclick btn) ── */
 function cpCopyEmbed() {
   var btn = document.getElementById('btnCopyEmbed');
+  var raw = document.getElementById('embedCodeRaw');
   if (!btn) return;
 
-  /* Ambil teks plain dari elemen #embedPre (innerText decode HTML entities) */
-  var pre  = document.getElementById('embedPre');
-  var text = (pre ? (pre.innerText || pre.textContent) : '').trim();
-
-  /* Jika embedPre kosong atau tidak ada, fallback ke teks PHP inject */
+  /* Ambil dari textarea raw agar line breaks tetap utuh */
+  var text = raw ? raw.value : '';
   if (!text) {
     text = <?= json_encode($embedSnippet, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_SLASHES) ?>;
   }
@@ -724,14 +766,16 @@ function cpCopyEmbed() {
   var checkSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
 
   function showOK() {
-    btn.innerHTML = checkSVG + '&nbsp;Tersalin!';
-    btn.style.background = 'linear-gradient(135deg,rgba(0,229,154,.5),rgba(0,229,154,.3))';
+    btn.innerHTML = checkSVG + ' Tersalin!';
+    btn.style.background = 'linear-gradient(135deg,rgba(0,229,154,.55),rgba(0,229,154,.35))';
     btn.style.color = '#031018';
+    btn.style.borderColor = 'var(--green)';
     setTimeout(function () {
       btn.innerHTML = orig;
       btn.style.background = '';
       btn.style.color = '';
-    }, 2400);
+      btn.style.borderColor = '';
+    }, 2200);
   }
 
   /* Fallback execCommand untuk browser non-HTTPS atau lama */
@@ -739,21 +783,22 @@ function cpCopyEmbed() {
     var ta = document.createElement('textarea');
     ta.value = text;
     ta.setAttribute('readonly', '');
-    ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
     document.body.appendChild(ta);
     ta.focus();
     ta.select();
-    ta.setSelectionRange(0, ta.value.length);
-    var ok = false;
-    try { ok = document.execCommand('copy'); } catch(_) {}
+    try { document.execCommand('copy'); } catch(_) {}
     document.body.removeChild(ta);
-    return ok;
   }
 
-  if (navigator.clipboard && window.isSecureContext) {
+  if (window.CPUI && typeof window.CPUI.copyToClipboard === 'function') {
+    window.CPUI.copyToClipboard(text)
+      .then(showOK)
+      .catch(function () { doCopy(); showOK(); });
+  } else if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text)
       .then(showOK)
-      .catch(function() { doCopy(); showOK(); });
+      .catch(function () { doCopy(); showOK(); });
   } else {
     doCopy();
     showOK();
