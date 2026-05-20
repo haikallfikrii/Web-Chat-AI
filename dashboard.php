@@ -131,6 +131,250 @@ function dash_text(string $lang): array {
             'hide_api_key' => 'Sembunyikan API key',
             'photo_max' => 'Ukuran foto maksimal 2 MB',
         ],
+        'es' => [
+            'status_active' => 'Activo',
+            'status_trial' => 'Prueba',
+            'status_inactive' => 'Inactivo',
+            'missing_client' => 'No se encontraron los datos del cliente. Contacta al administrador.',
+            'page_title' => 'Panel',
+            'switch_language' => 'Cambiar idioma',
+            'logout' => 'Cerrar sesión',
+            'welcome_flash' => 'Bienvenido. Tu cuenta fue creada correctamente. Configura tu widget abajo.',
+            'hello' => 'Hola',
+            'widget_dashboard_for' => 'Panel del widget para',
+            'setup_done' => 'Configuración completada',
+            'widget_appearance' => 'Apariencia del Widget',
+            'bot_avatar' => 'Avatar del Bot',
+            'upload_photo' => 'Subir Foto',
+            'avatar_note' => 'PNG/JPG/WEBP, máximo 2 MB.<br>Se muestra en la esquina superior de la ventana de chat.',
+            'bot_name' => 'Nombre del Bot',
+            'welcome_message' => 'Mensaje de Bienvenida',
+            'primary_color' => 'Color Principal',
+            'ai_config' => 'Configuración de IA',
+            'active' => 'Activo',
+            'incomplete' => 'Incompleto',
+            'ai_provider' => 'Proveedor de IA',
+            'recommended' => 'Recomendado',
+            'cheap_fast' => 'Económico y rápido',
+            'ai_model' => 'Modelo de IA',
+            'model_hint' => 'Debe coincidir con el proveedor seleccionado',
+            'api_key_provider' => 'API Key del Proveedor',
+            'api_key_placeholder_saved' => '••••••• (guardada, déjala vacía para mantenerla)',
+            'system_prompt' => 'Prompt del Sistema',
+            'system_prompt_hint' => 'Personalidad e instrucciones del bot',
+            'domain_security' => 'Seguridad del Dominio',
+            'configured' => 'Configurado',
+            'open' => 'Abierto',
+            'allowed_origins' => 'Allowed Origins',
+            'comma_separated' => 'Separados por comas',
+            'domain_hint' => 'Déjalo vacío o usa <code>*</code> para permitir todos los dominios (menos seguro).',
+            'telegram_notifications' => 'Notificaciones de Telegram',
+            'send_telegram' => 'Enviar notificaciones a Telegram',
+            'telegram_sub' => 'Recibe un aviso cada vez que llegue un mensaje nuevo a tu widget',
+            'telegram_chat_id' => 'Telegram Chat ID',
+            'telegram_hint' => 'Envía <code>/start</code> a <strong>@userinfobot</strong> en Telegram para obtener tu Chat ID.',
+            'save_all' => 'Guardar Toda la Configuración',
+            'widget_api_key' => 'Widget API Key',
+            'copy' => 'Copiar',
+            'api_key_note' => 'Se usa en el código embed. No la compartas públicamente.',
+            'embed_code' => 'Código Embed',
+            'copy_embed' => 'Copiar Código Embed',
+            'embed_note' => 'Pégalo antes de <code style="color:var(--green);background:var(--green-dim);padding:1px 5px;border-radius:4px;font-family:\'JetBrains Mono\',monospace">&lt;/body&gt;</code> en tu sitio web.',
+            'checklist_setup' => 'Checklist de Configuración',
+            'check_api_key' => 'API key de IA agregada',
+            'check_model' => 'Modelo de IA seleccionado',
+            'check_domain' => 'Domain origins configurados',
+            'check_telegram' => 'Notificaciones de Telegram (opcional)',
+            'check_embed' => 'Código embed listo para copiar',
+            'copied' => 'Copiado',
+            'copy_failed' => 'Error al copiar',
+            'show_api_key' => 'Mostrar API key',
+            'hide_api_key' => 'Ocultar API key',
+            'photo_max' => 'La foto debe ser de 2 MB o menos',
+        ],
+        'fr' => [
+            'status_active' => 'Actif',
+            'status_trial' => 'Essai',
+            'status_inactive' => 'Inactif',
+            'missing_client' => 'Les donnees du client sont introuvables. Contactez l administrateur.',
+            'page_title' => 'Tableau de bord',
+            'switch_language' => 'Changer de langue',
+            'logout' => 'Se deconnecter',
+            'welcome_flash' => 'Bienvenue. Votre compte a ete cree avec succes. Configurez votre widget ci-dessous.',
+            'hello' => 'Bonjour',
+            'widget_dashboard_for' => 'Tableau de bord du widget pour',
+            'setup_done' => 'Configuration terminee',
+            'widget_appearance' => 'Apparence du Widget',
+            'bot_avatar' => 'Avatar du Bot',
+            'upload_photo' => 'Telecharger une Photo',
+            'avatar_note' => 'PNG/JPG/WEBP, max 2 Mo.<br>Affiche dans le coin superieur de la fenetre de chat.',
+            'bot_name' => 'Nom du Bot',
+            'welcome_message' => 'Message d accueil',
+            'primary_color' => 'Couleur Principale',
+            'ai_config' => 'Configuration IA',
+            'active' => 'Actif',
+            'incomplete' => 'Incomplet',
+            'ai_provider' => 'Fournisseur IA',
+            'recommended' => 'Recommande',
+            'cheap_fast' => 'Abordable et rapide',
+            'ai_model' => 'Modele IA',
+            'model_hint' => 'Adaptez-le au fournisseur selectionne',
+            'api_key_provider' => 'Cle API du Fournisseur',
+            'api_key_placeholder_saved' => '••••••• (enregistree, laissez vide pour conserver la valeur)',
+            'system_prompt' => 'Prompt Systeme',
+            'system_prompt_hint' => 'Personnalite et instructions du bot',
+            'domain_security' => 'Securite du Domaine',
+            'configured' => 'Configure',
+            'open' => 'Ouvert',
+            'allowed_origins' => 'Allowed Origins',
+            'comma_separated' => 'Separes par des virgules',
+            'domain_hint' => 'Laissez vide ou utilisez <code>*</code> pour autoriser tous les domaines (moins securise).',
+            'telegram_notifications' => 'Notifications Telegram',
+            'send_telegram' => 'Envoyer les notifications vers Telegram',
+            'telegram_sub' => 'Recevez une alerte a chaque nouveau message sur votre widget',
+            'telegram_chat_id' => 'Telegram Chat ID',
+            'telegram_hint' => 'Envoyez <code>/start</code> a <strong>@userinfobot</strong> sur Telegram pour obtenir votre Chat ID.',
+            'save_all' => 'Enregistrer Tous les Parametres',
+            'widget_api_key' => 'Widget API Key',
+            'copy' => 'Copier',
+            'api_key_note' => 'Utilisee dans le code embed. Ne la partagez pas publiquement.',
+            'embed_code' => 'Code Embed',
+            'copy_embed' => 'Copier le Code Embed',
+            'embed_note' => 'Collez-le avant <code style="color:var(--green);background:var(--green-dim);padding:1px 5px;border-radius:4px;font-family:\'JetBrains Mono\',monospace">&lt;/body&gt;</code> sur votre site web.',
+            'checklist_setup' => 'Checklist de Configuration',
+            'check_api_key' => 'Cle API IA ajoutee',
+            'check_model' => 'Modele IA selectionne',
+            'check_domain' => 'Domain origins configurees',
+            'check_telegram' => 'Notifications Telegram (optionnel)',
+            'check_embed' => 'Code embed pret a copier',
+            'copied' => 'Copie',
+            'copy_failed' => 'Echec de copie',
+            'show_api_key' => 'Afficher la cle API',
+            'hide_api_key' => 'Masquer la cle API',
+            'photo_max' => 'La photo doit faire 2 Mo maximum',
+        ],
+        'pt' => [
+            'status_active' => 'Ativo',
+            'status_trial' => 'Teste',
+            'status_inactive' => 'Inativo',
+            'missing_client' => 'Os dados do cliente nao foram encontrados. Fale com o administrador.',
+            'page_title' => 'Painel',
+            'switch_language' => 'Mudar idioma',
+            'logout' => 'Sair',
+            'welcome_flash' => 'Bem-vindo. Sua conta foi criada com sucesso. Configure seu widget abaixo.',
+            'hello' => 'Ola',
+            'widget_dashboard_for' => 'Painel do widget para',
+            'setup_done' => 'Configuracao concluida',
+            'widget_appearance' => 'Aparencia do Widget',
+            'bot_avatar' => 'Avatar do Bot',
+            'upload_photo' => 'Enviar Foto',
+            'avatar_note' => 'PNG/JPG/WEBP, max 2 MB.<br>Exibido no canto superior da janela de chat.',
+            'bot_name' => 'Nome do Bot',
+            'welcome_message' => 'Mensagem de Boas-vindas',
+            'primary_color' => 'Cor Principal',
+            'ai_config' => 'Configuracao de IA',
+            'active' => 'Ativo',
+            'incomplete' => 'Incompleto',
+            'ai_provider' => 'Provedor de IA',
+            'recommended' => 'Recomendado',
+            'cheap_fast' => 'Barato e rapido',
+            'ai_model' => 'Modelo de IA',
+            'model_hint' => 'Combine com o provedor selecionado',
+            'api_key_provider' => 'API Key do Provedor',
+            'api_key_placeholder_saved' => '••••••• (salva, deixe vazio para manter)',
+            'system_prompt' => 'Prompt do Sistema',
+            'system_prompt_hint' => 'Personalidade e instrucoes do bot',
+            'domain_security' => 'Seguranca de Dominio',
+            'configured' => 'Configurado',
+            'open' => 'Aberto',
+            'allowed_origins' => 'Allowed Origins',
+            'comma_separated' => 'Separados por virgulas',
+            'domain_hint' => 'Deixe vazio ou use <code>*</code> para permitir todos os dominios (menos seguro).',
+            'telegram_notifications' => 'Notificacoes do Telegram',
+            'send_telegram' => 'Enviar notificacoes para o Telegram',
+            'telegram_sub' => 'Receba um alerta sempre que chegar uma nova mensagem no widget',
+            'telegram_chat_id' => 'Telegram Chat ID',
+            'telegram_hint' => 'Envie <code>/start</code> para <strong>@userinfobot</strong> no Telegram para obter seu Chat ID.',
+            'save_all' => 'Salvar Todas as Configuracoes',
+            'widget_api_key' => 'Widget API Key',
+            'copy' => 'Copiar',
+            'api_key_note' => 'Usada no codigo embed. Nao compartilhe publicamente.',
+            'embed_code' => 'Codigo Embed',
+            'copy_embed' => 'Copiar Codigo Embed',
+            'embed_note' => 'Cole antes de <code style="color:var(--green);background:var(--green-dim);padding:1px 5px;border-radius:4px;font-family:\'JetBrains Mono\',monospace">&lt;/body&gt;</code> no seu site.',
+            'checklist_setup' => 'Checklist de Configuracao',
+            'check_api_key' => 'API key de IA preenchida',
+            'check_model' => 'Modelo de IA selecionado',
+            'check_domain' => 'Domain origins configuradas',
+            'check_telegram' => 'Notificacoes do Telegram (opcional)',
+            'check_embed' => 'Codigo embed pronto para copiar',
+            'copied' => 'Copiado',
+            'copy_failed' => 'Falha ao copiar',
+            'show_api_key' => 'Mostrar API key',
+            'hide_api_key' => 'Ocultar API key',
+            'photo_max' => 'A foto deve ter no maximo 2 MB',
+        ],
+        'ja' => [
+            'status_active' => '有効',
+            'status_trial' => 'トライアル',
+            'status_inactive' => '無効',
+            'missing_client' => 'クライアントデータが見つかりません。管理者に連絡してください。',
+            'page_title' => 'ダッシュボード',
+            'switch_language' => '言語を変更',
+            'logout' => 'ログアウト',
+            'welcome_flash' => 'ようこそ。アカウント作成が完了しました。下でウィジェットを設定してください。',
+            'hello' => 'こんにちは',
+            'widget_dashboard_for' => 'ウィジェットのダッシュボード',
+            'setup_done' => '設定完了',
+            'widget_appearance' => 'ウィジェット表示',
+            'bot_avatar' => 'ボットのアバター',
+            'upload_photo' => '写真をアップロード',
+            'avatar_note' => 'PNG/JPG/WEBP、最大2MB。<br>チャットウィンドウ上部に表示されます。',
+            'bot_name' => 'ボット名',
+            'welcome_message' => 'ウェルカムメッセージ',
+            'primary_color' => 'メインカラー',
+            'ai_config' => 'AI設定',
+            'active' => '有効',
+            'incomplete' => '未完了',
+            'ai_provider' => 'AIプロバイダー',
+            'recommended' => 'おすすめ',
+            'cheap_fast' => '低価格で高速',
+            'ai_model' => 'AIモデル',
+            'model_hint' => '選択したプロバイダーに合わせてください',
+            'api_key_provider' => 'プロバイダーAPIキー',
+            'api_key_placeholder_saved' => '•••••••（保存済み。変更しない場合は空欄）',
+            'system_prompt' => 'システムプロンプト',
+            'system_prompt_hint' => 'ボットの性格と指示',
+            'domain_security' => 'ドメインセキュリティ',
+            'configured' => '設定済み',
+            'open' => '公開',
+            'allowed_origins' => 'Allowed Origins',
+            'comma_separated' => 'カンマ区切り',
+            'domain_hint' => '空欄または <code>*</code> を使うと全ドメインを許可します（安全性は下がります）。',
+            'telegram_notifications' => 'Telegram通知',
+            'send_telegram' => 'Telegramに通知を送信',
+            'telegram_sub' => 'ウィジェットに新しいメッセージが来るたびに通知を受け取ります',
+            'telegram_chat_id' => 'Telegram Chat ID',
+            'telegram_hint' => 'Telegramで <strong>@userinfobot</strong> に <code>/start</code> を送るとChat IDを確認できます。',
+            'save_all' => 'すべての設定を保存',
+            'widget_api_key' => 'Widget API Key',
+            'copy' => 'コピー',
+            'api_key_note' => '埋め込みコードで使用します。公開しないでください。',
+            'embed_code' => '埋め込みコード',
+            'copy_embed' => '埋め込みコードをコピー',
+            'embed_note' => 'サイトの <code style="color:var(--green);background:var(--green-dim);padding:1px 5px;border-radius:4px;font-family:\'JetBrains Mono\',monospace">&lt;/body&gt;</code> の前に貼り付けてください。',
+            'checklist_setup' => '設定チェックリスト',
+            'check_api_key' => 'AI APIキー入力済み',
+            'check_model' => 'AIモデル選択済み',
+            'check_domain' => 'Domain origins設定済み',
+            'check_telegram' => 'Telegram通知（任意）',
+            'check_embed' => '埋め込みコードをコピー可能',
+            'copied' => 'コピーしました',
+            'copy_failed' => 'コピーに失敗しました',
+            'show_api_key' => 'APIキーを表示',
+            'hide_api_key' => 'APIキーを非表示',
+            'photo_max' => '写真サイズは2MB以下にしてください',
+        ],
     ];
 
     return $all[$lang] ?? $all['en'];
@@ -292,6 +536,7 @@ button.sec-head{
   font:inherit;color:inherit;appearance:none;-webkit-appearance:none;
   padding:18px 22px;outline:none;
 }
+button.sec-head > *{pointer-events:none}
 button.sec-head:focus{outline:none;box-shadow:none}
 .glass.sec{position:relative;isolation:isolate}
 .glass.sec > .sec-head{position:relative;z-index:5}
@@ -491,6 +736,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
               aria-haspopup="true" aria-expanded="false"
               title="<?= e($dt['switch_language']) ?>">
         <span class="lang-flag"><?= $lmeta[$lang]['flag'] ?></span>
+        <span><?= e($lmeta[$lang]['label']) ?></span>
         <svg class="chv" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
              fill="none" stroke="currentColor" stroke-width="2.5"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -500,7 +746,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
       <div class="lang-drop" id="dashLangDrop" role="menu">
         <?php foreach ($lmeta as $code => $info): ?>
         <a class="lang-opt <?= $code === $lang ? 'cur' : '' ?>"
-           href="?lang=<?= e($code) ?>" role="menuitem">
+           href="<?= e(lang_switch_url($code)) ?>" role="menuitem">
           <span class="lang-opt-flag"><?= $info['flag'] ?></span>
           <?= e($info['label']) ?>
         </a>
@@ -559,7 +805,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- TAMPILAN -->
       <div class="glass sec open" id="sec-tampilan" data-sec="1">
-        <button type="button" class="sec-head" aria-expanded="true" aria-controls="sec-tampilan-body">
+        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="true" aria-controls="sec-tampilan-body">
           <span class="sec-icon"><?= icon('palette', 18) ?></span>
           <span class="sec-title"><?= e($dt['widget_appearance']) ?></span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
@@ -625,7 +871,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- AI -->
       <div class="glass sec open" id="sec-ai" data-sec="1">
-        <button type="button" class="sec-head" aria-expanded="true" aria-controls="sec-ai-body">
+        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="true" aria-controls="sec-ai-body">
           <span class="sec-icon"><?= icon('bot', 18) ?></span>
           <span class="sec-title"><?= e($dt['ai_config']) ?></span>
           <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
@@ -696,7 +942,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- DOMAIN -->
       <div class="glass sec" id="sec-domain" data-sec="1">
-        <button type="button" class="sec-head" aria-expanded="false" aria-controls="sec-domain-body">
+        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="false" aria-controls="sec-domain-body">
           <span class="sec-icon"><?= icon('shield', 18) ?></span>
           <span class="sec-title"><?= e($dt['domain_security']) ?></span>
           <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
@@ -722,7 +968,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- TELEGRAM -->
       <div class="glass sec" id="sec-telegram" data-sec="1">
-        <button type="button" class="sec-head" aria-expanded="false" aria-controls="sec-telegram-body">
+        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="false" aria-controls="sec-telegram-body">
           <span class="sec-icon"><?= icon('phone', 18) ?></span>
           <span class="sec-title"><?= e($dt['telegram_notifications']) ?></span>
           <?php if ($tgSet): ?><span class="head-badge hb-ok"><?= e($dt['active']) ?></span><?php endif; ?>
@@ -894,13 +1140,6 @@ var CP_DASH_TEXT = <?= json_encode([
 
   document.querySelectorAll('.sec').forEach(function (sec) {
     setSection(sec, sec.classList.contains('open'));
-  });
-
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest && e.target.closest('.sec-head');
-    if (!btn || !btn.closest('.sec')) return;
-    e.preventDefault();
-    window.toggleDashboardSection(btn);
   });
 })();
 
