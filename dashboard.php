@@ -805,7 +805,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- TAMPILAN -->
       <div class="glass sec open" id="sec-tampilan" data-sec="1">
-        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="true" aria-controls="sec-tampilan-body">
+        <button type="button" class="sec-head" aria-expanded="true" aria-controls="sec-tampilan-body">
           <span class="sec-icon"><?= icon('palette', 18) ?></span>
           <span class="sec-title"><?= e($dt['widget_appearance']) ?></span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
@@ -871,7 +871,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- AI -->
       <div class="glass sec open" id="sec-ai" data-sec="1">
-        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="true" aria-controls="sec-ai-body">
+        <button type="button" class="sec-head" aria-expanded="true" aria-controls="sec-ai-body">
           <span class="sec-icon"><?= icon('bot', 18) ?></span>
           <span class="sec-title"><?= e($dt['ai_config']) ?></span>
           <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
@@ -942,7 +942,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- DOMAIN -->
       <div class="glass sec" id="sec-domain" data-sec="1">
-        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="false" aria-controls="sec-domain-body">
+        <button type="button" class="sec-head" aria-expanded="false" aria-controls="sec-domain-body">
           <span class="sec-icon"><?= icon('shield', 18) ?></span>
           <span class="sec-title"><?= e($dt['domain_security']) ?></span>
           <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
@@ -968,7 +968,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- TELEGRAM -->
       <div class="glass sec" id="sec-telegram" data-sec="1">
-        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="false" aria-controls="sec-telegram-body">
+        <button type="button" class="sec-head" aria-expanded="false" aria-controls="sec-telegram-body">
           <span class="sec-icon"><?= icon('phone', 18) ?></span>
           <span class="sec-title"><?= e($dt['telegram_notifications']) ?></span>
           <?php if ($tgSet): ?><span class="head-badge hb-ok"><?= e($dt['active']) ?></span><?php endif; ?>
@@ -1074,36 +1074,6 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
 </div>
 
-<script>
-(function () {
-  function setSectionState(sec, open) {
-    var btn = sec ? sec.querySelector('.sec-head') : null;
-    var body = sec ? sec.querySelector('.sec-body') : null;
-    if (!sec || !btn || !body) return;
-
-    sec.classList.toggle('open', !!open);
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open) {
-      body.removeAttribute('hidden');
-    } else {
-      body.setAttribute('hidden', '');
-    }
-  }
-
-  window.toggleDashboardSection = function (btn) {
-    var sec = btn && btn.closest ? btn.closest('.sec') : null;
-    if (!sec) return false;
-    setSectionState(sec, !sec.classList.contains('open'));
-    return false;
-  };
-
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.sec').forEach(function (sec) {
-      setSectionState(sec, sec.classList.contains('open'));
-    });
-  });
-})();
-</script>
 <script src="/js/ui.js"></script>
 <script>
 /* ==========================================================
@@ -1256,35 +1226,6 @@ function cpCopyEmbed() {
   }
 }
 
-/* ── Dashboard Language Dropdown ── */
-(function(){
-  var w=document.getElementById('dashLangWrap');
-  var b=document.getElementById('dashLangBtn');
-  var d=document.getElementById('dashLangDrop');
-  if(!w||!b||!d) return;
-
-  function pos(){
-    var r=b.getBoundingClientRect();
-    d.style.top=(r.bottom+6)+'px';
-    var dw=d.offsetWidth||160;
-    var left=r.right-dw;
-    if(left<8) left=8;
-    d.style.left=left+'px';
-    d.style.right='auto';
-  }
-  function open(){ pos(); w.classList.add('open'); b.setAttribute('aria-expanded','true'); }
-  function close(){ w.classList.remove('open'); b.setAttribute('aria-expanded','false'); }
-
-  b.addEventListener('click',function(e){
-    e.stopPropagation();
-    w.classList.contains('open') ? close() : open();
-  });
-  document.addEventListener('click',function(e){
-    if(!w.contains(e.target)) close();
-  });
-  window.addEventListener('scroll',function(){ if(w.classList.contains('open')) pos(); },{passive:true});
-  window.addEventListener('resize',function(){ if(w.classList.contains('open')) pos(); },{passive:true});
-})();
 </script>
 </body>
 </html>
