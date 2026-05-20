@@ -35,27 +35,41 @@ function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8
   pointer-events:none;transition:width .08s linear;}
 
 /* ── Language switcher ── */
-.lang-wrap{position:relative;display:flex}
+/* lang-wrap sits directly in .nav-in, NOT inside .nav-links,
+   so it is never clipped by the mobile drawer's overflow-y:auto  */
+.lang-wrap{
+  position:relative;
+  flex-shrink:0;
+  /* On mobile: hide the globe-dropdown; show .nav-langs-mobile in drawer instead */
+}
 .lang-btn{
   display:flex;align-items:center;gap:5px;
   padding:6px 11px;border-radius:9px;
   border:1px solid var(--border-2);background:transparent;
   color:var(--text-2);font-size:13px;font-weight:600;
-  cursor:pointer;font-family:inherit;transition:all .2s;
+  cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;
 }
 .lang-btn:hover{border-color:var(--green-line);color:var(--green);background:var(--green-dim)}
-.lang-btn .chv{width:13px;height:13px;transition:transform .22s}
+.lang-btn .chv{width:13px;height:13px;transition:transform .22s;flex-shrink:0}
 .lang-wrap.open .lang-btn .chv{transform:rotate(180deg)}
 .lang-flag{font-size:14px;line-height:1}
+/* dropdown — position:fixed so it's never clipped by any ancestor overflow */
 .lang-drop{
-  position:absolute;top:calc(100% + 8px);right:0;min-width:156px;
+  position:fixed;
+  /* JS will set top/right after button position is measured */
+  min-width:160px;
   background:var(--bg-3);border:1px solid var(--border-2);
   border-radius:13px;padding:5px;
-  box-shadow:0 20px 52px rgba(0,0,0,.55);
-  opacity:0;visibility:hidden;transform:translateY(-8px) scale(.97);
-  transition:all .22s cubic-bezier(.22,1,.36,1);z-index:300;
+  box-shadow:0 20px 52px rgba(0,0,0,.6);
+  opacity:0;visibility:hidden;transform:translateY(-6px) scale(.97);
+  transition:opacity .2s cubic-bezier(.22,1,.36,1),
+             transform .2s cubic-bezier(.22,1,.36,1),
+             visibility .2s;
+  z-index:9990;pointer-events:none;
 }
-.lang-wrap.open .lang-drop{opacity:1;visibility:visible;transform:none}
+.lang-wrap.open .lang-drop{
+  opacity:1;visibility:visible;transform:none;pointer-events:auto;
+}
 .lang-opt{
   display:flex;align-items:center;gap:9px;
   padding:9px 12px;border-radius:8px;
@@ -65,6 +79,28 @@ function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8
 .lang-opt:hover{background:rgba(255,255,255,.06);color:var(--text)}
 .lang-opt.cur{color:var(--green);background:var(--green-dim)}
 .lang-opt-flag{font-size:15px;line-height:1;width:22px;text-align:center}
+
+/* Mobile-only inline lang picker inside the drawer */
+.nav-langs-mobile{
+  display:none; /* hidden on desktop */
+  flex-wrap:wrap;gap:6px;padding:10px 14px 4px;
+  border-top:1px solid var(--border);margin-top:4px;
+}
+.nlm-opt{
+  display:flex;align-items:center;gap:5px;
+  padding:6px 10px;border-radius:8px;border:1px solid var(--border-2);
+  font-size:12.5px;font-weight:500;color:var(--text-2);
+  text-decoration:none;transition:all .15s;
+}
+.nlm-opt:hover{border-color:var(--green-line);color:var(--green);background:var(--green-dim)}
+.nlm-opt.cur{border-color:var(--green-line);color:var(--green);background:var(--green-dim)}
+.nlm-lbl{font-size:12px}
+
+@media(max-width:780px){
+  .lang-wrap{display:none} /* hide globe button on mobile */
+  .nav-langs-mobile{display:flex} /* show inline flags in drawer */
+  .lang-label-text{display:none} /* not needed but just in case */
+}
 
 /* ── Hero ── */
 .hero{
@@ -370,6 +406,29 @@ footer a:hover{opacity:.75}
       <span class="brand-text">ChatPopup.AI</span>
     </a>
 
+    <!-- Language Switcher — lives OUTSIDE nav-links to avoid overflow clipping -->
+    <div class="lang-wrap" id="langWrap">
+      <button class="lang-btn" id="langBtn" type="button"
+              aria-haspopup="true" aria-expanded="false">
+        <span class="lang-flag"><?= $meta[$lang]['flag'] ?></span>
+        <span class="lang-label-text"><?= esc($meta[$lang]['label']) ?></span>
+        <svg class="chv" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="lang-drop" id="langDrop" role="menu">
+        <?php foreach ($meta as $code => $info): ?>
+        <a class="lang-opt <?= $code === $lang ? 'cur' : '' ?>"
+           href="?lang=<?= esc($code) ?>" role="menuitem">
+          <span class="lang-opt-flag"><?= $info['flag'] ?></span>
+          <?= esc($info['label']) ?>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+
     <button class="nav-burger" id="navBurger" type="button"
             aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
       <span class="nav-ico-menu"><?= icon('menu', 20) ?></span>
@@ -382,27 +441,15 @@ footer a:hover{opacity:.75}
       <a class="nav-link" href="#providers"><?= esc($t['nav_providers']) ?></a>
       <a class="nav-link" href="/login.php"><?= esc($t['nav_login']) ?></a>
 
-      <!-- ── Language Switcher ── -->
-      <div class="lang-wrap" id="langWrap">
-        <button class="lang-btn" id="langBtn" type="button"
-                aria-haspopup="true" aria-expanded="false">
-          <span class="lang-flag"><?= $meta[$lang]['flag'] ?></span>
-          <span><?= esc($meta[$lang]['label']) ?></span>
-          <svg class="chv" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
-        <div class="lang-drop" id="langDrop" role="menu">
-          <?php foreach ($meta as $code => $info): ?>
-          <a class="lang-opt <?= $code === $lang ? 'cur' : '' ?>"
-             href="?lang=<?= esc($code) ?>" role="menuitem">
-            <span class="lang-opt-flag"><?= $info['flag'] ?></span>
-            <?= esc($info['label']) ?>
-          </a>
-          <?php endforeach; ?>
-        </div>
+      <!-- Mobile-only: inline lang flags inside the drawer -->
+      <div class="nav-langs-mobile">
+        <?php foreach ($meta as $code => $info): ?>
+        <a class="nlm-opt <?= $code === $lang ? 'cur' : '' ?>"
+           href="?lang=<?= esc($code) ?>">
+          <span><?= $info['flag'] ?></span>
+          <span class="nlm-lbl"><?= esc($info['label']) ?></span>
+        </a>
+        <?php endforeach; ?>
       </div>
 
       <a class="nav-link btn btn-primary" href="/register.php">
@@ -680,19 +727,47 @@ footer a:hover{opacity:.75}
   window.addEventListener('resize',function(){if(window.innerWidth>780) set(false);});
 })();
 
-/* ── Language dropdown ── */
+/* ── Language dropdown (position:fixed to avoid any overflow clip) ── */
 (function(){
-  var w=document.getElementById('langWrap'),b=document.getElementById('langBtn');
-  if(!w||!b) return;
-  b.addEventListener('click',function(e){
-    e.stopPropagation();
-    var o=w.classList.toggle('open');
-    b.setAttribute('aria-expanded',String(o));
-  });
-  document.addEventListener('click',function(){
+  var w=document.getElementById('langWrap');
+  var b=document.getElementById('langBtn');
+  var d=document.getElementById('langDrop');
+  if(!w||!b||!d) return;
+
+  function positionDrop(){
+    var r=b.getBoundingClientRect();
+    d.style.top=(r.bottom+6)+'px';
+    // Align right edge of dropdown to right edge of button, clamped within viewport
+    var dropW=d.offsetWidth||160;
+    var left=r.right-dropW;
+    if(left<8) left=8;
+    d.style.left=left+'px';
+    d.style.right='auto';
+  }
+
+  function openDrop(){
+    positionDrop();
+    w.classList.add('open');
+    b.setAttribute('aria-expanded','true');
+  }
+  function closeDrop(){
     w.classList.remove('open');
     b.setAttribute('aria-expanded','false');
+  }
+
+  b.addEventListener('click',function(e){
+    e.stopPropagation();
+    w.classList.contains('open') ? closeDrop() : openDrop();
   });
+
+  // Close on outside click
+  document.addEventListener('click',function(e){
+    if(!w.contains(e.target)) closeDrop();
+  });
+
+  // Reposition on scroll/resize
+  window.addEventListener('scroll',function(){if(w.classList.contains('open')) positionDrop();},{passive:true});
+  window.addEventListener('resize',function(){if(w.classList.contains('open')) positionDrop();},{passive:true});
 })();
 </script>
 </body>

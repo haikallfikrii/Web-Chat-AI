@@ -2,6 +2,9 @@
 declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
+require_once __DIR__ . '/includes/lang.php';
+$lang = get_lang();
+$lmeta = lang_meta();
 
 $user     = require_login();
 $flash    = get_flash();
@@ -56,8 +59,41 @@ $embedSnippet = '<script src="' . $baseUrl . '/widget/widget.js"' . "\n"
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/theme.css">
 <style>
+/* ── LANG WRAP (shared via theme.css, extended here for dashboard) ── */
+.lang-wrap{position:relative;flex-shrink:0}
+.lang-btn{
+  display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:9px;
+  border:1px solid var(--border-2);background:transparent;
+  color:var(--text-2);font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.lang-btn:hover{border-color:var(--green-line);color:var(--green);background:var(--green-dim)}
+.lang-btn .chv{width:12px;height:12px;transition:transform .22s;flex-shrink:0}
+.lang-flag{font-size:14px;line-height:1}
+.lang-wrap.open .lang-btn .chv{transform:rotate(180deg)}
+.lang-drop{
+  position:fixed;min-width:158px;
+  background:var(--bg-3);border:1px solid var(--border-2);
+  border-radius:13px;padding:5px;
+  box-shadow:0 20px 52px rgba(0,0,0,.6);
+  opacity:0;visibility:hidden;transform:translateY(-6px) scale(.97);
+  transition:opacity .2s cubic-bezier(.22,1,.36,1),
+             transform .2s cubic-bezier(.22,1,.36,1),visibility .2s;
+  z-index:9990;pointer-events:none;
+}
+.lang-wrap.open .lang-drop{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.lang-opt{
+  display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;
+  font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;
+  transition:all .15s;text-decoration:none;
+}
+.lang-opt:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.lang-opt.cur{color:var(--green);background:var(--green-dim)}
+.lang-opt-flag{font-size:15px;line-height:1;width:22px;text-align:center}
+.dash-lang{margin-right:6px}
+
 /* ── DASHBOARD TOPBAR ───────────────────────────────────────── */
-.dash-nav{position:sticky;top:0;z-index:50;
+.dash-nav{position:sticky;top:0;z-index:100;
   background:rgba(3,7,18,.78);backdrop-filter:blur(20px) saturate(140%);
   -webkit-backdrop-filter:blur(20px) saturate(140%);
   border-bottom:1px solid var(--border-2);height:62px;
@@ -318,6 +354,29 @@ button.sec-head:focus{outline:none;box-shadow:none}
   </a>
 
   <div class="dash-user">
+    <!-- Language Switcher -->
+    <div class="lang-wrap dash-lang" id="dashLangWrap">
+      <button class="lang-btn" id="dashLangBtn" type="button"
+              aria-haspopup="true" aria-expanded="false"
+              title="Switch language">
+        <span class="lang-flag"><?= $lmeta[$lang]['flag'] ?></span>
+        <svg class="chv" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="lang-drop" id="dashLangDrop" role="menu">
+        <?php foreach ($lmeta as $code => $info): ?>
+        <a class="lang-opt <?= $code === $lang ? 'cur' : '' ?>"
+           href="?lang=<?= e($code) ?>" role="menuitem">
+          <span class="lang-opt-flag"><?= $info['flag'] ?></span>
+          <?= e($info['label']) ?>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+
     <span class="badge <?= $statusBadge ?>"><span class="badge-dot"></span> <?= e($statusLabel) ?></span>
     <div class="dash-user-info">
       <strong><?= e((string) $user['name']) ?></strong>
@@ -804,6 +863,36 @@ function cpCopyEmbed() {
     showOK();
   }
 }
+
+/* ── Dashboard Language Dropdown ── */
+(function(){
+  var w=document.getElementById('dashLangWrap');
+  var b=document.getElementById('dashLangBtn');
+  var d=document.getElementById('dashLangDrop');
+  if(!w||!b||!d) return;
+
+  function pos(){
+    var r=b.getBoundingClientRect();
+    d.style.top=(r.bottom+6)+'px';
+    var dw=d.offsetWidth||160;
+    var left=r.right-dw;
+    if(left<8) left=8;
+    d.style.left=left+'px';
+    d.style.right='auto';
+  }
+  function open(){ pos(); w.classList.add('open'); b.setAttribute('aria-expanded','true'); }
+  function close(){ w.classList.remove('open'); b.setAttribute('aria-expanded','false'); }
+
+  b.addEventListener('click',function(e){
+    e.stopPropagation();
+    w.classList.contains('open') ? close() : open();
+  });
+  document.addEventListener('click',function(e){
+    if(!w.contains(e.target)) close();
+  });
+  window.addEventListener('scroll',function(){ if(w.classList.contains('open')) pos(); },{passive:true});
+  window.addEventListener('resize',function(){ if(w.classList.contains('open')) pos(); },{passive:true});
+})();
 </script>
 </body>
 </html>
