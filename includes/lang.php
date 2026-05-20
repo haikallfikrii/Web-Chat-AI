@@ -18,10 +18,6 @@ function get_lang(): string {
         $c = strtolower(trim((string)$_COOKIE['cp_lang']));
         if (in_array($c, $allowed, true)) return $c;
     }
-    $accept = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
-    foreach ($allowed as $l) {
-        if (str_starts_with($accept, $l)) return $l;
-    }
     return 'en';
 }
 
