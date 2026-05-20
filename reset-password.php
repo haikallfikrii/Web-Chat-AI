@@ -2,8 +2,12 @@
 declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
+require_once __DIR__ . '/includes/lang.php';
 
-if (current_user() !== null) { header('Location: /dashboard.php'); exit; }
+if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
+
+$lang = get_lang();
+$t = lang_strings($lang);
 
 $token = trim((string) ($_GET['token'] ?? $_POST['token'] ?? ''));
 $error = '';
@@ -23,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (string) ($_POST['password_confirm'] ?? '')
         );
         if ($result['ok']) {
-            header('Location: /login.php?password_reset=1');
+            header('Location: ' . app_url('/login.php', ['password_reset' => 1]));
             exit;
         }
         $error = $result['error'] ?? 'Gagal mereset password.';
@@ -31,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html lang="id">
+<html lang="<?= e($t['html_lang']) ?>" dir="<?= e($t['dir']) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -82,11 +86,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="auth-shell">
   <div class="auth-top">
-    <a href="/" class="brand">
+    <a href="<?= e(app_url('/')) ?>" class="brand">
       <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
       <span class="brand-text">ChatPopup.AI</span>
     </a>
-    <a href="/login.php" class="auth-back"><?= icon('arrow-left', 16) ?> Kembali</a>
+    <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> Kembali</a>
   </div>
 
   <div class="auth-wrap">
@@ -102,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <?= icon('alert', 18) ?>
           <span>Link reset password ini sudah kedaluwarsa atau tidak valid. Mohon ajukan ulang.</span>
         </div>
-        <a href="/forgot-password.php" class="btn btn-primary btn-block btn-lg">
+        <a href="<?= e(app_url('/forgot-password.php')) ?>" class="btn btn-primary btn-block btn-lg">
           Ajukan Link Baru <?= icon('refresh', 16) ?>
         </a>
       <?php else: ?>
@@ -111,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="alert alert-error"><?= icon('alert', 18) ?> <span><?= e($error) ?></span></div>
         <?php endif; ?>
 
-        <form method="POST" action="/reset-password.php" autocomplete="off" novalidate>
+        <form method="POST" action="<?= e(app_url('/reset-password.php')) ?>" autocomplete="off" novalidate>
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="hidden" name="token" value="<?= e($token) ?>">
 
@@ -152,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php endif; ?>
 
       <div class="divider">atau</div>
-      <p class="auth-foot"><a href="/login.php">Kembali ke Login</a></p>
+      <p class="auth-foot"><a href="<?= e(app_url('/login.php')) ?>">Kembali ke Login</a></p>
     </div>
   </div>
 </div>

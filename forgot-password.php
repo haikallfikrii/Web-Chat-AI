@@ -2,8 +2,12 @@
 declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
+require_once __DIR__ . '/includes/lang.php';
 
-if (current_user() !== null) { header('Location: /dashboard.php'); exit; }
+if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
+
+$lang = get_lang();
+$t = lang_strings($lang);
 
 $error    = '';
 $info     = '';
@@ -35,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html lang="id">
+<html lang="<?= e($t['html_lang']) ?>" dir="<?= e($t['dir']) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -84,11 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="auth-shell">
   <div class="auth-top">
-    <a href="/" class="brand">
+    <a href="<?= e(app_url('/')) ?>" class="brand">
       <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
       <span class="brand-text">ChatPopup.AI</span>
     </a>
-    <a href="/login.php" class="auth-back"><?= icon('arrow-left', 16) ?> Kembali ke Login</a>
+    <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> Kembali ke Login</a>
   </div>
 
   <div class="auth-wrap">
@@ -115,12 +119,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         <?php endif; ?>
         <div style="margin-top:18px">
-          <a href="/login.php" class="btn btn-outline btn-block">
+          <a href="<?= e(app_url('/login.php')) ?>" class="btn btn-outline btn-block">
             <?= icon('arrow-left', 16) ?> Kembali ke Login
           </a>
         </div>
       <?php else: ?>
-        <form method="POST" action="/forgot-password.php" autocomplete="on" novalidate>
+        <form method="POST" action="<?= e(app_url('/forgot-password.php')) ?>" autocomplete="on" novalidate>
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
           <div class="field">
@@ -139,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="divider">atau</div>
-        <p class="auth-foot">Ingat password Anda? <a href="/login.php">Masuk</a></p>
+        <p class="auth-foot">Ingat password Anda? <a href="<?= e(app_url('/login.php')) ?>">Masuk</a></p>
       <?php endif; ?>
     </div>
   </div>

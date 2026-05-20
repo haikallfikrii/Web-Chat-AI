@@ -37,6 +37,16 @@ function lang_switch_url(string $lang): string {
     return $path . '?' . http_build_query($query);
 }
 
+function app_url(string $path = '/', array $params = []): string {
+    $lang = get_lang();
+    if ($lang !== '') {
+        $params['lang'] = $lang;
+    }
+
+    $query = http_build_query($params);
+    return $query !== '' ? $path . '?' . $query : $path;
+}
+
 function lang_meta(): array {
     return [
         'en' => ['flag' => '🇺🇸', 'label' => 'English'],

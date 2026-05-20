@@ -387,7 +387,7 @@ $settings = fetch_dashboard_settings((int) $user['client_id']);
 
 if ($settings === null) {
     set_flash('error', $dt['missing_client']);
-    header('Location: /login.php');
+    header('Location: ' . app_url('/login.php'));
     exit;
 }
 
@@ -724,7 +724,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
 <!-- TOPBAR -->
 <header class="dash-nav">
-  <a href="/" class="brand">
+  <a href="<?= e(app_url('/')) ?>" class="brand">
     <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
     <span class="brand-text">ChatPopup.AI</span>
   </a>
@@ -1074,6 +1074,36 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
 </div>
 
+<script>
+(function () {
+  function setSectionState(sec, open) {
+    var btn = sec ? sec.querySelector('.sec-head') : null;
+    var body = sec ? sec.querySelector('.sec-body') : null;
+    if (!sec || !btn || !body) return;
+
+    sec.classList.toggle('open', !!open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      body.removeAttribute('hidden');
+    } else {
+      body.setAttribute('hidden', '');
+    }
+  }
+
+  window.toggleDashboardSection = function (btn) {
+    var sec = btn && btn.closest ? btn.closest('.sec') : null;
+    if (!sec) return false;
+    setSectionState(sec, !sec.classList.contains('open'));
+    return false;
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.sec').forEach(function (sec) {
+      setSectionState(sec, sec.classList.contains('open'));
+    });
+  });
+})();
+</script>
 <script src="/js/ui.js"></script>
 <script>
 /* ==========================================================
@@ -1117,29 +1147,6 @@ var CP_DASH_TEXT = <?= json_encode([
       if (hidden) hidden.value = e.target.result;
     };
     reader.readAsDataURL(file);
-  });
-})();
-
-/* ── 0b. ACCORDION INIT + TOGGLE ── */
-(function () {
-  function setSection(sec, open) {
-    var btn = sec ? sec.querySelector('.sec-head') : null;
-    var body = sec ? sec.querySelector('.sec-body') : null;
-    if (!sec || !btn || !body) return;
-
-    sec.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    body.hidden = !open;
-  }
-
-  window.toggleDashboardSection = function (btn) {
-    var sec = btn && btn.closest ? btn.closest('.sec') : null;
-    if (!sec) return;
-    setSection(sec, !sec.classList.contains('open'));
-  };
-
-  document.querySelectorAll('.sec').forEach(function (sec) {
-    setSection(sec, sec.classList.contains('open'));
   });
 })();
 

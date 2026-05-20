@@ -2,8 +2,12 @@
 declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
+require_once __DIR__ . '/includes/lang.php';
 
-if (current_user() !== null) { header('Location: /dashboard.php'); exit; }
+if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
+
+$lang = get_lang();
+$t = lang_strings($lang);
 
 $error    = '';
 $success  = '';
@@ -19,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = attempt_login($prefill, (string) ($_POST['password'] ?? ''));
         if ($result['ok']) {
-            header('Location: /dashboard.php');
+            header('Location: ' . app_url('/dashboard.php'));
             exit;
         }
         $error = $result['error'] ?? 'Login gagal.';
@@ -27,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html lang="id">
+<html lang="<?= e($t['html_lang']) ?>" dir="<?= e($t['dir']) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -92,11 +96,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="auth-shell">
 
   <div class="auth-top">
-    <a href="/" class="brand">
+    <a href="<?= e(app_url('/')) ?>" class="brand">
       <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
       <span class="brand-text">ChatPopup.AI</span>
     </a>
-    <a href="/" class="auth-back"><?= icon('arrow-left', 16) ?> Beranda</a>
+    <a href="<?= e(app_url('/')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> Beranda</a>
   </div>
 
   <div class="auth-wrap">
@@ -144,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <label class="auth-checkbox">
             <input type="checkbox" name="remember" value="1"> Ingat saya
           </label>
-          <a href="/forgot-password.php<?= $prefill ? '?email=' . urlencode($prefill) : '' ?>">Lupa password?</a>
+          <a href="<?= e(app_url('/forgot-password.php', $prefill ? ['email' => $prefill] : [])) ?>">Lupa password?</a>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block btn-lg">
@@ -154,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <div class="divider">Belum punya akun?</div>
       <p class="auth-foot">
-        <a href="/register.php">Daftar gratis sekarang <?= icon('arrow-right', 14) ?></a>
+        <a href="<?= e(app_url('/register.php')) ?>">Daftar gratis sekarang <?= icon('arrow-right', 14) ?></a>
       </p>
     </div>
   </div>
