@@ -5,13 +5,144 @@ require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
 $lang = get_lang();
 $lmeta = lang_meta();
+$pageLang = lang_strings($lang);
+
+function dash_text(string $lang): array {
+    $all = [
+        'en' => [
+            'status_active' => 'Active',
+            'status_trial' => 'Trial',
+            'status_inactive' => 'Inactive',
+            'missing_client' => 'Client data was not found. Please contact the administrator.',
+            'page_title' => 'Dashboard',
+            'switch_language' => 'Switch language',
+            'logout' => 'Log Out',
+            'welcome_flash' => 'Welcome! Your account was created successfully. Configure your widget below.',
+            'hello' => 'Hello',
+            'widget_dashboard_for' => 'Widget dashboard for',
+            'setup_done' => 'Setup complete',
+            'widget_appearance' => 'Widget Appearance',
+            'bot_avatar' => 'Bot Avatar',
+            'upload_photo' => 'Upload Photo',
+            'avatar_note' => 'PNG/JPG/WEBP, max 2 MB.<br>Shown in the top corner of the chat window.',
+            'bot_name' => 'Bot Name',
+            'welcome_message' => 'Welcome Message',
+            'primary_color' => 'Primary Color',
+            'ai_config' => 'AI Configuration',
+            'active' => 'Active',
+            'incomplete' => 'Incomplete',
+            'ai_provider' => 'AI Provider',
+            'recommended' => 'Recommended',
+            'cheap_fast' => 'Affordable & fast',
+            'ai_model' => 'AI Model',
+            'model_hint' => 'Match it with the selected provider',
+            'api_key_provider' => 'Provider API Key',
+            'api_key_placeholder_saved' => '••••••• (saved, leave empty to keep unchanged)',
+            'system_prompt' => 'System Prompt',
+            'system_prompt_hint' => 'Bot personality and instructions',
+            'domain_security' => 'Domain Security',
+            'configured' => 'Configured',
+            'open' => 'Open',
+            'allowed_origins' => 'Allowed Origins',
+            'comma_separated' => 'Separate with commas',
+            'domain_hint' => 'Leave empty or use <code>*</code> to allow all domains (less secure).',
+            'telegram_notifications' => 'Telegram Notifications',
+            'send_telegram' => 'Send notifications to Telegram',
+            'telegram_sub' => 'Receive a ping every time a new message arrives in your widget',
+            'telegram_chat_id' => 'Telegram Chat ID',
+            'telegram_hint' => 'Send <code>/start</code> to <strong>@userinfobot</strong> on Telegram to get your Chat ID.',
+            'save_all' => 'Save All Settings',
+            'widget_api_key' => 'Widget API Key',
+            'copy' => 'Copy',
+            'api_key_note' => 'Used in the embed code. Do not share it publicly.',
+            'embed_code' => 'Embed Code',
+            'copy_embed' => 'Copy Embed Code',
+            'embed_note' => 'Paste before <code style="color:var(--green);background:var(--green-dim);padding:1px 5px;border-radius:4px;font-family:\'JetBrains Mono\',monospace">&lt;/body&gt;</code> on your website.',
+            'checklist_setup' => 'Setup Checklist',
+            'check_api_key' => 'AI API key added',
+            'check_model' => 'AI model selected',
+            'check_domain' => 'Domain origins configured',
+            'check_telegram' => 'Telegram notifications (optional)',
+            'check_embed' => 'Embed code ready to copy',
+            'copied' => 'Copied!',
+            'copy_failed' => 'Copy failed',
+            'show_api_key' => 'Show API key',
+            'hide_api_key' => 'Hide API key',
+            'photo_max' => 'Photo size must be 2 MB or less',
+        ],
+        'id' => [
+            'status_active' => 'Aktif',
+            'status_trial' => 'Trial',
+            'status_inactive' => 'Nonaktif',
+            'missing_client' => 'Data client tidak ditemukan. Hubungi administrator.',
+            'page_title' => 'Dashboard',
+            'switch_language' => 'Ganti bahasa',
+            'logout' => 'Keluar',
+            'welcome_flash' => 'Selamat datang! Akun Anda berhasil dibuat. Mari konfigurasi widget di bawah ini.',
+            'hello' => 'Halo',
+            'widget_dashboard_for' => 'Dashboard widget untuk',
+            'setup_done' => 'Setup selesai',
+            'widget_appearance' => 'Tampilan Widget',
+            'bot_avatar' => 'Avatar Bot',
+            'upload_photo' => 'Upload Foto',
+            'avatar_note' => 'PNG/JPG/WEBP, max 2 MB.<br>Tampil di pojok atas jendela chat.',
+            'bot_name' => 'Nama Bot',
+            'welcome_message' => 'Pesan Sambutan',
+            'primary_color' => 'Warna Utama',
+            'ai_config' => 'Konfigurasi AI',
+            'active' => 'Aktif',
+            'incomplete' => 'Belum lengkap',
+            'ai_provider' => 'Provider AI',
+            'recommended' => 'Rekomendasi',
+            'cheap_fast' => 'Murah & cepat',
+            'ai_model' => 'Model AI',
+            'model_hint' => 'Sesuaikan dengan provider',
+            'api_key_provider' => 'API Key Provider',
+            'api_key_placeholder_saved' => '••••••• (tersimpan, kosongkan untuk tidak mengubah)',
+            'system_prompt' => 'System Prompt',
+            'system_prompt_hint' => 'Kepribadian dan instruksi bot',
+            'domain_security' => 'Keamanan Domain',
+            'configured' => 'Diatur',
+            'open' => 'Dibuka',
+            'allowed_origins' => 'Allowed Origins',
+            'comma_separated' => 'Pisahkan dengan koma',
+            'domain_hint' => 'Kosongkan atau isi <code>*</code> untuk izinkan semua domain (kurang aman).',
+            'telegram_notifications' => 'Notifikasi Telegram',
+            'send_telegram' => 'Kirim notifikasi ke Telegram',
+            'telegram_sub' => 'Terima ping setiap ada pesan baru di widget Anda',
+            'telegram_chat_id' => 'Telegram Chat ID',
+            'telegram_hint' => 'Kirim <code>/start</code> ke <strong>@userinfobot</strong> di Telegram untuk dapat Chat ID Anda.',
+            'save_all' => 'Simpan Semua Pengaturan',
+            'widget_api_key' => 'Widget API Key',
+            'copy' => 'Salin',
+            'api_key_note' => 'Digunakan di embed code. Jangan bagikan ke publik.',
+            'embed_code' => 'Kode Embed',
+            'copy_embed' => 'Salin Embed Code',
+            'embed_note' => 'Tempel sebelum <code style="color:var(--green);background:var(--green-dim);padding:1px 5px;border-radius:4px;font-family:\'JetBrains Mono\',monospace">&lt;/body&gt;</code> di website Anda.',
+            'checklist_setup' => 'Checklist Setup',
+            'check_api_key' => 'API Key AI terisi',
+            'check_model' => 'Model AI dipilih',
+            'check_domain' => 'Domain origins diatur',
+            'check_telegram' => 'Notifikasi Telegram (opsional)',
+            'check_embed' => 'Embed code siap disalin',
+            'copied' => 'Tersalin!',
+            'copy_failed' => 'Gagal salin',
+            'show_api_key' => 'Tampilkan API key',
+            'hide_api_key' => 'Sembunyikan API key',
+            'photo_max' => 'Ukuran foto maksimal 2 MB',
+        ],
+    ];
+
+    return $all[$lang] ?? $all['en'];
+}
+$dt = dash_text($lang);
 
 $user     = require_login();
 $flash    = get_flash();
 $settings = fetch_dashboard_settings((int) $user['client_id']);
 
 if ($settings === null) {
-    set_flash('error', 'Data client tidak ditemukan. Hubungi administrator.');
+    set_flash('error', $dt['missing_client']);
     header('Location: /login.php');
     exit;
 }
@@ -25,14 +156,14 @@ $providerOk = trim((string) $settings['ai_model']) !== '';
 $tgSet      = !empty($settings['telegram_notify_enabled']) && !empty($settings['telegram_chat_id']);
 
 $status      = $user['subscription_status'] ?? 'trial';
-$statusLabel = ['active' => 'Aktif', 'trial' => 'Trial', 'inactive' => 'Nonaktif'][$status] ?? $status;
+$statusLabel = ['active' => $dt['status_active'], 'trial' => $dt['status_trial'], 'inactive' => $dt['status_inactive']][$status] ?? $status;
 $statusBadge = match($status) { 'active' => 'badge-green', 'inactive' => 'badge-red', default => 'badge-yellow' };
 
 $checklist = [
-    ['ok' => $aiKeySet,   'label' => 'API Key AI terisi'],
-    ['ok' => $providerOk, 'label' => 'Model AI dipilih'],
-    ['ok' => $domainSet,  'label' => 'Domain origins diatur'],
-    ['ok' => $tgSet,      'label' => 'Notifikasi Telegram (opsional)'],
+    ['ok' => $aiKeySet,   'label' => $dt['check_api_key']],
+    ['ok' => $providerOk, 'label' => $dt['check_model']],
+    ['ok' => $domainSet,  'label' => $dt['check_domain']],
+    ['ok' => $tgSet,      'label' => $dt['check_telegram']],
 ];
 $checkScore = count(array_filter(array_column($checklist, 'ok')));
 $checkTotal = count($checklist);
@@ -48,12 +179,12 @@ $embedSnippet = '<script src="' . $baseUrl . '/widget/widget.js"' . "\n"
     . '></script>';
 ?>
 <!doctype html>
-<html lang="id">
+<html lang="<?= e($pageLang['html_lang']) ?>" dir="<?= e($pageLang['dir']) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
-<title>Dashboard — <?= e((string) $user['client_name']) ?></title>
+<title><?= e($dt['page_title']) ?> — <?= e((string) $user['client_name']) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -358,7 +489,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
     <div class="lang-wrap dash-lang" id="dashLangWrap">
       <button class="lang-btn" id="dashLangBtn" type="button"
               aria-haspopup="true" aria-expanded="false"
-              title="Switch language">
+              title="<?= e($dt['switch_language']) ?>">
         <span class="lang-flag"><?= $lmeta[$lang]['flag'] ?></span>
         <svg class="chv" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
              fill="none" stroke="currentColor" stroke-width="2.5"
@@ -386,7 +517,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
     <form method="POST" action="/logout.php" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
       <button type="submit" class="btn btn-danger" style="padding:8px 14px">
-        <?= icon('log-out', 14) ?> Keluar
+        <?= icon('log-out', 14) ?> <?= e($dt['logout']) ?>
       </button>
     </form>
   </div>
@@ -404,7 +535,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
   <?php if ($welcome): ?>
     <div class="alert alert-success flash">
       <?= icon('sparkles', 18) ?>
-      <span>Selamat datang! Akun Anda berhasil dibuat. Mari konfigurasi widget di bawah ini.</span>
+      <span><?= e($dt['welcome_flash']) ?></span>
     </div>
   <?php endif; ?>
 
@@ -412,11 +543,11 @@ button.sec-head:focus{outline:none;box-shadow:none}
   <div class="hero-strip">
     <div class="hero-avatar"><?= icon('rocket', 26) ?></div>
     <div class="hero-text">
-      <h2>Halo, <?= e($firstName) ?>!</h2>
-      <p>Dashboard widget untuk <strong style="color:var(--text)"><?= e((string) $user['client_name']) ?></strong></p>
+      <h2><?= e($dt['hello']) ?>, <?= e($firstName) ?>!</h2>
+      <p><?= e($dt['widget_dashboard_for']) ?> <strong style="color:var(--text)"><?= e((string) $user['client_name']) ?></strong></p>
     </div>
     <div class="hero-progress">
-      <div class="hero-progress-label"><strong><?= $checkScore ?></strong>/<?= $checkTotal ?> Setup selesai</div>
+      <div class="hero-progress-label"><strong><?= $checkScore ?></strong>/<?= $checkTotal ?> <?= e($dt['setup_done']) ?></div>
       <div class="hero-bar"><div class="hero-bar-fill" style="width:<?= $checkPct ?>%"></div></div>
     </div>
   </div>
@@ -428,9 +559,9 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- TAMPILAN -->
       <div class="glass sec open" id="sec-tampilan" data-sec="1">
-        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="true" aria-controls="sec-tampilan-body">
+        <button type="button" class="sec-head" aria-expanded="true" aria-controls="sec-tampilan-body">
           <span class="sec-icon"><?= icon('palette', 18) ?></span>
-          <span class="sec-title">Tampilan Widget</span>
+          <span class="sec-title"><?= e($dt['widget_appearance']) ?></span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
         <div class="sec-body" id="sec-tampilan-body">
@@ -441,7 +572,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
           ?>
           <!-- AVATAR BOT -->
           <div class="field">
-            <label class="field-label"><?= icon('image', 14) ?> Avatar Bot</label>
+            <label class="field-label"><?= icon('image', 14) ?> <?= e($dt['bot_avatar']) ?></label>
             <div class="avatar-row">
               <div class="avatar-preview" id="avatarPreviewWrap">
                 <?php if ($avatarUrl): ?>
@@ -452,7 +583,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
               </div>
               <div class="avatar-controls">
                 <label class="btn btn-sm btn-outline" for="avatarFile" style="cursor:pointer">
-                  <?= icon('upload', 13) ?> Upload Foto
+                  <?= icon('upload', 13) ?> <?= e($dt['upload_photo']) ?>
                 </label>
                 <input type="file" id="avatarFile" name="bot_avatar_file"
                        accept="image/png,image/jpeg,image/webp,image/gif"
@@ -460,26 +591,26 @@ button.sec-head:focus{outline:none;box-shadow:none}
                 <input type="hidden" id="avatarUrlHidden" name="bot_avatar_url"
                        value="<?= e($avatarUrl) ?>">
                 <p style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5">
-                  PNG/JPG/WEBP, max 2 MB.<br>Tampil di pojok atas jendela chat.
+                  <?= $dt['avatar_note'] ?>
                 </p>
               </div>
             </div>
           </div>
 
           <div class="field">
-            <label class="field-label" for="bot_name"><?= icon('bot', 14) ?> Nama Bot</label>
+            <label class="field-label" for="bot_name"><?= icon('bot', 14) ?> <?= e($dt['bot_name']) ?></label>
             <input type="text" id="bot_name" name="bot_name" class="input"
-                   placeholder="e.g. Asisten Jomsite" required maxlength="80"
+                   placeholder="<?= $lang === 'id' ? 'e.g. Asisten Jomsite' : 'e.g. Jomsite Assistant' ?>" required maxlength="80"
                    value="<?= e((string) $settings['bot_name']) ?>">
           </div>
           <div class="field">
-            <label class="field-label" for="welcome_message"><?= icon('message', 14) ?> Pesan Sambutan</label>
+            <label class="field-label" for="welcome_message"><?= icon('message', 14) ?> <?= e($dt['welcome_message']) ?></label>
             <textarea id="welcome_message" name="welcome_message" class="textarea"
-                      placeholder="Halo! Ada yang bisa saya bantu hari ini?"
+                      placeholder="<?= $lang === 'id' ? 'Halo! Ada yang bisa saya bantu hari ini?' : 'Hi! How can I help you today?' ?>"
                       rows="2"><?= e((string) $settings['welcome_message']) ?></textarea>
           </div>
           <div class="field">
-            <label class="field-label" for="color-hex"><?= icon('palette', 14) ?> Warna Utama</label>
+            <label class="field-label" for="color-hex"><?= icon('palette', 14) ?> <?= e($dt['primary_color']) ?></label>
             <div class="color-row">
               <input type="text" id="color-hex" name="primary_color" class="input"
                      value="<?= e($primaryColor) ?>" placeholder="#00E59A"
@@ -494,25 +625,25 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- AI -->
       <div class="glass sec open" id="sec-ai" data-sec="1">
-        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="true" aria-controls="sec-ai-body">
+        <button type="button" class="sec-head" aria-expanded="true" aria-controls="sec-ai-body">
           <span class="sec-icon"><?= icon('bot', 18) ?></span>
-          <span class="sec-title">Konfigurasi AI</span>
+          <span class="sec-title"><?= e($dt['ai_config']) ?></span>
           <span class="head-badge <?= ($aiKeySet && $providerOk) ? 'hb-ok' : 'hb-warn' ?>">
-            <?= ($aiKeySet && $providerOk) ? 'Aktif' : 'Belum lengkap' ?>
+            <?= ($aiKeySet && $providerOk) ? e($dt['active']) : e($dt['incomplete']) ?>
           </span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
         <div class="sec-body" id="sec-ai-body">
 
           <div class="field">
-            <label class="field-label"><?= icon('layers', 14) ?> Provider AI</label>
+            <label class="field-label"><?= icon('layers', 14) ?> <?= e($dt['ai_provider']) ?></label>
             <div class="prov-grid">
               <?php
               $providers = [
-                'openrouter' => ['OpenRouter', 'Rekomendasi'],
+                'openrouter' => ['OpenRouter', $dt['recommended']],
                 'openai'     => ['OpenAI', 'GPT-4o family'],
                 'google'     => ['Gemini', 'Google AI'],
-                'deepseek'   => ['DeepSeek', 'Murah & cepat'],
+                'deepseek'   => ['DeepSeek', $dt['cheap_fast']],
               ];
               $currentProvider = $settings['ai_provider'] ?? 'openrouter';
               foreach ($providers as $val => [$label, $desc]):
@@ -529,8 +660,8 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
           <div class="field">
             <label class="field-label" for="ai_model">
-              <?= icon('brain', 14) ?> Model AI
-              <span class="field-hint">Sesuaikan dengan provider</span>
+              <?= icon('brain', 14) ?> <?= e($dt['ai_model']) ?>
+              <span class="field-hint"><?= e($dt['model_hint']) ?></span>
             </label>
             <input type="text" id="ai_model" name="ai_model" class="input"
                    placeholder="e.g. openai/gpt-4o-mini"
@@ -539,13 +670,13 @@ button.sec-head:focus{outline:none;box-shadow:none}
           </div>
 
           <div class="field">
-            <label class="field-label" for="ai_api_key"><?= icon('key', 14) ?> API Key Provider</label>
+            <label class="field-label" for="ai_api_key"><?= icon('key', 14) ?> <?= e($dt['api_key_provider']) ?></label>
             <div class="input-wrap">
               <span class="input-icon"><?= icon('key', 16) ?></span>
               <input type="password" id="ai_api_key" name="ai_api_key" class="input"
-                     placeholder="<?= $aiKeySet ? '••••••• (tersimpan, kosongkan untuk tidak mengubah)' : 'sk-...' ?>"
+                     placeholder="<?= $aiKeySet ? e($dt['api_key_placeholder_saved']) : 'sk-...' ?>"
                      autocomplete="new-password">
-              <button type="button" class="input-action pw-toggle-btn" data-pw-target="ai_api_key" aria-label="Tampilkan API key" aria-pressed="false">
+              <button type="button" class="input-action pw-toggle-btn" data-pw-target="ai_api_key" aria-label="<?= e($dt['show_api_key']) ?>" aria-pressed="false">
                 <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
                 <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
               </button>
@@ -554,36 +685,36 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
           <div class="field">
             <label class="field-label" for="ai_system_prompt">
-              <?= icon('sparkles', 14) ?> System Prompt
-              <span class="field-hint">Kepribadian dan instruksi bot</span>
+              <?= icon('sparkles', 14) ?> <?= e($dt['system_prompt']) ?>
+              <span class="field-hint"><?= e($dt['system_prompt_hint']) ?></span>
             </label>
             <textarea id="ai_system_prompt" name="ai_system_prompt" class="textarea" rows="5"
-                      placeholder="Kamu adalah asisten ramah untuk [Nama Bisnis]. Jawab dalam bahasa Indonesia yang sopan. Fokus hanya pada produk kami."><?= e((string) $settings['ai_system_prompt']) ?></textarea>
+                      placeholder="<?= $lang === 'id' ? 'Kamu adalah asisten ramah untuk [Nama Bisnis]. Jawab dalam bahasa Indonesia yang sopan. Fokus hanya pada produk kami.' : 'You are a friendly assistant for [Business Name]. Answer politely in English. Focus only on our products.' ?>"><?= e((string) $settings['ai_system_prompt']) ?></textarea>
           </div>
         </div>
       </div>
 
       <!-- DOMAIN -->
       <div class="glass sec" id="sec-domain" data-sec="1">
-        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="false" aria-controls="sec-domain-body">
+        <button type="button" class="sec-head" aria-expanded="false" aria-controls="sec-domain-body">
           <span class="sec-icon"><?= icon('shield', 18) ?></span>
-          <span class="sec-title">Keamanan Domain</span>
+          <span class="sec-title"><?= e($dt['domain_security']) ?></span>
           <span class="head-badge <?= $domainSet ? 'hb-ok' : 'hb-warn' ?>">
-            <?= $domainSet ? 'Diatur' : 'Dibuka' ?>
+            <?= $domainSet ? e($dt['configured']) : e($dt['open']) ?>
           </span>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
         <div class="sec-body" id="sec-domain-body" hidden>
           <div class="field">
             <label class="field-label" for="allowed_origins">
-              <?= icon('globe', 14) ?> Allowed Origins
-              <span class="field-hint">Pisahkan dengan koma</span>
+              <?= icon('globe', 14) ?> <?= e($dt['allowed_origins']) ?>
+              <span class="field-hint"><?= e($dt['comma_separated']) ?></span>
             </label>
             <input type="text" id="allowed_origins" name="allowed_origins" class="input"
                    value="<?= e((string) $settings['allowed_origins']) ?>"
-                   placeholder="https://website-anda.com, https://www.website-anda.com">
+                   placeholder="<?= $lang === 'id' ? 'https://website-anda.com, https://www.website-anda.com' : 'https://your-website.com, https://www.your-website.com' ?>">
             <div class="hint-box">
-              Kosongkan atau isi <code>*</code> untuk izinkan semua domain (kurang aman).
+              <?= $dt['domain_hint'] ?>
             </div>
           </div>
         </div>
@@ -591,17 +722,17 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
       <!-- TELEGRAM -->
       <div class="glass sec" id="sec-telegram" data-sec="1">
-        <button type="button" class="sec-head" onclick="toggleDashboardSection(this)" aria-expanded="false" aria-controls="sec-telegram-body">
+        <button type="button" class="sec-head" aria-expanded="false" aria-controls="sec-telegram-body">
           <span class="sec-icon"><?= icon('phone', 18) ?></span>
-          <span class="sec-title">Notifikasi Telegram</span>
-          <?php if ($tgSet): ?><span class="head-badge hb-ok">Aktif</span><?php endif; ?>
+          <span class="sec-title"><?= e($dt['telegram_notifications']) ?></span>
+          <?php if ($tgSet): ?><span class="head-badge hb-ok"><?= e($dt['active']) ?></span><?php endif; ?>
           <span class="sec-chev"><?= icon('chevron-down', 16) ?></span>
         </button>
         <div class="sec-body" id="sec-telegram-body" hidden>
           <div class="tg" style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
             <div class="tg-info">
-              <div class="tg-label">Kirim notifikasi ke Telegram</div>
-              <div class="tg-sub">Terima ping setiap ada pesan baru di widget Anda</div>
+              <div class="tg-label"><?= e($dt['send_telegram']) ?></div>
+              <div class="tg-sub"><?= e($dt['telegram_sub']) ?></div>
             </div>
             <label class="tg-switch">
               <input type="checkbox" name="telegram_notify_enabled" value="1"
@@ -610,19 +741,19 @@ button.sec-head:focus{outline:none;box-shadow:none}
             </label>
           </div>
           <div class="field">
-            <label class="field-label" for="telegram_chat_id"><?= icon('message', 14) ?> Telegram Chat ID</label>
+            <label class="field-label" for="telegram_chat_id"><?= icon('message', 14) ?> <?= e($dt['telegram_chat_id']) ?></label>
             <input type="text" id="telegram_chat_id" name="telegram_chat_id" class="input"
                    value="<?= e((string) $settings['telegram_chat_id']) ?>"
-                   placeholder="Contoh: -100123456789">
+                   placeholder="<?= $lang === 'id' ? 'Contoh: -100123456789' : 'Example: -100123456789' ?>">
             <div class="hint-box">
-              Kirim <code>/start</code> ke <strong>@userinfobot</strong> di Telegram untuk dapat Chat ID Anda.
+              <?= $dt['telegram_hint'] ?>
             </div>
           </div>
         </div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:8px">
-        <?= icon('check', 18) ?> Simpan Semua Pengaturan
+        <?= icon('check', 18) ?> <?= e($dt['save_all']) ?>
       </button>
     </form>
   </div>
@@ -634,18 +765,18 @@ button.sec-head:focus{outline:none;box-shadow:none}
     <div class="glass side-card">
       <div class="side-card-head">
         <span class="side-card-icon"><?= icon('key', 16) ?></span>
-        <span class="side-card-title">Widget API Key</span>
+        <span class="side-card-title"><?= e($dt['widget_api_key']) ?></span>
       </div>
       <div class="api-key-box">
         <span class="api-key-text">
           <?= e(substr((string) $user['client_api_key'], 0, 8)) ?>••••••••••••••••<?= e(substr((string) $user['client_api_key'], -4)) ?>
         </span>
         <button type="button" class="btn-icon-sm" data-copy="<?= htmlspecialchars((string) $user['client_api_key'], ENT_QUOTES, 'UTF-8') ?>">
-          <?= icon('copy', 13) ?> Salin
+          <?= icon('copy', 13) ?> <?= e($dt['copy']) ?>
         </button>
       </div>
       <p style="font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5">
-        Digunakan di embed code. Jangan bagikan ke publik.
+        <?= e($dt['api_key_note']) ?>
       </p>
     </div>
 
@@ -653,7 +784,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
     <div class="glass side-card">
       <div class="side-card-head">
         <span class="side-card-icon"><?= icon('code', 16) ?></span>
-        <span class="side-card-title">Kode Embed</span>
+        <span class="side-card-title"><?= e($dt['embed_code']) ?></span>
       </div>
       <div class="embed-pre" id="embedPre"><span class="tn">&lt;script</span>
   <span class="an">src</span>=<span class="av">"<?= e($baseUrl) ?>/widget/widget.js"</span>
@@ -663,10 +794,10 @@ button.sec-head:focus{outline:none;box-shadow:none}
 <span class="tn">&gt;&lt;/script&gt;</span></div>
       <textarea id="embedCodeRaw" hidden readonly><?= e($embedSnippet) ?></textarea>
       <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;padding:10px;font-size:13px" id="btnCopyEmbed" onclick="cpCopyEmbed()">
-        <?= icon('copy', 14) ?> Salin Embed Code
+        <?= icon('copy', 14) ?> <?= e($dt['copy_embed']) ?>
       </button>
       <p style="font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5">
-        Tempel sebelum <code style="color:var(--green);background:var(--green-dim);padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace">&lt;/body&gt;</code> di website Anda.
+        <?= $dt['embed_note'] ?>
       </p>
     </div>
 
@@ -674,7 +805,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
     <div class="glass side-card">
       <div class="side-card-head">
         <span class="side-card-icon"><?= icon('check-circle', 16) ?></span>
-        <span class="side-card-title">Checklist Setup</span>
+        <span class="side-card-title"><?= e($dt['checklist_setup']) ?></span>
         <span class="head-badge <?= $checkScore === $checkTotal ? 'hb-ok' : 'hb-warn' ?>" style="margin-left:auto">
           <?= $checkScore ?>/<?= $checkTotal ?>
         </span>
@@ -689,7 +820,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
       <?php endforeach; ?>
       <div class="cl-item done">
         <span class="cl-ico ok"><?= icon('check', 13) ?></span>
-        <span class="cl-item-text">Embed code siap disalin</span>
+        <span class="cl-item-text"><?= e($dt['check_embed']) ?></span>
       </div>
     </div>
 
@@ -703,6 +834,13 @@ button.sec-head:focus{outline:none;box-shadow:none}
  * Dashboard – interactive scripts
  * Semua fungsi global agar dapat dipanggil dari onclick attr
  * ========================================================== */
+var CP_DASH_TEXT = <?= json_encode([
+  'photoMax' => $dt['photo_max'],
+  'copied' => $dt['copied'],
+  'copyFailed' => $dt['copy_failed'],
+  'showApiKey' => $dt['show_api_key'],
+  'hideApiKey' => $dt['hide_api_key'],
+], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>;
 
 /* ── 0. AVATAR PREVIEW ── */
 (function () {
@@ -716,7 +854,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
     var file = this.files && this.files[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
-      alert('Ukuran foto maksimal 2 MB');
+      alert(CP_DASH_TEXT.photoMax);
       this.value = '';
       return;
     }
@@ -737,24 +875,32 @@ button.sec-head:focus{outline:none;box-shadow:none}
 })();
 
 /* ── 0b. ACCORDION INIT + TOGGLE ── */
-function toggleDashboardSection(btn) {
-  var sec = btn && btn.closest ? btn.closest('.sec') : null;
-  if (!sec) return;
-  var body = sec.querySelector('.sec-body');
-  var open = !sec.classList.contains('open');
-  sec.classList.toggle('open', open);
-  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  if (body) body.hidden = !open;
-}
-
 (function () {
-  document.querySelectorAll('.sec').forEach(function (sec) {
-    var btn = sec.querySelector('.sec-head');
-    var body = sec.querySelector('.sec-body');
-    if (!btn || !body) return;
-    var open = sec.classList.contains('open');
+  function setSection(sec, open) {
+    var btn = sec ? sec.querySelector('.sec-head') : null;
+    var body = sec ? sec.querySelector('.sec-body') : null;
+    if (!sec || !btn || !body) return;
+
+    sec.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     body.hidden = !open;
+  }
+
+  window.toggleDashboardSection = function (btn) {
+    var sec = btn && btn.closest ? btn.closest('.sec') : null;
+    if (!sec) return;
+    setSection(sec, !sec.classList.contains('open'));
+  };
+
+  document.querySelectorAll('.sec').forEach(function (sec) {
+    setSection(sec, sec.classList.contains('open'));
+  });
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.sec-head');
+    if (!btn || !btn.closest('.sec')) return;
+    e.preventDefault();
+    window.toggleDashboardSection(btn);
   });
 })();
 
@@ -781,10 +927,10 @@ function toggleDashboardSection(btn) {
 
 /* ── 2. PROVIDER PILLS (event delegation – reliable di semua browser) ── */
 var _hints = {
-  openrouter: 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>',
-  openai:     'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>',
-  google:     'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>',
-  deepseek:   'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>'
+  openrouter: <?= json_encode($lang === 'id' ? 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>' : 'Example: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. See <strong>openrouter.ai/models</strong>', JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>,
+  openai:     <?= json_encode($lang === 'id' ? 'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>' : 'Example: <code>gpt-4o</code> or <code>gpt-4o-mini</code>', JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>,
+  google:     <?= json_encode($lang === 'id' ? 'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>' : 'Example: <code>gemini-1.5-flash</code> or <code>gemini-1.5-pro</code>', JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>,
+  deepseek:   <?= json_encode($lang === 'id' ? 'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>' : 'Example: <code>deepseek-chat</code> or <code>deepseek-coder</code>', JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>
 };
 
 function updateModelHint() {
@@ -825,7 +971,7 @@ function cpCopyEmbed() {
   var checkSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
 
   function showOK() {
-    btn.innerHTML = checkSVG + ' Tersalin!';
+    btn.innerHTML = checkSVG + ' ' + CP_DASH_TEXT.copied;
     btn.style.background = 'linear-gradient(135deg,rgba(0,229,154,.55),rgba(0,229,154,.35))';
     btn.style.color = '#031018';
     btn.style.borderColor = 'var(--green)';

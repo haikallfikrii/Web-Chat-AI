@@ -49,7 +49,8 @@
         var showPlain = input.type === 'password';
         input.type = showPlain ? 'text' : 'password';
         btn.setAttribute('aria-pressed', showPlain ? 'true' : 'false');
-        btn.setAttribute('aria-label', showPlain ? 'Sembunyikan password' : 'Tampilkan password');
+        var labels = window.CP_DASH_TEXT || {};
+        btn.setAttribute('aria-label', showPlain ? (labels.hideApiKey || 'Hide password') : (labels.showApiKey || 'Show password'));
         var a = btn.querySelector('.pw-ico-show');
         var b = btn.querySelector('.pw-ico-hide');
         if (a && b) {
@@ -76,8 +77,9 @@
         var orig = btn.innerHTML;
         copyToClipboard(text)
           .then(function () {
+            var labels = window.CP_DASH_TEXT || {};
             btn.innerHTML =
-              '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg> Tersalin';
+              '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg> ' + (labels.copied || 'Copied');
             btn.style.background = 'rgba(0,229,154,.22)';
             setTimeout(function () {
               btn.innerHTML = orig;
@@ -85,7 +87,8 @@
             }, 1800);
           })
           .catch(function () {
-            btn.innerHTML = 'Gagal salin';
+            var labels = window.CP_DASH_TEXT || {};
+            btn.innerHTML = labels.copyFailed || 'Copy failed';
             setTimeout(function () {
               btn.innerHTML = orig;
             }, 2000);
