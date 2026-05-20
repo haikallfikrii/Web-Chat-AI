@@ -421,7 +421,7 @@ footer a:hover{opacity:.75}
       <div class="lang-drop" id="langDrop" role="menu">
         <?php foreach ($meta as $code => $info): ?>
         <a class="lang-opt <?= $code === $lang ? 'cur' : '' ?>"
-           href="?lang=<?= esc($code) ?>" role="menuitem">
+           href="<?= esc(lang_switch_url($code)) ?>" role="menuitem">
           <span class="lang-opt-flag"><?= $info['flag'] ?></span>
           <?= esc($info['label']) ?>
         </a>
@@ -445,7 +445,7 @@ footer a:hover{opacity:.75}
       <div class="nav-langs-mobile">
         <?php foreach ($meta as $code => $info): ?>
         <a class="nlm-opt <?= $code === $lang ? 'cur' : '' ?>"
-           href="?lang=<?= esc($code) ?>">
+           href="<?= esc(lang_switch_url($code)) ?>">
           <span><?= $info['flag'] ?></span>
           <span class="nlm-lbl"><?= esc($info['label']) ?></span>
         </a>

@@ -21,6 +21,22 @@ function get_lang(): string {
     return 'en';
 }
 
+function lang_switch_url(string $lang): string {
+    $allowed = ['en','id','es','fr','pt','ja'];
+    $lang = strtolower(trim($lang));
+    if (!in_array($lang, $allowed, true)) {
+        $lang = 'en';
+    }
+
+    $uri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+    $path = (string) (parse_url($uri, PHP_URL_PATH) ?: '/');
+    $query = [];
+    parse_str((string) (parse_url($uri, PHP_URL_QUERY) ?? ''), $query);
+    $query['lang'] = $lang;
+
+    return $path . '?' . http_build_query($query);
+}
+
 function lang_meta(): array {
     return [
         'en' => ['flag' => '🇺🇸', 'label' => 'English'],
