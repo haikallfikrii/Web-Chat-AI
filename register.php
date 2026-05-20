@@ -2,8 +2,12 @@
 declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
+require_once __DIR__ . '/includes/lang.php';
 
-if (current_user() !== null) { header('Location: /dashboard.php'); exit; }
+if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
+
+$lang = get_lang();
+$t = lang_strings($lang);
 
 $errors = [];
 $fields = ['name' => '', 'business_name' => '', 'email' => ''];
@@ -25,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($result['ok']) {
-            header('Location: /dashboard.php?welcome=1');
+            header('Location: ' . app_url('/dashboard.php', ['welcome' => 1]));
             exit;
         }
         $errors[] = $result['error'] ?? 'Registrasi gagal.';
@@ -33,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html lang="id">
+<html lang="<?= e($t['html_lang']) ?>" dir="<?= e($t['dir']) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -100,11 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="auth-shell">
 
   <div class="auth-top">
-    <a href="/" class="brand">
+    <a href="<?= e(app_url('/')) ?>" class="brand">
       <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
       <span class="brand-text">ChatPopup.AI</span>
     </a>
-    <a href="/login.php" class="auth-back">Sudah punya akun <?= icon('arrow-right', 16) ?></a>
+    <a href="<?= e(app_url('/login.php')) ?>" class="auth-back">Sudah punya akun <?= icon('arrow-right', 16) ?></a>
   </div>
 
   <div class="auth-wrap">
@@ -189,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </form>
 
       <div class="divider">Sudah punya akun?</div>
-      <p class="auth-foot"><a href="/login.php">Masuk ke dashboard <?= icon('arrow-right', 14) ?></a></p>
+      <p class="auth-foot"><a href="<?= e(app_url('/login.php')) ?>">Masuk ke dashboard <?= icon('arrow-right', 14) ?></a></p>
     </div>
   </div>
 

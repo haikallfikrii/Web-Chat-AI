@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/lang.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
@@ -81,7 +82,7 @@ function require_login(): array
 {
     $user = current_user();
     if ($user === null) {
-        header('Location: /login.php');
+        header('Location: ' . app_url('/login.php'));
         exit;
     }
     return $user;

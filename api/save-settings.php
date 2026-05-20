@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/lang.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -28,31 +29,31 @@ $allowed_providers = ['openai', 'google', 'deepseek', 'openrouter'];
 
 if (!preg_match('/^#[0-9a-fA-F]{6}$/', $primary_color)) {
     set_flash('error', 'Warna utama harus format HEX seperti #2563EB.');
-    header('Location: /dashboard.php');
+    header('Location: ' . app_url('/dashboard.php'));
     exit;
 }
 
 if ($bot_name === '' || mb_strlen($bot_name, 'UTF-8') > 80) {
     set_flash('error', 'Nama bot wajib diisi dan maksimal 80 karakter.');
-    header('Location: /dashboard.php');
+    header('Location: ' . app_url('/dashboard.php'));
     exit;
 }
 
 if ($welcome_message === '') {
     set_flash('error', 'Welcome message wajib diisi.');
-    header('Location: /dashboard.php');
+    header('Location: ' . app_url('/dashboard.php'));
     exit;
 }
 
 if (!in_array($ai_provider, $allowed_providers, true)) {
     set_flash('error', 'Provider AI tidak valid.');
-    header('Location: /dashboard.php');
+    header('Location: ' . app_url('/dashboard.php'));
     exit;
 }
 
 if ($ai_model === '' || mb_strlen($ai_model, 'UTF-8') > 120) {
     set_flash('error', 'Model AI wajib diisi dan maksimal 120 karakter.');
-    header('Location: /dashboard.php');
+    header('Location: ' . app_url('/dashboard.php'));
     exit;
 }
 
@@ -60,13 +61,13 @@ if ($ai_model === '' || mb_strlen($ai_model, 'UTF-8') > 120) {
 $is_data_url = str_starts_with($bot_avatar_url, 'data:image/');
 if ($bot_avatar_url !== '' && !$is_data_url && filter_var($bot_avatar_url, FILTER_VALIDATE_URL) === false) {
     set_flash('error', 'URL avatar bot tidak valid.');
-    header('Location: /dashboard.php');
+    header('Location: ' . app_url('/dashboard.php'));
     exit;
 }
 
 if ($n8n_webhook_url !== '' && filter_var($n8n_webhook_url, FILTER_VALIDATE_URL) === false) {
     set_flash('error', 'n8n webhook URL tidak valid.');
-    header('Location: /dashboard.php');
+    header('Location: ' . app_url('/dashboard.php'));
     exit;
 }
 
@@ -149,5 +150,5 @@ try {
     set_flash('error', 'Gagal menyimpan pengaturan: ' . $e->getMessage());
 }
 
-header('Location: /dashboard.php');
+header('Location: ' . app_url('/dashboard.php'));
 exit;

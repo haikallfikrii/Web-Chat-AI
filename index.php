@@ -4,7 +4,7 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
 
-if (current_user() !== null) { header('Location: /dashboard.php'); exit; }
+if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
 
 $lang    = get_lang();
 $t       = lang_strings($lang);
@@ -401,7 +401,7 @@ footer a:hover{opacity:.75}
 <!-- ═══ NAV ═══ -->
 <header class="nav">
   <div class="nav-in">
-    <a href="/" class="brand">
+    <a href="<?= esc(app_url('/')) ?>" class="brand">
       <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
       <span class="brand-text">ChatPopup.AI</span>
     </a>
@@ -429,7 +429,7 @@ footer a:hover{opacity:.75}
       </div>
     </div>
 
-    <button class="nav-burger" id="navBurger" type="button"
+    <button class="nav-burger" id="navBurger" type="button" onclick="return toggleLandingMenu()"
             aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
       <span class="nav-ico-menu"><?= icon('menu', 20) ?></span>
       <span class="nav-ico-close" style="display:none"><?= icon('x', 20) ?></span>
@@ -439,7 +439,7 @@ footer a:hover{opacity:.75}
       <a class="nav-link" href="#features"><?= esc($t['nav_features']) ?></a>
       <a class="nav-link" href="#how"><?= esc($t['nav_how']) ?></a>
       <a class="nav-link" href="#providers"><?= esc($t['nav_providers']) ?></a>
-      <a class="nav-link" href="/login.php"><?= esc($t['nav_login']) ?></a>
+      <a class="nav-link" href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['nav_login']) ?></a>
 
       <!-- Mobile-only: inline lang flags inside the drawer -->
       <div class="nav-langs-mobile">
@@ -452,13 +452,13 @@ footer a:hover{opacity:.75}
         <?php endforeach; ?>
       </div>
 
-      <a class="nav-link btn btn-primary" href="/register.php">
+      <a class="nav-link btn btn-primary" href="<?= esc(app_url('/register.php')) ?>">
         <?= esc($t['nav_register']) ?> <?= icon('arrow-right', 14) ?>
       </a>
     </nav>
   </div>
 </header>
-<div class="nav-backdrop" id="navBackdrop"></div>
+<div class="nav-backdrop" id="navBackdrop" onclick="closeLandingMenu()"></div>
 
 <!-- ═══ HERO ═══ -->
 <section class="hero" id="home">
@@ -475,10 +475,10 @@ footer a:hover{opacity:.75}
     </h1>
     <p><?= esc($t['hero_p']) ?></p>
     <div class="hero-cta">
-      <a class="btn btn-primary btn-lg btn-mag" href="/register.php">
+      <a class="btn btn-primary btn-lg btn-mag" href="<?= esc(app_url('/register.php')) ?>">
         <?= esc($t['cta_start']) ?> <?= icon('arrow-right', 18) ?>
       </a>
-      <a class="btn btn-outline btn-lg btn-mag" href="/login.php">
+      <a class="btn btn-outline btn-lg btn-mag" href="<?= esc(app_url('/login.php')) ?>">
         <?= esc($t['cta_login']) ?>
       </a>
     </div>
@@ -686,7 +686,7 @@ footer a:hover{opacity:.75}
   <div class="cta-box sr sc">
     <h2 class="h-grad-soft"><?= nl2br(esc($t['cta_h2'])) ?></h2>
     <p><?= esc($t['cta_p']) ?></p>
-    <a class="btn btn-primary btn-lg btn-mag" href="/register.php">
+    <a class="btn btn-primary btn-lg btn-mag" href="<?= esc(app_url('/register.php')) ?>">
       <?= esc($t['cta_btn']) ?> <?= icon('arrow-right', 18) ?>
     </a>
   </div>
@@ -696,37 +696,61 @@ footer a:hover{opacity:.75}
 <footer>
   <span>&copy; <?= date('Y') ?> ChatPopup.AI &nbsp;·&nbsp; <?= esc($t['footer_built']) ?></span>
   <div class="footer-links">
-    <a href="/login.php"><?= esc($t['footer_login']) ?></a>
-    <a href="/register.php"><?= esc($t['footer_reg']) ?></a>
+    <a href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['footer_login']) ?></a>
+    <a href="<?= esc(app_url('/register.php')) ?>"><?= esc($t['footer_reg']) ?></a>
   </div>
 </footer>
 
-<script src="/js/landing.js"></script>
 <script>
-/* ── Mobile nav ── */
+/* ── Mobile nav: isolated from other scripts ── */
 (function(){
-  var bg=document.getElementById('navBurger'),
-      dr=document.getElementById('navLinks'),
-      bd=document.getElementById('navBackdrop');
-  if(!bg||!dr) return;
-  var iM=bg.querySelector('.nav-ico-menu'),iX=bg.querySelector('.nav-ico-close'),op=false;
-  function set(v){
-    op=v;
-    dr.classList.toggle('is-open',v);
-    if(bd) bd.classList.toggle('is-open',v);
-    bg.setAttribute('aria-expanded',String(v));
-    if(iM) iM.style.display=v?'none':'grid';
-    if(iX) iX.style.display=v?'grid':'none';
-    document.body.style.overflow=v?'hidden':'';
+  function els(){
+    return {
+      bg: document.getElementById('navBurger'),
+      dr: document.getElementById('navLinks'),
+      bd: document.getElementById('navBackdrop')
+    };
   }
-  if(iM) iM.style.display='grid';
-  if(iX) iX.style.display='none';
-  bg.addEventListener('click',function(e){e.stopPropagation();set(!op);});
-  if(bd) bd.addEventListener('click',function(){set(false);});
-  dr.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){set(false);});});
-  window.addEventListener('resize',function(){if(window.innerWidth>780) set(false);});
-})();
 
+  function setMenu(open){
+    var ref = els();
+    if(!ref.bg || !ref.dr) return false;
+    var menuIcon = ref.bg.querySelector('.nav-ico-menu');
+    var closeIcon = ref.bg.querySelector('.nav-ico-close');
+
+    ref.dr.classList.toggle('is-open', !!open);
+    if(ref.bd) ref.bd.classList.toggle('is-open', !!open);
+    ref.bg.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if(menuIcon) menuIcon.style.display = open ? 'none' : 'grid';
+    if(closeIcon) closeIcon.style.display = open ? 'grid' : 'none';
+    document.body.style.overflow = open ? 'hidden' : '';
+    return false;
+  }
+
+  window.toggleLandingMenu = function(){
+    var ref = els();
+    if(!ref.bg || !ref.dr) return false;
+    return setMenu(!ref.dr.classList.contains('is-open'));
+  };
+
+  window.closeLandingMenu = function(){
+    return setMenu(false);
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var ref = els();
+    if(!ref.bg || !ref.dr) return;
+    setMenu(false);
+    ref.dr.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){ closeLandingMenu(); });
+    });
+  });
+
+  window.addEventListener('resize',function(){if(window.innerWidth>780) closeLandingMenu();});
+})();
+</script>
+
+<script>
 /* ── Language dropdown (position:fixed to avoid any overflow clip) ── */
 (function(){
   var w=document.getElementById('langWrap');
@@ -770,5 +794,6 @@ footer a:hover{opacity:.75}
   window.addEventListener('resize',function(){if(w.classList.contains('open')) positionDrop();},{passive:true});
 })();
 </script>
+<script src="/js/landing.js"></script>
 </body>
 </html>
