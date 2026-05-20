@@ -19,6 +19,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/plans.php';
+require_once __DIR__ . '/../includes/billing.php';
 
 // ── 1. Handle preflight OPTIONS ──────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -47,6 +49,7 @@ try {
         SELECT
             c.id                    AS client_id,
             c.subscription_status,
+            c.plan_code,
             ws.primary_color,
             ws.bot_name,
             ws.bot_avatar_url,
@@ -90,9 +93,17 @@ set_cors_headers($allowed_origin);
 header('Cache-Control: public, max-age=300'); // Cache 5 menit di browser
 
 // ── 7. Kembalikan pengaturan widget (tidak ekspos data sensitif) ─
+$show_watermark = billing_should_show_watermark([
+    'subscription_status' => $row['subscription_status'],
+    'plan_code'           => $row['plan_code'] ?? 'trial',
+]);
+
 send_json([
-    'bot_name'        => $row['bot_name'],
-    'primary_color'   => $row['primary_color'],
-    'bot_avatar_url'  => $row['bot_avatar_url'],
-    'welcome_message' => $row['welcome_message'],
+    'bot_name'         => $row['bot_name'],
+    'primary_color'    => $row['primary_color'],
+    'bot_avatar_url'   => $row['bot_avatar_url'],
+    'welcome_message'  => $row['welcome_message'],
+    'show_watermark'   => $show_watermark,
+    'watermark_brand'  => APP_NAME,
+    'watermark_url'    => app_base_url(),
 ]);

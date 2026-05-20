@@ -17,11 +17,26 @@ CREATE TABLE IF NOT EXISTS clients (
     email            VARCHAR(255)    NOT NULL UNIQUE,
     api_key          CHAR(64)        NOT NULL UNIQUE,
     subscription_status ENUM('active','inactive','trial') NOT NULL DEFAULT 'trial',
+    plan_code          VARCHAR(40)     NOT NULL DEFAULT 'free',
+    stripe_customer_id VARCHAR(255)    NULL DEFAULT NULL,
+    stripe_subscription_id VARCHAR(255) NULL DEFAULT NULL,
+    trial_ends_at      DATETIME        NULL DEFAULT NULL,
+    subscription_ends_at DATETIME      NULL DEFAULT NULL,
+    billing_email      VARCHAR(255)    NULL DEFAULT NULL,
     created_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     INDEX idx_api_key (api_key),
     INDEX idx_subscription (subscription_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS stripe_webhook_events (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    stripe_event_id VARCHAR(255)    NOT NULL,
+    event_type      VARCHAR(120)    NOT NULL,
+    processed_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uniq_stripe_event (stripe_event_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------

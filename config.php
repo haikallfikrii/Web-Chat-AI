@@ -33,6 +33,25 @@ define('GEMINI_API_BASE', getenv('GEMINI_API_BASE') ?: 'https://generativelangua
 // Telegram opsional: satu bot untuk semua tenant; chat_id per klien di widget_settings
 define('TELEGRAM_BOT_TOKEN', getenv('TELEGRAM_BOT_TOKEN') ?: '');
 
+// ── Branding & URL situs (watermark, email, Stripe redirect) ─
+define('APP_NAME', getenv('APP_NAME') ?: 'ChatPopup.AI');
+define('APP_SITE_URL', getenv('APP_SITE_URL') ?: ''); // kosong = auto dari HTTP_HOST
+
+// ── Stripe Billing ───────────────────────────────────────────
+define('STRIPE_SECRET_KEY', getenv('STRIPE_SECRET_KEY') ?: '');
+define('STRIPE_PUBLISHABLE_KEY', getenv('STRIPE_PUBLISHABLE_KEY') ?: '');
+define('STRIPE_WEBHOOK_SECRET', getenv('STRIPE_WEBHOOK_SECRET') ?: '');
+define('STRIPE_PRICE_STARTER_MONTHLY', getenv('STRIPE_PRICE_STARTER_MONTHLY') ?: '');
+define('STRIPE_PRICE_PRO_MONTHLY', getenv('STRIPE_PRICE_PRO_MONTHLY') ?: '');
+define('STRIPE_PRICE_STARTER_YEARLY', getenv('STRIPE_PRICE_STARTER_YEARLY') ?: '');
+define('STRIPE_PRICE_PRO_YEARLY', getenv('STRIPE_PRICE_PRO_YEARLY') ?: '');
+
+// Email transaksional (From header)
+define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: '');
+define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: APP_NAME);
+define('MAIL_SUPPORT', getenv('MAIL_SUPPORT') ?: '');
+define('TRIAL_DAYS', (int) (getenv('TRIAL_DAYS') ?: 14));
+
 // Header tambahan OpenRouter (disarankan oleh dokumentasi mereka)
 define('OPENROUTER_HTTP_REFERER', getenv('OPENROUTER_HTTP_REFERER') ?: '');
 define('OPENROUTER_APP_TITLE', getenv('OPENROUTER_APP_TITLE') ?: 'Chat PopUp AI');
@@ -73,6 +92,17 @@ function get_db(): PDO
     }
 
     return $pdo;
+}
+
+/** URL dasar aplikasi (tanpa trailing slash). */
+function app_base_url(): string
+{
+    if (APP_SITE_URL !== '') {
+        return rtrim(APP_SITE_URL, '/');
+    }
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    return $scheme . '://' . $host;
 }
 
 // ── Helper: kirim JSON response ─────────────────────────────

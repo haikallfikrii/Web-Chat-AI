@@ -359,10 +359,25 @@
     </svg>`;
 
   // ── Bangun HTML widget ─────────────────────────────────────
+  function buildWatermarkFooter(settings) {
+    // Default: tampilkan watermark jika API tidak mengirim field (trial / free)
+    if (settings.show_watermark === false || settings.show_watermark === 0) {
+      return "";
+    }
+    const brand = escapeHtml(settings.watermark_brand || "ChatPopup.AI");
+    const url = escapeAttr(settings.watermark_url || BASE_URL);
+    return `
+        <div id="cw-footer">
+          Powered by <a href="${url}" target="_blank" rel="noopener noreferrer">${brand}</a>
+        </div>`;
+  }
+
   function buildHTML(settings) {
     const avatarContent = settings.bot_avatar_url
       ? `<img src="${escapeAttr(settings.bot_avatar_url)}" alt="avatar" loading="lazy">`
       : ICON_BOT;
+
+    const footerHtml = buildWatermarkFooter(settings);
 
     return `
       <button id="cw-toggle" aria-label="Buka chat" aria-expanded="false">
@@ -394,10 +409,7 @@
             ${ICON_SEND}
           </button>
         </div>
-
-        <div id="cw-footer">
-          Powered by <a href="${BASE_URL}" target="_blank" rel="noopener">ChatWidget</a>
-        </div>
+        ${footerHtml}
       </div>
     `;
   }
