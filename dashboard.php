@@ -800,7 +800,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
   <!-- ── MAIN FORM (LEFT) ── -->
   <div>
-    <form method="POST" action="/api/save-settings.php">
+    <form method="POST" action="/api/save-settings.php" enctype="multipart/form-data" id="dashboardSettingsForm">
       <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
       <!-- TAMPILAN -->
@@ -1039,7 +1039,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
   <span class="an">async</span>
 <span class="tn">&gt;&lt;/script&gt;</span></div>
       <textarea id="embedCodeRaw" hidden readonly><?= e($embedSnippet) ?></textarea>
-      <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;padding:10px;font-size:13px" id="btnCopyEmbed" onclick="cpCopyEmbed()">
+      <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;padding:10px;font-size:13px" id="btnCopyEmbed">
         <?= icon('copy', 14) ?> <?= e($dt['copy_embed']) ?>
       </button>
       <p style="font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5">
@@ -1074,158 +1074,28 @@ button.sec-head:focus{outline:none;box-shadow:none}
 
 </div>
 
-<script src="/js/ui.js"></script>
-<script>
-/* ==========================================================
- * Dashboard – interactive scripts
- * Semua fungsi global agar dapat dipanggil dari onclick attr
- * ========================================================== */
-var CP_DASH_TEXT = <?= json_encode([
+<script type="application/json" id="dashboardRuntimeData"><?= json_encode([
   'photoMax' => $dt['photo_max'],
   'copied' => $dt['copied'],
   'copyFailed' => $dt['copy_failed'],
   'showApiKey' => $dt['show_api_key'],
   'hideApiKey' => $dt['hide_api_key'],
-], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>;
-
-/* ── 0. AVATAR PREVIEW ── */
-(function () {
-  var fileInput = document.getElementById('avatarFile');
-  var preview   = document.getElementById('avatarPreview');
-  var hidden    = document.getElementById('avatarUrlHidden');
-  var wrap      = document.getElementById('avatarPreviewWrap');
-  if (!fileInput || !wrap) return;
-
-  fileInput.addEventListener('change', function () {
-    var file = this.files && this.files[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert(CP_DASH_TEXT.photoMax);
-      this.value = '';
-      return;
-    }
-    var reader = new FileReader();
-    reader.onload = function (e) {
-      /* Ganti/buat elemen img di dalam preview */
-      var img = document.createElement('img');
-      img.src = e.target.result;
-      img.id  = 'avatarPreview';
-      img.alt = 'avatar';
-      wrap.innerHTML = '';
-      wrap.appendChild(img);
-      /* Simpan base64 ke hidden field agar dapat dikirim bersama form */
-      if (hidden) hidden.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-})();
-
-/* ── 1. COLOR PICKER ↔ HEX TEXT ── */
-(function () {
-  var hexEl  = document.getElementById('color-hex');
-  var pickEl = document.getElementById('color-picker');
-  if (!hexEl || !pickEl) return;
-
-  function isValidHex(v) {
-    return /^#[0-9a-fA-F]{6}$/.test(String(v).trim());
-  }
-
-  pickEl.addEventListener('input',  function () { hexEl.value = this.value.toUpperCase(); });
-  pickEl.addEventListener('change', function () { hexEl.value = this.value.toUpperCase(); });
-
-  hexEl.addEventListener('input', function () {
-    if (isValidHex(this.value)) pickEl.value = this.value;
-  });
-  hexEl.addEventListener('blur', function () {
-    if (!isValidHex(this.value)) this.value = pickEl.value.toUpperCase();
-  });
-})();
-
-/* ── 2. PROVIDER PILLS (event delegation – reliable di semua browser) ── */
-var _hints = {
-  openrouter: <?= json_encode($lang === 'id' ? 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>' : 'Example: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. See <strong>openrouter.ai/models</strong>', JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>,
-  openai:     <?= json_encode($lang === 'id' ? 'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>' : 'Example: <code>gpt-4o</code> or <code>gpt-4o-mini</code>', JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>,
-  google:     <?= json_encode($lang === 'id' ? 'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>' : 'Example: <code>gemini-1.5-flash</code> or <code>gemini-1.5-pro</code>', JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>,
-  deepseek:   <?= json_encode($lang === 'id' ? 'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>' : 'Example: <code>deepseek-chat</code> or <code>deepseek-coder</code>', JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?>
-};
-
-function updateModelHint() {
-  var checked = document.querySelector('input[name=ai_provider]:checked');
-  var box = document.getElementById('modelHint');
-  if (box) box.innerHTML = checked ? (_hints[checked.value] || '') : '';
-}
-
-/* Event delegation: klik di mana saja dalam prov-grid akan ketangkap */
-document.addEventListener('click', function (e) {
-  var pill = e.target.closest && e.target.closest('.prov-pill');
-  if (!pill) return;
-  /* Reset semua, aktifkan yang diklik */
-  document.querySelectorAll('.prov-pill').forEach(function (p) {
-    p.classList.remove('active');
-  });
-  pill.classList.add('active');
-  var radio = pill.querySelector('input[type=radio]');
-  if (radio) { radio.checked = true; }
-  updateModelHint();
-});
-
-updateModelHint();
-
-/* ── COPY EMBED (global, dipanggil via onclick btn) ── */
-function cpCopyEmbed() {
-  var btn = document.getElementById('btnCopyEmbed');
-  var raw = document.getElementById('embedCodeRaw');
-  if (!btn) return;
-
-  /* Ambil dari textarea raw agar line breaks tetap utuh */
-  var text = raw ? raw.value : '';
-  if (!text) {
-    text = <?= json_encode($embedSnippet, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_SLASHES) ?>;
-  }
-
-  var orig     = btn.innerHTML;
-  var checkSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>';
-
-  function showOK() {
-    btn.innerHTML = checkSVG + ' ' + CP_DASH_TEXT.copied;
-    btn.style.background = 'linear-gradient(135deg,rgba(0,229,154,.55),rgba(0,229,154,.35))';
-    btn.style.color = '#031018';
-    btn.style.borderColor = 'var(--green)';
-    setTimeout(function () {
-      btn.innerHTML = orig;
-      btn.style.background = '';
-      btn.style.color = '';
-      btn.style.borderColor = '';
-    }, 2200);
-  }
-
-  /* Fallback execCommand untuk browser non-HTTPS atau lama */
-  function doCopy() {
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.setAttribute('readonly', '');
-    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    try { document.execCommand('copy'); } catch(_) {}
-    document.body.removeChild(ta);
-  }
-
-  if (window.CPUI && typeof window.CPUI.copyToClipboard === 'function') {
-    window.CPUI.copyToClipboard(text)
-      .then(showOK)
-      .catch(function () { doCopy(); showOK(); });
-  } else if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text)
-      .then(showOK)
-      .catch(function () { doCopy(); showOK(); });
-  } else {
-    doCopy();
-    showOK();
-  }
-}
-
-</script>
+  'providerHints' => [
+    'openrouter' => $lang === 'id'
+      ? 'Contoh: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. Lihat <strong>openrouter.ai/models</strong>'
+      : 'Example: <code>openai/gpt-4o-mini</code>, <code>meta-llama/llama-3.1-8b-instruct</code>. See <strong>openrouter.ai/models</strong>',
+    'openai' => $lang === 'id'
+      ? 'Contoh: <code>gpt-4o</code> atau <code>gpt-4o-mini</code>'
+      : 'Example: <code>gpt-4o</code> or <code>gpt-4o-mini</code>',
+    'google' => $lang === 'id'
+      ? 'Contoh: <code>gemini-1.5-flash</code> atau <code>gemini-1.5-pro</code>'
+      : 'Example: <code>gemini-1.5-flash</code> or <code>gemini-1.5-pro</code>',
+    'deepseek' => $lang === 'id'
+      ? 'Contoh: <code>deepseek-chat</code> atau <code>deepseek-coder</code>'
+      : 'Example: <code>deepseek-chat</code> or <code>deepseek-coder</code>',
+  ],
+], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) ?></script>
+<script src="/js/ui.js"></script>
+<script src="/js/dashboard.js"></script>
 </body>
 </html>

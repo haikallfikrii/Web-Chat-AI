@@ -24,6 +24,7 @@ $ai_api_key              = trim((string) ($_POST['ai_api_key']              ?? '
 $n8n_webhook_url         = trim((string) ($_POST['n8n_webhook_url']         ?? ''));
 $telegram_notify_enabled = isset($_POST['telegram_notify_enabled']) ? 1 : 0;
 $telegram_chat_id        = trim((string) ($_POST['telegram_chat_id']        ?? ''));
+$avatar_file             = $_FILES['bot_avatar_file'] ?? null;
 
 $allowed_providers = ['openai', 'google', 'deepseek', 'openrouter'];
 
@@ -57,9 +58,66 @@ if ($ai_model === '' || mb_strlen($ai_model, 'UTF-8') > 120) {
     exit;
 }
 
-/* Avatar bisa berupa URL eksternal atau data:image base64 dari upload */
-$is_data_url = str_starts_with($bot_avatar_url, 'data:image/');
-if ($bot_avatar_url !== '' && !$is_data_url && filter_var($bot_avatar_url, FILTER_VALIDATE_URL) === false) {
+if (is_array($avatar_file) && (($avatar_file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE)) {
+    $upload_error = (int) ($avatar_file['error'] ?? UPLOAD_ERR_NO_FILE);
+    if ($upload_error !== UPLOAD_ERR_OK) {
+        set_flash('error', 'Upload avatar gagal. Silakan coba lagi.');
+        header('Location: ' . app_url('/dashboard.php'));
+        exit;
+    }
+
+    $upload_size = (int) ($avatar_file['size'] ?? 0);
+    if ($upload_size <= 0 || $upload_size > 2 * 1024 * 1024) {
+        set_flash('error', 'Ukuran avatar maksimal 2 MB.');
+        header('Location: ' . app_url('/dashboard.php'));
+        exit;
+    }
+
+    $tmp_name = (string) ($avatar_file['tmp_name'] ?? '');
+    if ($tmp_name === '' || !is_uploaded_file($tmp_name)) {
+        set_flash('error', 'File avatar tidak valid.');
+        header('Location: ' . app_url('/dashboard.php'));
+        exit;
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime  = (string) $finfo->file($tmp_name);
+    $allowed_images = [
+        'image/png' => 'png',
+        'image/jpeg' => 'jpg',
+        'image/webp' => 'webp',
+        'image/gif' => 'gif',
+    ];
+    if (!isset($allowed_images[$mime])) {
+        set_flash('error', 'Format avatar harus PNG, JPG, WEBP, atau GIF.');
+        header('Location: ' . app_url('/dashboard.php'));
+        exit;
+    }
+
+    $upload_dir = dirname(__DIR__) . '/uploads/bot-avatars';
+    if (!is_dir($upload_dir) && !mkdir($upload_dir, 0775, true) && !is_dir($upload_dir)) {
+        set_flash('error', 'Folder upload avatar tidak dapat dibuat.');
+        header('Location: ' . app_url('/dashboard.php'));
+        exit;
+    }
+
+    $filename = sprintf(
+        'client-%d-%s.%s',
+        (int) $user['client_id'],
+        bin2hex(random_bytes(8)),
+        $allowed_images[$mime]
+    );
+    $target_path = $upload_dir . '/' . $filename;
+    if (!move_uploaded_file($tmp_name, $target_path)) {
+        set_flash('error', 'Gagal menyimpan file avatar.');
+        header('Location: ' . app_url('/dashboard.php'));
+        exit;
+    }
+
+    $bot_avatar_url = dashboard_base_url() . '/uploads/bot-avatars/' . rawurlencode($filename);
+}
+
+if ($bot_avatar_url !== '' && filter_var($bot_avatar_url, FILTER_VALIDATE_URL) === false) {
     set_flash('error', 'URL avatar bot tidak valid.');
     header('Location: ' . app_url('/dashboard.php'));
     exit;
