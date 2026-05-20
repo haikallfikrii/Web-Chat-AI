@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/billing.php';
 $lang = get_lang();
 $lmeta = lang_meta();
 $pageLang = lang_strings($lang);
@@ -754,7 +755,9 @@ button.sec-head:focus{outline:none;box-shadow:none}
       </div>
     </div>
 
-    <span class="badge <?= $statusBadge ?>"><span class="badge-dot"></span> <?= e($statusLabel) ?></span>
+    <a href="<?= e(app_url('/pricing.php')) ?>" class="badge <?= $statusBadge ?>" style="text-decoration:none" title="Kelola paket">
+      <span class="badge-dot"></span> <?= e($statusLabel) ?>
+    </a>
     <div class="dash-user-info">
       <strong><?= e((string) $user['name']) ?></strong>
       <span><?= e((string) $user['client_name']) ?></span>
@@ -783,6 +786,24 @@ button.sec-head:focus{outline:none;box-shadow:none}
       <?= icon('sparkles', 18) ?>
       <span><?= e($dt['welcome_flash']) ?></span>
     </div>
+  <?php endif; ?>
+
+  <?php
+    $dash_client = billing_fetch_client((int) $user['client_id']);
+    $show_upgrade = $status !== 'active' || ($dash_client && billing_should_show_watermark($dash_client));
+  ?>
+  <?php if ($show_upgrade): ?>
+  <div class="alert" style="background:rgba(0,229,154,.08);border:1px solid var(--green-line);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <?= icon('zap', 18) ?>
+    <span style="flex:1;color:var(--text-2);font-size:14px">
+      <?php if ($status === 'inactive'): ?>
+        Langganan nonaktif — widget tidak menerima chat. Upgrade untuk mengaktifkan kembali.
+      <?php else: ?>
+        Paket trial/free menampilkan watermark <em>Powered by <?= e(APP_NAME) ?></em>. Upgrade untuk menghilangkannya.
+      <?php endif; ?>
+    </span>
+    <a href="<?= e(app_url('/pricing.php')) ?>" class="btn btn-primary" style="padding:8px 16px;white-space:nowrap"><?= icon('arrow-right', 14) ?> Lihat Paket</a>
+  </div>
   <?php endif; ?>
 
   <!-- WELCOME STRIP -->

@@ -22,9 +22,7 @@ function e(?string $value): string
 
 function dashboard_base_url(): string
 {
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    return $scheme . '://' . $host;
+    return app_base_url();
 }
 
 function generate_client_api_key(): string
@@ -111,7 +109,7 @@ function attempt_login(string $email, string $password): array
         $pdo  = get_db();
         $stmt = $pdo->prepare(
             'SELECT u.id, u.client_id, u.name, u.email, u.password_hash, u.role, u.is_active,
-                    c.name AS client_name, c.api_key, c.subscription_status
+                    c.name AS client_name, c.api_key, c.subscription_status, c.plan_code
              FROM users u
              INNER JOIN clients c ON c.id = u.client_id
              WHERE u.email = :email
@@ -140,6 +138,7 @@ function attempt_login(string $email, string $password): array
             'client_name'         => (string) $row['client_name'],
             'client_api_key'      => (string) $row['api_key'],
             'subscription_status' => (string) $row['subscription_status'],
+            'plan_code'           => (string) ($row['plan_code'] ?? 'trial'),
         ];
 
         $pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')
@@ -211,14 +210,18 @@ function register_user(
     try {
         $pdo->beginTransaction();
 
+        $trial_ends = (new DateTime('+' . (string) TRIAL_DAYS . ' days'))->format('Y-m-d H:i:s');
+
         $pdo->prepare(
-            'INSERT INTO clients (name, email, api_key, subscription_status)
-             VALUES (:name, :email, :api_key, :status)'
+            'INSERT INTO clients (name, email, api_key, subscription_status, plan_code, trial_ends_at)
+             VALUES (:name, :email, :api_key, :status, :plan, :trial_ends)'
         )->execute([
-            ':name'    => mb_substr($business_name, 0, 150, 'UTF-8'),
-            ':email'   => $email,
-            ':api_key' => $api_key,
-            ':status'  => 'trial',
+            ':name'       => mb_substr($business_name, 0, 150, 'UTF-8'),
+            ':email'      => $email,
+            ':api_key'    => $api_key,
+            ':status'     => 'trial',
+            ':plan'       => 'free',
+            ':trial_ends' => $trial_ends,
         ]);
         $client_id = (int) $pdo->lastInsertId();
 
@@ -271,6 +274,7 @@ function register_user(
             'client_name'         => $business_name,
             'client_api_key'      => $api_key,
             'subscription_status' => 'trial',
+            'plan_code'           => 'free',
         ];
 
         $pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')
@@ -450,9 +454,6 @@ function send_password_reset_email(string $to_email, string $reset_link): bool
         'MIME-Version: 1.0',
     ];
 
-    $ok = @mail($to_email, $subject, $body, implode("\r\n", $headers));
-    if (!$ok) {
-        error_log('[pwreset:mail] gagal kirim ke ' . $to_email);
-    }
-    return (bool) $ok;
+    require_once __DIR__ . '/mail.php';
+    return send_password_reset_email_html($to_email, $reset_link);
 }
