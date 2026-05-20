@@ -7,6 +7,123 @@
 (function () {
   'use strict';
 
+  function initLandingMenu() {
+    var burger = document.getElementById('navBurger');
+    var drawer = document.getElementById('navLinks');
+    var backdrop = document.getElementById('navBackdrop');
+    if (!burger || !drawer) return;
+
+    var menuIcon = burger.querySelector('.nav-ico-menu');
+    var closeIcon = burger.querySelector('.nav-ico-close');
+
+    function setMenu(open) {
+      drawer.classList.toggle('is-open', !!open);
+      if (backdrop) backdrop.classList.toggle('is-open', !!open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (menuIcon) menuIcon.style.display = open ? 'none' : 'grid';
+      if (closeIcon) closeIcon.style.display = open ? 'grid' : 'none';
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    window.toggleLandingMenu = function () {
+      setMenu(!drawer.classList.contains('is-open'));
+      return false;
+    };
+
+    window.closeLandingMenu = function () {
+      setMenu(false);
+      return false;
+    };
+
+    if (!burger.dataset.cpBound) {
+      burger.dataset.cpBound = '1';
+      burger.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.toggleLandingMenu();
+      });
+    }
+
+    if (backdrop && !backdrop.dataset.cpBound) {
+      backdrop.dataset.cpBound = '1';
+      backdrop.addEventListener('click', function () {
+        window.closeLandingMenu();
+      });
+    }
+
+    drawer.querySelectorAll('a').forEach(function (link) {
+      if (link.dataset.cpBound) return;
+      link.dataset.cpBound = '1';
+      link.addEventListener('click', function () {
+        window.closeLandingMenu();
+      });
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 780) window.closeLandingMenu();
+    }, { passive: true });
+
+    setMenu(false);
+  }
+
+  function initLandingLanguageDropdown() {
+    var wrap = document.getElementById('langWrap');
+    var btn = document.getElementById('langBtn');
+    var drop = document.getElementById('langDrop');
+    if (!wrap || !btn || !drop) return;
+
+    function positionDrop() {
+      var rect = btn.getBoundingClientRect();
+      drop.style.top = (rect.bottom + 6) + 'px';
+      var dropWidth = drop.offsetWidth || 160;
+      var left = rect.right - dropWidth;
+      if (left < 8) left = 8;
+      drop.style.left = left + 'px';
+      drop.style.right = 'auto';
+    }
+
+    function openDrop() {
+      positionDrop();
+      wrap.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeDrop() {
+      wrap.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    window.toggleLandingLanguageDropdown = function () {
+      if (wrap.classList.contains('open')) closeDrop();
+      else openDrop();
+      return false;
+    };
+
+    if (!btn.dataset.cpBound) {
+      btn.dataset.cpBound = '1';
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.toggleLandingLanguageDropdown();
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) closeDrop();
+    });
+
+    window.addEventListener('scroll', function () {
+      if (wrap.classList.contains('open')) positionDrop();
+    }, { passive: true });
+
+    window.addEventListener('resize', function () {
+      if (wrap.classList.contains('open')) positionDrop();
+    }, { passive: true });
+  }
+
+  initLandingMenu();
+  initLandingLanguageDropdown();
+
   /* ─────────────────────────────────────────────
      1. SCROLL PROGRESS BAR
   ───────────────────────────────────────────── */

@@ -429,7 +429,7 @@ footer a:hover{opacity:.75}
       </div>
     </div>
 
-    <button class="nav-burger" id="navBurger" type="button" onclick="return toggleLandingMenu()"
+    <button class="nav-burger" id="navBurger" type="button"
             aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
       <span class="nav-ico-menu"><?= icon('menu', 20) ?></span>
       <span class="nav-ico-close" style="display:none"><?= icon('x', 20) ?></span>
@@ -458,7 +458,7 @@ footer a:hover{opacity:.75}
     </nav>
   </div>
 </header>
-<div class="nav-backdrop" id="navBackdrop" onclick="closeLandingMenu()"></div>
+<div class="nav-backdrop" id="navBackdrop"></div>
 
 <!-- ═══ HERO ═══ -->
 <section class="hero" id="home">
@@ -701,99 +701,6 @@ footer a:hover{opacity:.75}
   </div>
 </footer>
 
-<script>
-/* ── Mobile nav: isolated from other scripts ── */
-(function(){
-  function els(){
-    return {
-      bg: document.getElementById('navBurger'),
-      dr: document.getElementById('navLinks'),
-      bd: document.getElementById('navBackdrop')
-    };
-  }
-
-  function setMenu(open){
-    var ref = els();
-    if(!ref.bg || !ref.dr) return false;
-    var menuIcon = ref.bg.querySelector('.nav-ico-menu');
-    var closeIcon = ref.bg.querySelector('.nav-ico-close');
-
-    ref.dr.classList.toggle('is-open', !!open);
-    if(ref.bd) ref.bd.classList.toggle('is-open', !!open);
-    ref.bg.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if(menuIcon) menuIcon.style.display = open ? 'none' : 'grid';
-    if(closeIcon) closeIcon.style.display = open ? 'grid' : 'none';
-    document.body.style.overflow = open ? 'hidden' : '';
-    return false;
-  }
-
-  window.toggleLandingMenu = function(){
-    var ref = els();
-    if(!ref.bg || !ref.dr) return false;
-    return setMenu(!ref.dr.classList.contains('is-open'));
-  };
-
-  window.closeLandingMenu = function(){
-    return setMenu(false);
-  };
-
-  document.addEventListener('DOMContentLoaded', function(){
-    var ref = els();
-    if(!ref.bg || !ref.dr) return;
-    setMenu(false);
-    ref.dr.querySelectorAll('a').forEach(function(a){
-      a.addEventListener('click', function(){ closeLandingMenu(); });
-    });
-  });
-
-  window.addEventListener('resize',function(){if(window.innerWidth>780) closeLandingMenu();});
-})();
-</script>
-
-<script>
-/* ── Language dropdown (position:fixed to avoid any overflow clip) ── */
-(function(){
-  var w=document.getElementById('langWrap');
-  var b=document.getElementById('langBtn');
-  var d=document.getElementById('langDrop');
-  if(!w||!b||!d) return;
-
-  function positionDrop(){
-    var r=b.getBoundingClientRect();
-    d.style.top=(r.bottom+6)+'px';
-    // Align right edge of dropdown to right edge of button, clamped within viewport
-    var dropW=d.offsetWidth||160;
-    var left=r.right-dropW;
-    if(left<8) left=8;
-    d.style.left=left+'px';
-    d.style.right='auto';
-  }
-
-  function openDrop(){
-    positionDrop();
-    w.classList.add('open');
-    b.setAttribute('aria-expanded','true');
-  }
-  function closeDrop(){
-    w.classList.remove('open');
-    b.setAttribute('aria-expanded','false');
-  }
-
-  b.addEventListener('click',function(e){
-    e.stopPropagation();
-    w.classList.contains('open') ? closeDrop() : openDrop();
-  });
-
-  // Close on outside click
-  document.addEventListener('click',function(e){
-    if(!w.contains(e.target)) closeDrop();
-  });
-
-  // Reposition on scroll/resize
-  window.addEventListener('scroll',function(){if(w.classList.contains('open')) positionDrop();},{passive:true});
-  window.addEventListener('resize',function(){if(w.classList.contains('open')) positionDrop();},{passive:true});
-})();
-</script>
 <script src="/js/landing.js"></script>
 </body>
 </html>
