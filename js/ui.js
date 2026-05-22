@@ -1,5 +1,5 @@
 /**
- * ChatPopup.AI — shared UI helpers (clipboard, password visibility).
+ * ChatLM — shared UI helpers (clipboard, password visibility).
  * Load with: <script src="/js/ui.js" defer></script>
  */
 (function () {

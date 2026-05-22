@@ -1,6 +1,6 @@
-# Panduan Setup Stripe — ChatPopup.AI
+# Panduan Setup Stripe — ChatLM
 
-Dokumen ini menjelaskan langkah demi langkah mengaktifkan pembayaran langganan (subscription) untuk ChatPopup.AI.
+Dokumen ini menjelaskan langkah demi langkah mengaktifkan pembayaran langganan (subscription) untuk ChatLM.
 
 ---
 
@@ -38,10 +38,10 @@ Buat **4 harga berlangganan** (atau sesuaikan dengan kebutuhan):
 
 | Paket di app | Nama produk | Interval | Contoh harga |
 |--------------|-------------|----------|--------------|
-| `starter_monthly` | ChatPopup Starter | Monthly | $19 |
-| `pro_monthly` | ChatPopup Pro | Monthly | $49 |
-| `starter_yearly` | ChatPopup Starter Annual | Yearly | $190 |
-| `pro_yearly` | ChatPopup Pro Annual | Yearly | $490 |
+| `starter_monthly` | ChatLM Starter | Monthly | $19 |
+| `pro_monthly` | ChatLM Pro | Monthly | $49 |
+| `starter_yearly` | ChatLM Starter Annual | Yearly | $190 |
+| `pro_yearly` | ChatLM Pro Annual | Yearly | $490 |
 
 Untuk setiap harga, setelah dibuat salin **Price ID** (format `price_1ABC...`).
 
@@ -67,7 +67,7 @@ Stripe Dashboard → **Developers** → **Webhooks** → **Add endpoint**
 **Endpoint URL:**
 
 ```
-https://agent.jomsite.com/api/webhooks/stripe.php
+https://chatlm.tech/api/webhooks/stripe.php
 ```
 
 (Ganti dengan domain production Anda.)
@@ -116,8 +116,8 @@ Di Hostinger (atau panel hosting): **Advanced** → **Environment variables**, a
 
 ```bash
 # URL situs (wajib untuk redirect Stripe & watermark)
-APP_SITE_URL=https://agent.jomsite.com
-APP_NAME=ChatPopup.AI
+APP_SITE_URL=https://chatlm.tech
+APP_NAME=ChatLM
 
 # Stripe
 STRIPE_SECRET_KEY=sk_live_xxxxxxxx
@@ -130,8 +130,8 @@ STRIPE_PRICE_STARTER_YEARLY=price_xxxxxxxx
 STRIPE_PRICE_PRO_YEARLY=price_xxxxxxxx
 
 # Email (From untuk notifikasi)
-MAIL_FROM_ADDRESS=billing@agent.jomsite.com
-MAIL_FROM_NAME=ChatPopup.AI
+MAIL_FROM_ADDRESS=billing@chatlm.tech
+MAIL_FROM_NAME=ChatLM
 MAIL_SUPPORT=support@email-anda.com
 
 # Trial hari (default 14)
@@ -169,10 +169,10 @@ Email yang dikirim otomatis:
 
 | Event | Subject |
 |-------|---------|
-| Checkout sukses | Konfirmasi Pembayaran — ChatPopup.AI |
-| Langganan aktif | Langganan Aktif — ChatPopup.AI |
-| Langganan dibatalkan | Langganan Dibatalkan — ChatPopup.AI |
-| Reset password | Reset Password — ChatPopup.AI (HTML) |
+| Checkout sukses | Konfirmasi Pembayaran — ChatLM |
+| Langganan aktif | Langganan Aktif — ChatLM |
+| Langganan dibatalkan | Langganan Dibatalkan — ChatLM |
+| Reset password | Reset Password — ChatLM (HTML) |
 
 ---
 
@@ -213,7 +213,7 @@ Email yang dikirim otomatis:
 | Starter / Pro (bayar) | Stripe | Tidak | `active` |
 | Kedaluwarsa / batal | — | — | `inactive` (chat diblokir) |
 
-Watermark teks: **Powered by ChatPopup.AI** → link ke website Anda.
+Watermark teks: **Powered by ChatLM** → link ke website Anda.
 
 ---
 

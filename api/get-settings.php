@@ -103,7 +103,8 @@ send_json([
     'primary_color'    => $row['primary_color'],
     'bot_avatar_url'   => $row['bot_avatar_url'],
     'welcome_message'  => $row['welcome_message'],
-    'show_watermark'   => $show_watermark,
-    'watermark_brand'  => APP_NAME,
-    'watermark_url'    => app_base_url(),
+    'show_watermark'     => $show_watermark,
+    'watermark_brand'    => APP_NAME,
+    'watermark_url'      => app_base_url(),
+    'watermark_logo_url' => app_base_url() . '/assets/chatlm-logo.png',
 ]);

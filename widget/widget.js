@@ -27,7 +27,7 @@
   const BASE_URL = (currentScript.getAttribute("data-base-url") || "").replace(/\/$/, "").trim();
 
   if (!API_KEY || !BASE_URL) {
-    console.warn("[ChatWidget] data-api-key dan data-base-url wajib diisi.");
+    console.warn("[ChatLM] data-api-key dan data-base-url wajib diisi.");
     return;
   }
 
@@ -322,8 +322,14 @@
         color: #9CA3AF;
         flex-shrink: 0;
       }
-      #cw-footer a { color: #9CA3AF; text-decoration: none; }
-      #cw-footer a:hover { text-decoration: underline; }
+      #cw-footer a.cw-wm-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        color: #9CA3AF; text-decoration: none; font-size: 11px;
+      }
+      #cw-footer a.cw-wm-link:hover { color: #0D9488; }
+      #cw-footer a.cw-wm-link strong { font-weight: 600; color: #6B7280; }
+      #cw-footer a.cw-wm-link:hover strong { color: #0D9488; }
+      .cw-wm-logo { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; }
 
       /* ─ Loading skeleton (saat fetch settings) ─ */
       #cw-loading {
@@ -364,11 +370,17 @@
     if (settings.show_watermark === false || settings.show_watermark === 0) {
       return "";
     }
-    const brand = escapeHtml(settings.watermark_brand || "ChatPopup.AI");
+    const brand = escapeHtml(settings.watermark_brand || "ChatLM");
     const url = escapeAttr(settings.watermark_url || BASE_URL);
+    const logoUrl = (settings.watermark_logo_url || "").trim();
+    const logoImg = logoUrl
+      ? `<img src="${escapeAttr(logoUrl)}" alt="" class="cw-wm-logo" width="18" height="18" loading="lazy">`
+      : "";
     return `
         <div id="cw-footer">
-          Powered by <a href="${url}" target="_blank" rel="noopener noreferrer">${brand}</a>
+          <a href="${url}" target="_blank" rel="noopener noreferrer" class="cw-wm-link">
+            ${logoImg}<span>Powered by <strong>${brand}</strong></span>
+          </a>
         </div>`;
   }
 
@@ -551,7 +563,7 @@
     try {
       settings = await fetchSettings();
     } catch (err) {
-      console.error("[ChatWidget] Gagal memuat settings:", err.message);
+      console.error("[ChatLM] Gagal memuat settings:", err.message);
       return;
     }
 
@@ -670,7 +682,7 @@
           ? raw
           : "Maaf, tidak bisa terhubung ke server. Periksa koneksi dan coba lagi.";
         appendBubble(messagesEl, "error", displayMsg);
-        console.error("[ChatWidget] Error:", raw);
+        console.error("[ChatLM] Error:", raw);
       } finally {
         STATE.isLoading = false;
         sendBtn.disabled = inputEl.value.trim() === "";

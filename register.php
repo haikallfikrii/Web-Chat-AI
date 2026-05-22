@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/brand.php';
 
 if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
 
@@ -42,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
-<title>Daftar Gratis — ChatPopup.AI</title>
+<title>Daftar Gratis — <?= e(APP_NAME) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -105,8 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <div class="auth-top">
     <a href="<?= e(app_url('/')) ?>" class="brand">
-      <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
-      <span class="brand-text">ChatPopup.AI</span>
+      <?= brand_mark_html(36) ?>
+      <span class="brand-text"><?= brand_name_html() ?></span>
     </a>
     <a href="<?= e(app_url('/login.php')) ?>" class="auth-back">Sudah punya akun <?= icon('arrow-right', 16) ?></a>
   </div>

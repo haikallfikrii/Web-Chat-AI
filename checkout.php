@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/plans.php';
 require_once __DIR__ . '/includes/billing.php';
 require_once __DIR__ . '/includes/stripe_client.php';
+require_once __DIR__ . '/includes/brand.php';
 
 $user = require_login();
 $plan_code = trim((string) ($_GET['plan'] ?? $_POST['plan'] ?? ''));
@@ -73,8 +74,8 @@ $stripe_ok = stripe_configured();
       <?= icon('arrow-left', 16) ?> Kembali ke paket
     </a>
     <a href="<?= e(app_url('/dashboard.php')) ?>" class="brand">
-      <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
-      <span class="brand-text"><?= e(APP_NAME) ?></span>
+      <?= brand_mark_html(36) ?>
+      <span class="brand-text"><?= brand_name_html() ?></span>
     </a>
   </header>
 

@@ -4,6 +4,7 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/includes/billing.php';
+require_once __DIR__ . '/includes/brand.php';
 $lang = get_lang();
 $lmeta = lang_meta();
 $pageLang = lang_strings($lang);
@@ -414,7 +415,7 @@ $checkScore = count(array_filter(array_column($checklist, 'ok')));
 $checkTotal = count($checklist);
 $checkPct   = (int) round($checkScore / $checkTotal * 100);
 
-$primaryColor = (string) ($settings['primary_color'] ?? '#00E59A');
+$primaryColor = (string) ($settings['primary_color'] ?? '#14B8A6');
 $firstName    = explode(' ', (string) $user['name'])[0];
 
 $embedSnippet = '<script src="' . $baseUrl . '/widget/widget.js"' . "\n"
@@ -429,6 +430,7 @@ $embedSnippet = '<script src="' . $baseUrl . '/widget/widget.js"' . "\n"
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
+<?= brand_favicon_tags() ?>
 <title><?= e($dt['page_title']) ?> — <?= e((string) $user['client_name']) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -726,8 +728,8 @@ button.sec-head:focus{outline:none;box-shadow:none}
 <!-- TOPBAR -->
 <header class="dash-nav">
   <a href="<?= e(app_url('/')) ?>" class="brand">
-    <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
-    <span class="brand-text">ChatPopup.AI</span>
+    <?= brand_mark_html(36) ?>
+    <span class="brand-text"><?= brand_name_html() ?></span>
   </a>
 
   <div class="dash-user">

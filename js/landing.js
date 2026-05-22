@@ -1,5 +1,5 @@
 /**
- * ChatPopup.AI — Landing Page JS
+ * ChatLM — Landing Page JS
  * Scroll-progress · Particle canvas · 3D tilt · Typewriter
  * Scroll-reveal · Counter · Magnetic buttons · Card cursor-glow
  * Nav active link · Mock chat reveal

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/plans.php';
+require_once __DIR__ . '/brand.php';
 
 function mail_from_address(): string
 {
@@ -19,13 +20,15 @@ function mail_support_address(): string
 }
 
 /**
- * Template HTML email dengan identitas ChatPopup.AI.
+ * Template HTML email dengan identitas ChatLM.
  */
 function mail_html_layout(string $title, string $body_html, ?string $preheader = null): string
 {
     $site   = app_site_url();
     $brand  = APP_NAME;
+    $logo   = brand_logo_url();
     $year   = (string) date('Y');
+    $logo_html = '<img src="' . htmlspecialchars($logo, ENT_QUOTES, 'UTF-8') . '" alt="" width="36" height="36" style="vertical-align:middle;margin-right:10px;border-radius:8px;">';
     $pre    = $preheader !== null && $preheader !== ''
         ? '<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">' . htmlspecialchars($preheader, ENT_QUOTES, 'UTF-8') . '</div>'
         : '';
@@ -42,9 +45,9 @@ function mail_html_layout(string $title, string $body_html, ?string $preheader =
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030712;padding:32px 16px;">
 <tr><td align="center">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#0f172a;border-radius:16px;border:1px solid rgba(255,255,255,.08);overflow:hidden;">
-<tr><td style="padding:28px 32px 20px;background:linear-gradient(135deg,#00E59A 0%,#22d3ee 100%);">
+<tr><td style="padding:28px 32px 20px;background:linear-gradient(135deg,#14B8A6 0%,#2DD4BF 100%);">
 <table role="presentation" width="100%"><tr>
-<td style="font-size:22px;font-weight:800;color:#031018;letter-spacing:-.3px;">' . htmlspecialchars($brand, ENT_QUOTES, 'UTF-8') . '</td>
+<td style="font-size:22px;font-weight:800;color:#031018;letter-spacing:-.3px;">' . $logo_html . htmlspecialchars($brand, ENT_QUOTES, 'UTF-8') . '</td>
 <td align="right" style="font-size:12px;color:rgba(3,16,24,.65);font-weight:600;">AI Chat Widget</td>
 </tr></table>
 </td></tr>
@@ -54,7 +57,7 @@ function mail_html_layout(string $title, string $body_html, ?string $preheader =
 </td></tr>
 <tr><td style="padding:20px 32px 28px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:#64748b;line-height:1.5;">
 <p style="margin:0 0 8px;">&copy; ' . $year . ' ' . htmlspecialchars($brand, ENT_QUOTES, 'UTF-8') . '. Semua hak dilindungi.</p>
-<p style="margin:0;"><a href="' . htmlspecialchars($site, ENT_QUOTES, 'UTF-8') . '" style="color:#00E59A;text-decoration:none;">' . htmlspecialchars($site, ENT_QUOTES, 'UTF-8') . '</a>
+<p style="margin:0;"><a href="' . htmlspecialchars($site, ENT_QUOTES, 'UTF-8') . '" style="color:#14B8A6;text-decoration:none;">' . htmlspecialchars($site, ENT_QUOTES, 'UTF-8') . '</a>
  &nbsp;&middot;&nbsp; <a href="mailto:' . htmlspecialchars(mail_support_address(), ENT_QUOTES, 'UTF-8') . '" style="color:#94a3b8;text-decoration:none;">Dukungan</a></p>
 </td></tr>
 </table>
@@ -67,7 +70,7 @@ function mail_html_layout(string $title, string $body_html, ?string $preheader =
 function mail_button(string $url, string $label): string
 {
     return '<p style="margin:24px 0 8px;text-align:center;">
-<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#00E59A,#22d3ee);color:#031018;font-weight:700;font-size:15px;text-decoration:none;border-radius:10px;">'
+<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#14B8A6,#2DD4BF);color:#031018;font-weight:700;font-size:15px;text-decoration:none;border-radius:10px;">'
         . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</a></p>';
 }
 
@@ -93,7 +96,7 @@ function send_html_email(string $to, string $subject, string $html, ?string $pla
         'Reply-To: ' . mail_support_address(),
         'MIME-Version: 1.0',
         'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
-        'X-Mailer: ChatPopup.AI',
+        'X-Mailer: ' . APP_NAME,
     ];
 
     $body = "--{$boundary}\r\n"
@@ -121,11 +124,11 @@ function send_subscription_activated_email(
 ): bool {
     $dash = app_site_url() . '/dashboard.php';
     $body = '<p style="margin:0 0 12px;color:#cbd5e1;">Halo <strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>,</p>'
-        . '<p style="margin:0 0 12px;">Pembayaran Anda berhasil. Langganan <strong style="color:#00E59A;">' . htmlspecialchars($plan_name, ENT_QUOTES, 'UTF-8') . '</strong>'
+        . '<p style="margin:0 0 12px;">Pembayaran Anda berhasil. Langganan <strong style="color:#14B8A6;">' . htmlspecialchars($plan_name, ENT_QUOTES, 'UTF-8') . '</strong>'
         . ($interval_label !== '' ? ' (' . htmlspecialchars($interval_label, ENT_QUOTES, 'UTF-8') . ')' : '')
         . ' sekarang <strong style="color:#f8fafc;">aktif</strong>.</p>'
         . mail_info_box(
-            '<strong style="color:#00E59A;">Yang berubah:</strong><ul style="margin:8px 0 0;padding-left:18px;">'
+            '<strong style="color:#14B8A6;">Yang berubah:</strong><ul style="margin:8px 0 0;padding-left:18px;">'
             . '<li>Watermark di widget dihilangkan</li>'
             . '<li>Widget tetap aktif di website Anda</li>'
             . '<li>Kelola langganan kapan saja dari dashboard</li></ul>'
@@ -168,10 +171,10 @@ function send_checkout_receipt_email(
 ): bool {
     $dash = app_site_url() . '/dashboard.php';
     $body = '<p style="margin:0 0 12px;color:#cbd5e1;">Terima kasih, <strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>!</p>'
-        . '<p style="margin:0 0 12px;">Kami menerima pembayaran Anda untuk paket <strong style="color:#00E59A;">' . htmlspecialchars($plan_name, ENT_QUOTES, 'UTF-8') . '</strong>.</p>'
+        . '<p style="margin:0 0 12px;">Kami menerima pembayaran Anda untuk paket <strong style="color:#14B8A6;">' . htmlspecialchars($plan_name, ENT_QUOTES, 'UTF-8') . '</strong>.</p>'
         . mail_info_box('<table role="presentation" width="100%" style="font-size:14px;">'
             . '<tr><td style="color:#94a3b8;padding:4px 0;">Total</td><td align="right" style="color:#f8fafc;font-weight:700;">' . htmlspecialchars($amount_display, ENT_QUOTES, 'UTF-8') . '</td></tr>'
-            . '<tr><td style="color:#94a3b8;padding:4px 0;">Status</td><td align="right" style="color:#00E59A;font-weight:700;">Lunas</td></tr></table>')
+            . '<tr><td style="color:#94a3b8;padding:4px 0;">Status</td><td align="right" style="color:#14B8A6;font-weight:700;">Lunas</td></tr></table>')
         . '<p style="margin:12px 0 0;color:#94a3b8;font-size:13px;">Invoice resmi dari Stripe akan dikirim terpisah ke email ini.</p>'
         . mail_button($dash, 'Mulai Konfigurasi Widget');
 
@@ -188,7 +191,7 @@ function send_password_reset_email_html(string $to_email, string $reset_link): b
         . mail_button($reset_link, 'Reset Password')
         . '<p style="margin:16px 0 0;font-size:12px;color:#64748b;word-break:break-all;">' . htmlspecialchars($reset_link, ENT_QUOTES, 'UTF-8') . '</p>';
 
-    $html = mail_html_layout('Reset Password', $body, 'Reset password akun ChatPopup.AI Anda.');
+    $html = mail_html_layout('Reset Password', $body, 'Reset password akun ' . APP_NAME . ' Anda.');
     $plain = "Reset password (60 menit):\n{$reset_link}\n\n— " . APP_NAME;
 
     return send_html_email($to_email, 'Reset Password — ' . APP_NAME, $html, $plain);

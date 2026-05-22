@@ -34,8 +34,8 @@ define('GEMINI_API_BASE', getenv('GEMINI_API_BASE') ?: 'https://generativelangua
 define('TELEGRAM_BOT_TOKEN', getenv('TELEGRAM_BOT_TOKEN') ?: '');
 
 // ── Branding & URL situs (watermark, email, Stripe redirect) ─
-define('APP_NAME', getenv('APP_NAME') ?: 'ChatPopup.AI');
-define('APP_SITE_URL', getenv('APP_SITE_URL') ?: ''); // kosong = auto dari HTTP_HOST
+define('APP_NAME', getenv('APP_NAME') ?: 'ChatLM');
+define('APP_SITE_URL', getenv('APP_SITE_URL') ?: 'https://chatlm.tech');
 
 // ── Stripe Billing ───────────────────────────────────────────
 define('STRIPE_SECRET_KEY', getenv('STRIPE_SECRET_KEY') ?: '');
@@ -54,7 +54,7 @@ define('TRIAL_DAYS', (int) (getenv('TRIAL_DAYS') ?: 14));
 
 // Header tambahan OpenRouter (disarankan oleh dokumentasi mereka)
 define('OPENROUTER_HTTP_REFERER', getenv('OPENROUTER_HTTP_REFERER') ?: '');
-define('OPENROUTER_APP_TITLE', getenv('OPENROUTER_APP_TITLE') ?: 'Chat PopUp AI');
+define('OPENROUTER_APP_TITLE', getenv('OPENROUTER_APP_TITLE') ?: 'ChatLM');
 
 // Timeout (detik) untuk webhook legacy n8n bila dipakai
 define('WEBHOOK_TIMEOUT', (int) (getenv('WEBHOOK_TIMEOUT') ?: 30));
