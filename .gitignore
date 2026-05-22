@@ -1,0 +1,13 @@
+# Rahasia server — JANGAN commit
+config.local.php
+.env
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Uploads lokal (jika ada)
+uploads/*
+!uploads/.gitkeep

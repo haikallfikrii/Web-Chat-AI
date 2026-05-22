@@ -1,15 +1,15 @@
 -- ============================================================
--- ChatLM — Database Schema (development lokal)
+-- ChatLM — Instalasi tabel (Hostinger / phpMyAdmin)
 -- ============================================================
--- Hostinger: gunakan schema/hostinger_install.sql (tanpa CREATE DATABASE).
--- Buat 2 DB terpisah: chatlm_staging & chatlm_prod — lihat DEPLOY_HOSTINGER.md
+-- CARA PAKAI:
+-- 1. Buat database baru di hPanel → Databases (mis. uXXX_chatlm_staging)
+-- 2. Buat user MySQL & assign ke database tersebut
+-- 3. Buka phpMyAdmin → PILIH database di sidebar kiri
+-- 4. Tab SQL → tempel file ini → Execute
+--
+-- Ulangi untuk database KEDUA (production) dengan nama DB berbeda.
+-- Jangan jalankan CREATE DATABASE di shared hosting jika tidak diizinkan.
 -- ============================================================
-
-CREATE DATABASE IF NOT EXISTS chatlm_local
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE chatlm_local;
 
 -- ------------------------------------------------------------
 -- Tabel: clients
@@ -33,39 +33,25 @@ CREATE TABLE IF NOT EXISTS clients (
     INDEX idx_subscription (subscription_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS stripe_webhook_events (
-    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    stripe_event_id VARCHAR(255)    NOT NULL,
-    event_type      VARCHAR(120)    NOT NULL,
-    processed_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uniq_stripe_event (stripe_event_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- ------------------------------------------------------------
 -- Tabel: widget_settings
--- ai_api_key: simpan ciphertext Base64 (AES-256-GCM via APP_SECRET), bukan plaintext
--- telegram_chat_id: opsional; notifikasi pakai TELEGRAM_BOT_TOKEN di config.php
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS widget_settings (
     id               INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     client_id        INT UNSIGNED    NOT NULL UNIQUE,
-    primary_color    CHAR(7)         NOT NULL DEFAULT '#4F46E5',
+    primary_color    CHAR(7)         NOT NULL DEFAULT '#14B8A6',
     bot_name         VARCHAR(80)     NOT NULL DEFAULT 'Assistant',
     bot_avatar_url   VARCHAR(500)    NOT NULL DEFAULT '',
     welcome_message  TEXT            NOT NULL,
     n8n_webhook_url  VARCHAR(500)    NOT NULL DEFAULT '',
     allowed_origins  TEXT            NOT NULL DEFAULT '*',
-
     ai_provider      ENUM('openai','google','deepseek','openrouter')
                          NOT NULL DEFAULT 'openrouter',
     ai_api_key       TEXT            NOT NULL,
     ai_model         VARCHAR(120)    NOT NULL DEFAULT 'openai/gpt-4o-mini',
     ai_system_prompt TEXT            NOT NULL DEFAULT '',
-
     telegram_notify_enabled TINYINT(1) NOT NULL DEFAULT 0,
     telegram_chat_id        VARCHAR(64)  NULL DEFAULT NULL,
-
     created_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -74,8 +60,7 @@ CREATE TABLE IF NOT EXISTS widget_settings (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
--- Tabel: chat_messages (history percakapan untuk konteks AI)
--- role: user | assistant (setara OpenAI; Gemini memetakan assistant -> model)
+-- Tabel: chat_messages
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS chat_messages (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -94,7 +79,6 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 
 -- ------------------------------------------------------------
 -- Tabel: users
--- Login dashboard per client untuk mengatur widget sendiri
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
     id               INT UNSIGNED    NOT NULL AUTO_INCREMENT,
@@ -116,7 +100,6 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- ------------------------------------------------------------
 -- Tabel: password_resets
--- Token reset password (hash) untuk fitur "lupa password"
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS password_resets (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -134,64 +117,13 @@ CREATE TABLE IF NOT EXISTS password_resets (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
--- Contoh data dummy (isi ai_api_key dengan ciphertext dari encrypt_secret PHP)
+-- Tabel: stripe_webhook_events (billing)
 -- ------------------------------------------------------------
-INSERT INTO clients (name, email, api_key, subscription_status) VALUES
-(
-    'Toko ABC',
-    'admin@toko-abc.com',
-    SHA2(CONCAT('toko-abc', UUID(), RAND()), 256),
-    'active'
-);
-
-INSERT INTO widget_settings (
-    client_id,
-    primary_color,
-    bot_name,
-    bot_avatar_url,
-    welcome_message,
-    n8n_webhook_url,
-    allowed_origins,
-    ai_provider,
-    ai_api_key,
-    ai_model,
-    ai_system_prompt,
-    telegram_notify_enabled,
-    telegram_chat_id
-)
-VALUES (
-    LAST_INSERT_ID(),
-    '#4F46E5',
-    'Asisten Toko ABC',
-    '',
-    'Halo! Ada yang bisa saya bantu hari ini?',
-    'https://n8n.yourdomain.com/webhook/YOUR-WEBHOOK-ID',
-    'https://toko-abc.com',
-    'openrouter',
-    '',
-    'openai/gpt-4o-mini',
-    '',
-    0,
-    NULL
-);
-
--- ------------------------------------------------------------
--- Contoh user dashboard
--- Password contoh di bawah adalah placeholder hasil password_hash().
--- Buat hash baru dengan: php scripts/generate_password_hash.php "PasswordKuatAnda"
--- ------------------------------------------------------------
-INSERT INTO users (
-    client_id,
-    name,
-    email,
-    password_hash,
-    role,
-    is_active
-) VALUES (
-    (SELECT id FROM clients WHERE email = 'admin@toko-abc.com' LIMIT 1),
-    'Owner Toko ABC',
-    'owner@toko-abc.com',
-    '$2y$10$CHANGE_ME_WITH_PASSWORD_HASH',
-    'owner',
-    1
-);
+CREATE TABLE IF NOT EXISTS stripe_webhook_events (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    stripe_event_id VARCHAR(255)    NOT NULL,
+    event_type      VARCHAR(120)    NOT NULL,
+    processed_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uniq_stripe_event (stripe_event_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

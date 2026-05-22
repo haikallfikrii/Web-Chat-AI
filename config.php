@@ -1,63 +1,178 @@
 <?php
 /**
- * config.php
- * Konfigurasi koneksi database dan konstanta global.
- * Letakkan file ini DI LUAR public_html jika memungkinkan.
+ * config.php — Inti aplikasi (AMAN di Git, tanpa password DB).
+ *
+ * Rahasia per-server: buat config.local.php (lihat config.local.*.example.php).
+ * File config.local.php di-ignore oleh .gitignore dan tidak tertimpa saat git pull.
  */
-
 declare(strict_types=1);
 
-// ── Konfigurasi Database ─────────────────────────────────────
-define('DB_HOST',    getenv('DB_HOST')    ?: '127.0.0.1');
-define('DB_PORT',    getenv('DB_PORT')    ?: '3306');
-define('DB_NAME',    getenv('DB_NAME')    ?: 'u451240370_chatpopup');
-define('DB_USER',    getenv('DB_USER')    ?: 'u451240370_khalfikrii');
-define('DB_PASS',    getenv('DB_PASS')    ?: 'AellImehh10.');
+// ── Loader konfigurasi ───────────────────────────────────────
+
+function config_load_dotenv(): void
+{
+    $path = __DIR__ . '/.env';
+    if (!is_readable($path)) {
+        return;
+    }
+
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return;
+    }
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#')) {
+            continue;
+        }
+        $eq = strpos($line, '=');
+        if ($eq === false) {
+            continue;
+        }
+        $key = trim(substr($line, 0, $eq));
+        $val = trim(substr($line, $eq + 1));
+        $val = trim($val, "\"'");
+        if ($key === '' || getenv($key) !== false) {
+            continue;
+        }
+        putenv($key . '=' . $val);
+        $_ENV[$key] = $val;
+    }
+}
+
+/** @return array<string, string> */
+function config_load_local(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    $file = __DIR__ . '/config.local.php';
+    if (!is_file($file)) {
+        $cache = [];
+        return $cache;
+    }
+
+    $data = require $file;
+    $cache = is_array($data) ? array_map('strval', $data) : [];
+    return $cache;
+}
+
+function config_env(string $key, string $default = ''): string
+{
+    $v = getenv($key);
+    if (is_string($v) && $v !== '') {
+        return $v;
+    }
+
+    $local = config_load_local();
+    if (isset($local[$key]) && $local[$key] !== '') {
+        return $local[$key];
+    }
+
+    return $default;
+}
+
+/**
+ * Deteksi staging vs production dari hostname (fallback jika APP_ENV kosong).
+ */
+function config_detect_environment(): string
+{
+    $host = strtolower($_SERVER['HTTP_HOST'] ?? '');
+
+    if (
+        str_contains($host, 'staging.')
+        || str_contains($host, 'localhost')
+        || str_contains($host, '127.0.0.1')
+        || str_ends_with($host, '.local')
+    ) {
+        return 'staging';
+    }
+
+    return 'production';
+}
+
+function config_default_site_url(): string
+{
+    return config_detect_environment() === 'staging'
+        ? 'https://staging.chatlm.tech'
+        : 'https://chatlm.tech';
+}
+
+function config_is_configured(): bool
+{
+    return config_env('DB_NAME') !== '' && config_env('DB_USER') !== '';
+}
+
+function config_abort_if_missing(): void
+{
+    if (config_is_configured()) {
+        return;
+    }
+
+    $msg = 'Konfigurasi database belum ada. Buat config.local.php di server '
+        . '(salin dari config.local.staging.example.php atau config.local.production.example.php). '
+        . 'Lihat DEPLOY_HOSTINGER.md';
+
+    if (PHP_SAPI === 'cli') {
+        fwrite(STDERR, $msg . PHP_EOL);
+        exit(1);
+    }
+
+    http_response_code(503);
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!DOCTYPE html><html><body style="font-family:sans-serif;padding:2rem;background:#030712;color:#e2e8f0">'
+        . '<h1>ChatLM — setup diperlukan</h1><p>' . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') . '</p></body></html>';
+    exit;
+}
+
+config_load_dotenv();
+config_abort_if_missing();
+
+// ── Konstanta aplikasi ───────────────────────────────────────
+
+define('APP_ENV', config_env('APP_ENV', config_detect_environment()));
+define('APP_SECRET', config_env('APP_SECRET', ''));
+define('APP_NAME', config_env('APP_NAME', 'ChatLM'));
+define('APP_SITE_URL', config_env('APP_SITE_URL', config_default_site_url()));
+
+define('DB_HOST', config_env('DB_HOST', '127.0.0.1'));
+define('DB_PORT', config_env('DB_PORT', '3306'));
+define('DB_NAME', config_env('DB_NAME', ''));
+define('DB_USER', config_env('DB_USER', ''));
+define('DB_PASS', config_env('DB_PASS', ''));
 define('DB_CHARSET', 'utf8mb4');
 
-// ── Konfigurasi Aplikasi ─────────────────────────────────────
-define('APP_ENV',   getenv('APP_ENV') ?: 'production'); // 'development' | 'production'
-define('APP_SECRET', getenv('APP_SECRET') ?: 'ganti-dengan-secret-acak-panjang');
+define('AI_HTTP_TIMEOUT', (int) config_env('AI_HTTP_TIMEOUT', '55'));
+define('OPENAI_API_URL', config_env('OPENAI_API_URL', 'https://api.openai.com/v1/chat/completions'));
+define('DEEPSEEK_API_URL', config_env('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions'));
+define('OPENROUTER_API_URL', config_env('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions'));
+define('GEMINI_API_BASE', config_env('GEMINI_API_BASE', 'https://generativelanguage.googleapis.com/v1beta/models'));
 
-// Timeout HTTP untuk pemanggilan AI (detik) — shared hosting: sesuaikan dengan max_execution_time
-define('AI_HTTP_TIMEOUT', (int) (getenv('AI_HTTP_TIMEOUT') ?: 55));
+define('TELEGRAM_BOT_TOKEN', config_env('TELEGRAM_BOT_TOKEN', ''));
 
-// Endpoint OpenAI-compatible (bisa dioverride lewat env)
-define('OPENAI_API_URL',       getenv('OPENAI_API_URL')       ?: 'https://api.openai.com/v1/chat/completions');
-define('DEEPSEEK_API_URL',     getenv('DEEPSEEK_API_URL')     ?: 'https://api.deepseek.com/v1/chat/completions');
-define('OPENROUTER_API_URL',   getenv('OPENROUTER_API_URL')   ?: 'https://openrouter.ai/api/v1/chat/completions');
+define('STRIPE_SECRET_KEY', config_env('STRIPE_SECRET_KEY', ''));
+define('STRIPE_PUBLISHABLE_KEY', config_env('STRIPE_PUBLISHABLE_KEY', ''));
+define('STRIPE_WEBHOOK_SECRET', config_env('STRIPE_WEBHOOK_SECRET', ''));
+define('STRIPE_PRICE_STARTER_MONTHLY', config_env('STRIPE_PRICE_STARTER_MONTHLY', ''));
+define('STRIPE_PRICE_PRO_MONTHLY', config_env('STRIPE_PRICE_PRO_MONTHLY', ''));
+define('STRIPE_PRICE_STARTER_YEARLY', config_env('STRIPE_PRICE_STARTER_YEARLY', ''));
+define('STRIPE_PRICE_PRO_YEARLY', config_env('STRIPE_PRICE_PRO_YEARLY', ''));
 
-// URL dasar Gemini (model dan query ?key= ditambahkan di kode)
-define('GEMINI_API_BASE', getenv('GEMINI_API_BASE') ?: 'https://generativelanguage.googleapis.com/v1beta/models');
+define('MAIL_FROM_ADDRESS', config_env('MAIL_FROM_ADDRESS', ''));
+define('MAIL_FROM_NAME', config_env('MAIL_FROM_NAME', APP_NAME));
+define('MAIL_SUPPORT', config_env('MAIL_SUPPORT', ''));
+define('TRIAL_DAYS', (int) config_env('TRIAL_DAYS', '14'));
 
-// Telegram opsional: satu bot untuk semua tenant; chat_id per klien di widget_settings
-define('TELEGRAM_BOT_TOKEN', getenv('TELEGRAM_BOT_TOKEN') ?: '');
+define('OPENROUTER_HTTP_REFERER', config_env('OPENROUTER_HTTP_REFERER', APP_SITE_URL));
+define('OPENROUTER_APP_TITLE', config_env('OPENROUTER_APP_TITLE', APP_NAME));
+define('WEBHOOK_TIMEOUT', (int) config_env('WEBHOOK_TIMEOUT', '30'));
 
-// ── Branding & URL situs (watermark, email, Stripe redirect) ─
-define('APP_NAME', getenv('APP_NAME') ?: 'ChatLM');
-define('APP_SITE_URL', getenv('APP_SITE_URL') ?: 'https://chatlm.tech');
-
-// ── Stripe Billing ───────────────────────────────────────────
-define('STRIPE_SECRET_KEY', getenv('STRIPE_SECRET_KEY') ?: '');
-define('STRIPE_PUBLISHABLE_KEY', getenv('STRIPE_PUBLISHABLE_KEY') ?: '');
-define('STRIPE_WEBHOOK_SECRET', getenv('STRIPE_WEBHOOK_SECRET') ?: '');
-define('STRIPE_PRICE_STARTER_MONTHLY', getenv('STRIPE_PRICE_STARTER_MONTHLY') ?: '');
-define('STRIPE_PRICE_PRO_MONTHLY', getenv('STRIPE_PRICE_PRO_MONTHLY') ?: '');
-define('STRIPE_PRICE_STARTER_YEARLY', getenv('STRIPE_PRICE_STARTER_YEARLY') ?: '');
-define('STRIPE_PRICE_PRO_YEARLY', getenv('STRIPE_PRICE_PRO_YEARLY') ?: '');
-
-// Email transaksional (From header)
-define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: '');
-define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: APP_NAME);
-define('MAIL_SUPPORT', getenv('MAIL_SUPPORT') ?: '');
-define('TRIAL_DAYS', (int) (getenv('TRIAL_DAYS') ?: 14));
-
-// Header tambahan OpenRouter (disarankan oleh dokumentasi mereka)
-define('OPENROUTER_HTTP_REFERER', getenv('OPENROUTER_HTTP_REFERER') ?: '');
-define('OPENROUTER_APP_TITLE', getenv('OPENROUTER_APP_TITLE') ?: 'ChatLM');
-
-// Timeout (detik) untuk webhook legacy n8n bila dipakai
-define('WEBHOOK_TIMEOUT', (int) (getenv('WEBHOOK_TIMEOUT') ?: 30));
+if (APP_SECRET === '' || strlen(APP_SECRET) < 16) {
+    error_log('[config] APP_SECRET terlalu pendek atau kosong — set di config.local.php');
+}
 
 // ── Buat koneksi PDO (singleton sederhana) ───────────────────
 function get_db(): PDO
@@ -70,25 +185,26 @@ function get_db(): PDO
 
     $dsn = sprintf(
         'mysql:host=%s;port=%s;dbname=%s;charset=%s',
-        DB_HOST, DB_PORT, DB_NAME, DB_CHARSET
+        DB_HOST,
+        DB_PORT,
+        DB_NAME,
+        DB_CHARSET
     );
 
     $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
-        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+        PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci',
     ];
 
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
     } catch (PDOException $e) {
-        // Jangan tampilkan detail error ke user di production
-        if (APP_ENV === 'development') {
-            error_log('[DB] ' . $e->getMessage());
-        }
+        error_log('[DB] ' . APP_ENV . ' ' . DB_NAME . ' — ' . $e->getMessage());
         http_response_code(500);
-        die(json_encode(['error' => 'Database connection failed.']));
+        $detail = APP_ENV === 'staging' ? ' [' . APP_ENV . ' / ' . DB_NAME . ']' : '';
+        die(json_encode(['error' => 'Database connection failed.' . $detail]));
     }
 
     return $pdo;

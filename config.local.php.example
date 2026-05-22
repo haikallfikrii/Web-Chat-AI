@@ -1,0 +1,44 @@
+<?php
+/**
+ * Salin file ini menjadi config.local.php di SETIAP server (staging & production).
+ * config.local.php TIDAK ikut Git — aman untuk password database.
+ *
+ *   cp config.local.php.example config.local.php
+ *
+ * Lihat juga:
+ *   - config.local.staging.example.php
+ *   - config.local.production.example.php
+ */
+declare(strict_types=1);
+
+return [
+    // staging | production | development
+    'APP_ENV' => 'production',
+
+    'APP_SECRET' => 'ganti-minimal-32-karakter-acak',
+    'APP_SITE_URL' => 'https://chatlm.tech',
+    'APP_NAME' => 'ChatLM',
+
+    'DB_HOST' => '127.0.0.1',
+    'DB_PORT' => '3306',
+    'DB_NAME' => 'u123456789_chatlm_prod',
+    'DB_USER' => 'u123456789_chatlm_user',
+    'DB_PASS' => 'password_database_anda',
+
+    'TELEGRAM_BOT_TOKEN' => '',
+
+    // Stripe — production pakai sk_live_, staging pakai sk_test_
+    'STRIPE_SECRET_KEY' => '',
+    'STRIPE_PUBLISHABLE_KEY' => '',
+    'STRIPE_WEBHOOK_SECRET' => '',
+    'STRIPE_PRICE_STARTER_MONTHLY' => '',
+    'STRIPE_PRICE_PRO_MONTHLY' => '',
+    'STRIPE_PRICE_STARTER_YEARLY' => '',
+    'STRIPE_PRICE_PRO_YEARLY' => '',
+
+    'MAIL_FROM_ADDRESS' => 'billing@chatlm.tech',
+    'MAIL_FROM_NAME' => 'ChatLM',
+    'MAIL_SUPPORT' => 'support@chatlm.tech',
+
+    'TRIAL_DAYS' => '14',
+];

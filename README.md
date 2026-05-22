@@ -40,22 +40,27 @@ Website Klien
 2. Import `schema.sql`.
 3. Salin `api_key` dari tabel `clients` untuk diberikan ke klien.
 
-## Konfigurasi Environment
+## Staging vs Production (Hostinger)
 
-Edit `config.php` atau set environment variable di server:
+**Jangan** simpan password database di Git. Pakai `config.local.php` per server:
 
-| Variable      | Keterangan                        | Default          |
-|---------------|-----------------------------------|------------------|
-| `DB_HOST`     | Host MySQL                        | `localhost`      |
-| `DB_PORT`     | Port MySQL                        | `3306`           |
-| `DB_NAME`     | Nama database                     | `chatpopup_db`   |
-| `DB_USER`     | Username MySQL                    | `root`           |
-| `DB_PASS`     | Password MySQL                    | *(kosong)*       |
-| `APP_ENV`     | `development` / `production`      | `production`     |
-| `APP_SECRET`  | Secret key aplikasi               | *(ganti ini!)*   |
-| `WEBHOOK_TIMEOUT` | Timeout cURL ke n8n (detik) | `30`             |
+| Server | Domain | File config | Database |
+|--------|--------|-------------|----------|
+| Staging | `staging.chatlm.tech` | `config.local.php` (dari `config.local.staging.example.php`) | DB staging terpisah |
+| Production | `chatlm.tech` | `config.local.php` (dari `config.local.production.example.php`) | DB production terpisah |
 
-> **Shared Hosting**: Jika tidak bisa set env var, edit konstanta langsung di `config.php`.
+Panduan lengkap: **[DEPLOY_HOSTINGER.md](DEPLOY_HOSTINGER.md)**
+
+Import tabel baru: `schema/hostinger_install.sql` di phpMyAdmin (per database).
+
+Cek koneksi: `/health.php` (hapus setelah setup di production).
+
+| Variable | Keterangan |
+|----------|------------|
+| `DB_NAME` | Nama DB **berbeda** per lingkungan |
+| `APP_ENV` | `staging` atau `production` |
+| `APP_SITE_URL` | URL penuh domain tersebut |
+| `APP_SECRET` | Min. 32 karakter, **beda** staging vs production |
 
 ## Embed Widget ke Website Klien
 
