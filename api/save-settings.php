@@ -131,6 +131,24 @@ if ($n8n_webhook_url !== '' && filter_var($n8n_webhook_url, FILTER_VALIDATE_URL)
 }
 
 $origins_clean = cors_ensure_app_site_in_list(cors_normalize_allowed_field($allowed_origins));
+
+if ($telegram_chat_id !== '' && !is_valid_telegram_chat_id($telegram_chat_id)) {
+    set_flash(
+        'error',
+        'Telegram Chat ID salah: itu terlihat seperti Bot Token BotFather. '
+        . 'Token bot dipasang di config.local.php (TELEGRAM_BOT_TOKEN). '
+        . 'Di sini isi Chat ID angka dari @userinfobot (contoh: 123456789).'
+    );
+    header('Location: ' . app_url('/dashboard.php'));
+    exit;
+}
+
+if ($telegram_notify_enabled && $telegram_chat_id === '') {
+    set_flash('error', 'Aktifkan notifikasi Telegram hanya setelah mengisi Telegram Chat ID.');
+    header('Location: ' . app_url('/dashboard.php'));
+    exit;
+}
+
 $tg_chat_clean = $telegram_chat_id !== '' ? mb_substr($telegram_chat_id, 0, 64, 'UTF-8') : null;
 
 try {

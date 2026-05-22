@@ -318,6 +318,23 @@ function decrypt_secret(string $stored): ?string
 }
 
 /**
+ * Chat ID Telegram (angka), bukan Bot Token dari BotFather.
+ */
+function is_valid_telegram_chat_id(string $chat_id): bool
+{
+    $chat_id = trim($chat_id);
+    if ($chat_id === '') {
+        return true;
+    }
+    // Bot token format: 123456789:AAHxxx...
+    if (preg_match('/^\d+:[A-Za-z0-9_-]{20,}$/', $chat_id)) {
+        return false;
+    }
+
+    return (bool) preg_match('/^-?\d{5,20}$/', $chat_id);
+}
+
+/**
  * Kirim notifikasi Telegram (sinkron, timeout pendek). Token dari TELEGRAM_BOT_TOKEN.
  */
 function telegram_notify_new_message(

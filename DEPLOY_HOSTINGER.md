@@ -114,6 +114,27 @@ File ini **tidak** ada di GitHub. Buat lewat File Manager Hostinger.
 
 6. Pastikan **AI API key** + model sudah diisi di dashboard (widget tampil, chat bisa gagal tanpa ini).
 
+### Notifikasi Telegram
+
+Ada **dua nilai berbeda**:
+
+| Apa | Di mana | Contoh |
+|-----|---------|--------|
+| **Bot Token** (BotFather) | `config.local.php` → `TELEGRAM_BOT_TOKEN` | `123456789:AAH...` (rahasia server) |
+| **Chat ID** (Anda) | Dashboard → Telegram Chat ID | `987654321` (angka dari @userinfobot) |
+
+Langkah:
+
+1. Pasang token bot di `config.local.php` di server (bukan di dashboard).
+2. Buka bot Anda di Telegram (mis. @ChatlmAsistantBot) → kirim **`/start`** (wajib, sekali saja).
+3. Buka @userinfobot → **`/start`** → salin **Id** (angka).
+4. Dashboard → centang notifikasi → paste Chat ID → **Simpan**.
+5. Uji: kirim pesan dari widget di website → notifikasi masuk ke Telegram Anda.
+
+**Keamanan:** Jika token bot pernah terpublish (chat, screenshot), buka @BotFather → `/revoke` → token baru → update `config.local.php`.
+
+**Ingat percakapan widget:** Sesi pengunjung disimpan di browser **3 hari** (`localStorage`); riwayat chat tetap di database server selama `session_id` sama.
+
 ### Di server PRODUCTION
 
 1. Salin `config.local.production.example.php` → **`config.local.php`**

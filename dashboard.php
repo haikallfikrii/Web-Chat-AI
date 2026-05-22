@@ -52,7 +52,7 @@ function dash_text(string $lang): array {
             'send_telegram' => 'Send notifications to Telegram',
             'telegram_sub' => 'Receive a ping every time a new message arrives in your widget',
             'telegram_chat_id' => 'Telegram Chat ID',
-            'telegram_hint' => 'Send <code>/start</code> to <strong>@userinfobot</strong> on Telegram to get your Chat ID.',
+            'telegram_hint' => '<strong>Not the Bot Token.</strong> Paste your numeric Chat ID only (from <strong>@userinfobot</strong> after <code>/start</code>). The BotFather token goes in server <code>config.local.php</code> as <code>TELEGRAM_BOT_TOKEN</code>. You must also send <code>/start</code> to your bot (e.g. @ChatlmAsistantBot) once.',
             'save_all' => 'Save All Settings',
             'widget_api_key' => 'Widget API Key',
             'copy' => 'Copy',
@@ -113,7 +113,7 @@ function dash_text(string $lang): array {
             'send_telegram' => 'Kirim notifikasi ke Telegram',
             'telegram_sub' => 'Terima ping setiap ada pesan baru di widget Anda',
             'telegram_chat_id' => 'Telegram Chat ID',
-            'telegram_hint' => 'Kirim <code>/start</code> ke <strong>@userinfobot</strong> di Telegram untuk dapat Chat ID Anda.',
+            'telegram_hint' => '<strong>Bukan Bot Token.</strong> Isi Chat ID angka saja (dari <strong>@userinfobot</strong> setelah <code>/start</code>). Token BotFather dipasang di server <code>config.local.php</code> → <code>TELEGRAM_BOT_TOKEN</code>. Kirim juga <code>/start</code> ke bot Anda (mis. @ChatlmAsistantBot) sekali.',
             'save_all' => 'Simpan Semua Pengaturan',
             'widget_api_key' => 'Widget API Key',
             'copy' => 'Salin',
@@ -1013,7 +1013,8 @@ button.sec-head:focus{outline:none;box-shadow:none}
             <label class="field-label" for="telegram_chat_id"><?= icon('message', 14) ?> <?= e($dt['telegram_chat_id']) ?></label>
             <input type="text" id="telegram_chat_id" name="telegram_chat_id" class="input"
                    value="<?= e((string) $settings['telegram_chat_id']) ?>"
-                   placeholder="<?= $lang === 'id' ? 'Contoh: -100123456789' : 'Example: -100123456789' ?>">
+                   placeholder="<?= $lang === 'id' ? 'Contoh: 123456789 (bukan token BotFather)' : 'Example: 123456789 (not the BotFather token)' ?>"
+                   inputmode="numeric" autocomplete="off">
             <div class="hint-box">
               <?= $dt['telegram_hint'] ?>
             </div>

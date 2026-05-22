@@ -39,15 +39,55 @@
     settings:  null,
   };
 
-  // ── Ambil/buat session_id di sessionStorage ────────────────
-  function getOrCreateSessionId() {
-    const key       = "cw_session_" + API_KEY.substring(0, 8);
-    let   sessionId = sessionStorage.getItem(key);
+  // Sesi pengunjung: localStorage, tetap 3 hari (refresh tab / tutup browser singkat)
+  const SESSION_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 
-    if (!sessionId || !isValidUUID(sessionId)) {
-      sessionId = generateUUID();
-      sessionStorage.setItem(key, sessionId);
+  function sessionStorageKey() {
+    return "cw_session_" + API_KEY.substring(0, 8);
+  }
+
+  function storageGet(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (_) {
+      try {
+        return sessionStorage.getItem(key);
+      } catch (_e) {
+        return null;
+      }
     }
+  }
+
+  function storageSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (_) {
+      try {
+        sessionStorage.setItem(key, value);
+      } catch (_e) {}
+    }
+  }
+
+  function persistSessionId(sessionId) {
+    const key = sessionStorageKey();
+    storageSet(key, sessionId);
+    storageSet(key + "_at", String(Date.now()));
+  }
+
+  function getOrCreateSessionId() {
+    const key = sessionStorageKey();
+    const tsKey = key + "_at";
+    const now = Date.now();
+    let sessionId = storageGet(key);
+    const ts = parseInt(storageGet(tsKey) || "0", 10);
+
+    if (sessionId && isValidUUID(sessionId) && ts > 0 && now - ts < SESSION_TTL_MS) {
+      persistSessionId(sessionId);
+      return sessionId;
+    }
+
+    sessionId = generateUUID();
+    persistSessionId(sessionId);
     return sessionId;
   }
 
@@ -534,7 +574,7 @@
     // Update session_id jika server memberikan yang baru
     if (data.session_id && isValidUUID(data.session_id)) {
       STATE.sessionId = data.session_id;
-      sessionStorage.setItem("cw_session_" + API_KEY.substring(0, 8), data.session_id);
+      persistSessionId(data.session_id);
     }
 
     return data.reply;

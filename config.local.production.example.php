@@ -22,7 +22,8 @@ return [
     'DB_USER' => 'u451240370_khalfikrii',
     'DB_PASS' => 'AellImehh10.',
 
-    'TELEGRAM_BOT_TOKEN' => '',
+    // Token dari BotFather (@ChatlmAsistantBot) — JANGAN taruh di dashboard Chat ID
+    'TELEGRAM_BOT_TOKEN' => '123456789:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 
     // Mode LIVE di Stripe Dashboard
     'STRIPE_SECRET_KEY' => 'sk_live_...',
