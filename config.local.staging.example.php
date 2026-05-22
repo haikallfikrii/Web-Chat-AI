@@ -15,14 +15,14 @@ return [
     'APP_SECRET' => 'staging-secret-min-32-chars-unique',
     'APP_SITE_URL' => 'https://staging.chatlm.tech',
     'APP_NAME' => 'ChatLM (Staging)',
-
     'DB_HOST' => '127.0.0.1',
     'DB_PORT' => '3306',
-    'DB_NAME' => 'u123456789_chatlm_staging',
-    'DB_USER' => 'u123456789_staging_user',
-    'DB_PASS' => 'PASSWORD_STAGING_DI_SINI',
+    'DB_NAME' => 'u451240370_chatlm_prod',
+    'DB_USER' => 'u451240370_khalfikrii',
+    'DB_PASS' => 'AellImehh10.',
 
-    'TELEGRAM_BOT_TOKEN' => '',
+    // Token dari BotFather (@ChatlmAsistantBot) — JANGAN taruh di dashboard Chat ID
+    'TELEGRAM_BOT_TOKEN' => '123456789:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 
     // Wajib mode TEST di Stripe Dashboard
     'STRIPE_SECRET_KEY' => 'sk_test_...',
