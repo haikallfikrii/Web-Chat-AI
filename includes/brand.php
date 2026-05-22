@@ -1,0 +1,40 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../config.php';
+
+/** Path relatif logo di web root */
+function brand_logo_path(): string
+{
+    return '/assets/chatlm-logo.png';
+}
+
+function brand_logo_url(): string
+{
+    return app_base_url() . brand_logo_path();
+}
+
+/** HTML logo untuk header/nav */
+function brand_mark_html(int $size = 32): string
+{
+    $url = brand_logo_url();
+    $alt = htmlspecialchars(APP_NAME, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $src = htmlspecialchars($url, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+    return '<span class="brand-mark brand-mark--logo">'
+        . '<img src="' . $src . '" alt="' . $alt . '" width="' . $size . '" height="' . $size . '" class="brand-logo" loading="eager" decoding="async">'
+        . '</span>';
+}
+
+function brand_name_html(): string
+{
+    return htmlspecialchars(APP_NAME, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+/** Favicon & Apple touch icon */
+function brand_favicon_tags(): string
+{
+    $src = htmlspecialchars(brand_logo_url(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    return '<link rel="icon" href="' . $src . '" type="image/png">'
+        . '<link rel="apple-touch-icon" href="' . $src . '">';
+}

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * ChatPopup.AI — i18n helper
+ * ChatLM — i18n helper
  * Supported: en · id · es · fr · pt · ja
  */
 
@@ -65,7 +65,7 @@ function lang_strings(string $lang): array {
     'en' => [
         'html_lang'      => 'en',
         'dir'            => 'ltr',
-        'page_title'     => 'ChatPopup.AI — AI Chat Widget for Any Website',
+        'page_title'     => 'ChatLM — AI Chat Widget for Any Website',
         'page_desc'      => 'Add an AI chat widget to your website in 5 minutes. Multi-provider (OpenAI, Gemini, DeepSeek, OpenRouter), custom branding, conversation memory.',
         /* nav */
         'nav_features'   => 'Features',
@@ -144,7 +144,7 @@ function lang_strings(string $lang): array {
         /* testimonials */
         'testi_tag'      => 'Trusted By',
         'testi_h2'       => 'Loved by businesses worldwide',
-        'testi_sub'      => 'See what our users are saying about ChatPopup.AI.',
+        'testi_sub'      => 'See what our users are saying about ChatLM.',
         'testi_1_q'      => '"Set up in literally 4 minutes. My support load dropped 60% in the first week. The AI actually understands context — it feels like a real assistant."',
         'testi_1_name'   => 'Alex R.',
         'testi_1_role'   => 'E-commerce Owner',
@@ -167,7 +167,7 @@ function lang_strings(string $lang): array {
     'id' => [
         'html_lang'      => 'id',
         'dir'            => 'ltr',
-        'page_title'     => 'ChatPopup.AI — Widget Chat AI untuk Website Anda',
+        'page_title'     => 'ChatLM — Widget Chat AI untuk Website Anda',
         'page_desc'      => 'Pasang widget chat AI di website dalam 5 menit. Multi-provider, custom branding, memori percakapan.',
         'nav_features'   => 'Fitur',
         'nav_how'        => 'Cara Kerja',
@@ -226,7 +226,7 @@ function lang_strings(string $lang): array {
         'prov_4'         => 'DeepSeek',         'prov_4_sub' => 'Chat · Coder',
         'testi_tag'      => 'Dipercaya Oleh',
         'testi_h2'       => 'Disukai bisnis di seluruh dunia',
-        'testi_sub'      => 'Apa yang dikatakan pengguna kami tentang ChatPopup.AI.',
+        'testi_sub'      => 'Apa yang dikatakan pengguna kami tentang ChatLM.',
         'testi_1_q'      => '"Setup 4 menit, support turun 60% minggu pertama. AI benar-benar paham konteks."',
         'testi_1_name'   => 'Alex R.', 'testi_1_role' => 'Pemilik E-commerce',
         'testi_2_q'      => '"Kami pindah dari SaaS chat mahal ke ini. Kualitas sama, harga jauh lebih murah."',
@@ -244,7 +244,7 @@ function lang_strings(string $lang): array {
     /* ══ SPANISH ════════════════════════════════════════════════ */
     'es' => [
         'html_lang'      => 'es', 'dir' => 'ltr',
-        'page_title'     => 'ChatPopup.AI — Widget de Chat IA para tu Sitio',
+        'page_title'     => 'ChatLM — Widget de Chat IA para tu Sitio',
         'page_desc'      => 'Añade un widget de chat IA en 5 minutos. Multi-proveedor, marca personalizada, memoria de conversación.',
         'nav_features'   => 'Funciones',  'nav_how' => 'Cómo Funciona',
         'nav_providers'  => 'Proveedores','nav_login' => 'Iniciar Sesión',
@@ -304,7 +304,7 @@ function lang_strings(string $lang): array {
     /* ══ FRENCH ════════════════════════════════════════════════ */
     'fr' => [
         'html_lang'      => 'fr', 'dir' => 'ltr',
-        'page_title'     => 'ChatPopup.AI — Widget Chat IA pour votre Site',
+        'page_title'     => 'ChatLM — Widget Chat IA pour votre Site',
         'page_desc'      => 'Ajoutez un widget chat IA en 5 minutes. Multi-fournisseur, marque personnalisée, mémoire de conversation.',
         'nav_features'   => 'Fonctionnalités', 'nav_how' => 'Comment ça marche',
         'nav_providers'  => 'Fournisseurs',    'nav_login' => 'Connexion',
@@ -364,7 +364,7 @@ function lang_strings(string $lang): array {
     /* ══ PORTUGUESE ════════════════════════════════════════════════ */
     'pt' => [
         'html_lang'      => 'pt', 'dir' => 'ltr',
-        'page_title'     => 'ChatPopup.AI — Widget de Chat IA para seu Site',
+        'page_title'     => 'ChatLM — Widget de Chat IA para seu Site',
         'page_desc'      => 'Adicione um widget de chat IA em 5 minutos. Multi-provedor, marca personalizada, memória de conversa.',
         'nav_features'   => 'Recursos', 'nav_how' => 'Como Funciona',
         'nav_providers'  => 'Provedores','nav_login' => 'Entrar',
@@ -424,7 +424,7 @@ function lang_strings(string $lang): array {
     /* ══ JAPANESE ════════════════════════════════════════════════ */
     'ja' => [
         'html_lang'      => 'ja', 'dir' => 'ltr',
-        'page_title'     => 'ChatPopup.AI — ウェブサイト向けAIチャットウィジェット',
+        'page_title'     => 'ChatLM — ウェブサイト向けAIチャットウィジェット',
         'page_desc'      => '5分でAIチャットウィジェットを追加。マルチプロバイダー対応、カスタムブランド、会話メモリ付き。',
         'nav_features'   => '機能', 'nav_how' => '使い方',
         'nav_providers'  => 'プロバイダー', 'nav_login' => 'ログイン',
@@ -467,7 +467,7 @@ function lang_strings(string $lang): array {
         'prov_3' => 'Google Gemini', 'prov_3_sub' => '1.5 Flash · 1.5 Pro',
         'prov_4' => 'DeepSeek',      'prov_4_sub' => 'Chat · Coder',
         'testi_tag' => '利用実績', 'testi_h2' => '世界中のビジネスに愛用',
-        'testi_sub' => 'ChatPopup.AIユーザーの声をご紹介します。',
+        'testi_sub' => 'ChatLMユーザーの声をご紹介します。',
         'testi_1_q' => '「文字通り4分でセットアップ完了。最初の週でサポート負荷が60%減りました。」',
         'testi_1_name' => 'Alex R.', 'testi_1_role' => 'EC事業オーナー',
         'testi_2_q' => '「高コストなチャットSaaSからこれに切り替えました。同じ品質で大幅コスト削減。」',

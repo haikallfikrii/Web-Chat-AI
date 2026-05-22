@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/brand.php';
 
 if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
 
@@ -18,6 +19,7 @@ function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
+<?= brand_favicon_tags() ?>
 <title><?= esc($t['page_title']) ?></title>
 <meta name="description" content="<?= esc($t['page_desc']) ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -402,8 +404,8 @@ footer a:hover{opacity:.75}
 <header class="nav">
   <div class="nav-in">
     <a href="<?= esc(app_url('/')) ?>" class="brand">
-      <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
-      <span class="brand-text">ChatPopup.AI</span>
+      <?= brand_mark_html(36) ?>
+      <span class="brand-text"><?= brand_name_html() ?></span>
     </a>
 
     <!-- Language Switcher — lives OUTSIDE nav-links to avoid overflow clipping -->
@@ -694,7 +696,7 @@ footer a:hover{opacity:.75}
 
 <!-- ═══ FOOTER ═══ -->
 <footer>
-  <span>&copy; <?= date('Y') ?> ChatPopup.AI &nbsp;·&nbsp; <?= esc($t['footer_built']) ?></span>
+  <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?> &nbsp;·&nbsp; <?= esc($t['footer_built']) ?></span>
   <div class="footer-links">
     <a href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['footer_login']) ?></a>
     <a href="<?= esc(app_url('/register.php')) ?>"><?= esc($t['footer_reg']) ?></a>

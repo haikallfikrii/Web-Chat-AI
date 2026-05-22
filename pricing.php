@@ -5,6 +5,7 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/plans.php';
 require_once __DIR__ . '/includes/billing.php';
+require_once __DIR__ . '/includes/brand.php';
 
 $user = current_user();
 if ($user === null) {
@@ -42,8 +43,8 @@ $yearly  = ['starter_yearly', 'pro_yearly'];
 <div class="pricing-shell">
   <header class="pricing-top">
     <a href="<?= e(app_url('/dashboard.php')) ?>" class="brand">
-      <span class="brand-mark"><?= icon('sparkles', 18) ?></span>
-      <span class="brand-text"><?= e(APP_NAME) ?></span>
+      <?= brand_mark_html(36) ?>
+      <span class="brand-text"><?= brand_name_html() ?></span>
     </a>
     <div style="display:flex;gap:12px;align-items:center">
       <span class="badge <?= $status === 'active' ? 'badge-green' : 'badge-yellow' ?>">

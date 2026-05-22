@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Definisi paket ChatPopup.AI.
+ * Definisi paket ChatLM.
  * Stripe Price ID diisi lewat env (STRIPE_PRICE_*).
  */
 function app_site_url(): string
@@ -25,7 +25,7 @@ function billing_plans(): array
             'subscription_status' => 'trial',
             'features'          => [
                 'Widget chat AI di 1 website',
-                'Watermark "Powered by ChatPopup.AI"',
+                'Watermark "Powered by ChatLM"',
                 'Trial 14 hari penuh',
                 'Notifikasi Telegram',
                 'Multi-provider AI (BYOK)',

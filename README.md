@@ -1,6 +1,6 @@
-# SaaS Chat Pop-up Widget
+# ChatLM — AI Chat Widget
 
-Chat pop-up berbasis PHP/MySQL yang dapat di-host di Shared Hosting (Hostinger, Niagahoster, dll), terintegrasi dengan n8n untuk AI conversational.
+ChatLM (`chatlm.tech`) — widget chat AI berbasis PHP/MySQL untuk shared hosting, multi-provider AI, billing Stripe, dan branding widget.
 
 ## Struktur Project
 
