@@ -3,19 +3,22 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/i18n_auth.php';
 require_once __DIR__ . '/includes/brand.php';
 
 if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
 
-$lang = get_lang();
-$t = lang_strings($lang);
+$lang  = get_lang();
+$t     = lang_strings($lang);
+$at    = auth_strings($lang);
+$lmeta = lang_meta();
 
 $errors = [];
 $fields = ['name' => '', 'business_name' => '', 'email' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf($_POST['csrf_token'] ?? '')) {
-        $errors[] = 'Sesi tidak valid. Muat ulang halaman lalu coba lagi.';
+        $errors[] = $at['csrf_error'];
     } else {
         $fields['name']          = trim((string) ($_POST['name']          ?? ''));
         $fields['business_name'] = trim((string) ($_POST['business_name'] ?? ''));
@@ -33,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ' . app_url('/dashboard.php', ['welcome' => 1]));
             exit;
         }
-        $errors[] = $result['error'] ?? 'Registrasi gagal.';
+        $errors[] = $result['error'] ?? $at['register_fail'];
     }
 }
 ?>
@@ -43,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
-<title>Daftar Gratis — <?= e(APP_NAME) ?></title>
+<title><?= e($at['register_title']) ?> — <?= e(APP_NAME) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -109,27 +112,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?= brand_mark_html(36) ?>
       <span class="brand-text"><?= brand_name_html() ?></span>
     </a>
-    <a href="<?= e(app_url('/login.php')) ?>" class="auth-back">Sudah punya akun <?= icon('arrow-right', 16) ?></a>
+    <div class="auth-top-actions">
+      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
+      <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= e($at['has_account']) ?> <?= icon('arrow-right', 16) ?></a>
+    </div>
   </div>
 
   <div class="auth-wrap">
     <div class="auth-card">
       <div class="auth-head">
         <div class="auth-icon"><?= icon('sparkles', 28) ?></div>
-        <h1 class="auth-title">Buat Akun Gratis</h1>
-        <p class="auth-sub">Setup selesai dalam 5 menit.<br>Tidak perlu kartu kredit.</p>
+        <h1 class="auth-title"><?= e($at['register_title']) ?></h1>
+        <p class="auth-sub"><?= e($at['register_sub']) ?><br><?= e($at['register_sub2']) ?></p>
       </div>
 
       <?php foreach ($errors as $err): ?>
         <div class="alert alert-error"><?= icon('alert', 18) ?> <span><?= e($err) ?></span></div>
       <?php endforeach; ?>
 
-      <form method="POST" action="/register.php" autocomplete="on" novalidate>
+      <form method="POST" action="<?= e(app_url('/register.php')) ?>" autocomplete="on" novalidate>
         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
         <div class="row-2">
           <div class="field">
-            <label class="field-label" for="name"><?= icon('user', 14) ?> Nama Anda</label>
+            <label class="field-label" for="name"><?= icon('user', 14) ?> <?= e($at['name']) ?></label>
             <div class="input-wrap">
               <span class="input-icon"><?= icon('user', 16) ?></span>
               <input type="text" id="name" name="name" class="input"
@@ -138,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
           </div>
           <div class="field">
-            <label class="field-label" for="business_name"><?= icon('building', 14) ?> Bisnis</label>
+            <label class="field-label" for="business_name"><?= icon('building', 14) ?> <?= e($at['business_name']) ?></label>
             <div class="input-wrap">
               <span class="input-icon"><?= icon('building', 16) ?></span>
               <input type="text" id="business_name" name="business_name" class="input"
@@ -149,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="field">
-          <label class="field-label" for="email"><?= icon('mail', 14) ?> Alamat Email</label>
+          <label class="field-label" for="email"><?= icon('mail', 14) ?> <?= e($at['email']) ?></label>
           <div class="input-wrap">
             <span class="input-icon"><?= icon('mail', 16) ?></span>
             <input type="email" id="email" name="email" class="input"
@@ -159,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="field">
-          <label class="field-label" for="password"><?= icon('lock', 14) ?> Password</label>
+          <label class="field-label" for="password"><?= icon('lock', 14) ?> <?= e($at['password']) ?></label>
           <div class="input-wrap">
             <span class="input-icon"><?= icon('lock', 16) ?></span>
             <input type="password" id="password" name="password" class="input"
@@ -175,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="field">
-          <label class="field-label" for="password_confirm"><?= icon('lock', 14) ?> Konfirmasi Password</label>
+          <label class="field-label" for="password_confirm"><?= icon('lock', 14) ?> <?= e($at['password_confirm']) ?></label>
           <div class="input-wrap">
             <span class="input-icon"><?= icon('lock', 16) ?></span>
             <input type="password" id="password_confirm" name="password_confirm" class="input"
@@ -188,13 +194,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <button type="submit" class="btn btn-primary btn-block btn-lg">
-          Buat Akun &amp; Mulai <?= icon('arrow-right', 16) ?>
+          <?= e($at['register_btn_long']) ?> <?= icon('arrow-right', 16) ?>
         </button>
-        <p class="tos">Dengan mendaftar, Anda menyetujui <a href="#">Syarat Layanan</a>.</p>
+        <p class="tos"><?= e($at['tos']) ?></p>
       </form>
 
-      <div class="divider">Sudah punya akun?</div>
-      <p class="auth-foot"><a href="<?= e(app_url('/login.php')) ?>">Masuk ke dashboard <?= icon('arrow-right', 14) ?></a></p>
+      <div class="divider"><?= e($at['has_account']) ?></div>
+      <p class="auth-foot"><a href="<?= e(app_url('/login.php')) ?>"><?= e($at['login_link']) ?> <?= icon('arrow-right', 14) ?></a></p>
     </div>
   </div>
 

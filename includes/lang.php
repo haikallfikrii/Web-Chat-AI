@@ -47,6 +47,20 @@ function app_url(string $path = '/', array $params = []): string {
     return $query !== '' ? $path . '?' . $query : $path;
 }
 
+/** Internal path only — blocks open redirects. */
+function after_login_url(): string
+{
+    $raw = trim((string) ($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
+    if ($raw === '' || $raw[0] !== '/' || preg_match('#^//|:\/\/|[\r\n]#', $raw)) {
+        return app_url('/dashboard.php');
+    }
+    $path  = (string) (parse_url($raw, PHP_URL_PATH) ?: '/dashboard.php');
+    $query = [];
+    parse_str((string) (parse_url($raw, PHP_URL_QUERY) ?? ''), $query);
+
+    return app_url($path, $query);
+}
+
 function lang_meta(): array {
     return [
         'en' => ['flag' => '🇺🇸', 'label' => 'English'],
@@ -71,6 +85,7 @@ function lang_strings(string $lang): array {
         'nav_features'   => 'Features',
         'nav_how'        => 'How It Works',
         'nav_providers'  => 'Providers',
+        'nav_pricing'    => 'Pricing',
         'nav_login'      => 'Log In',
         'nav_register'   => 'Start Free',
         /* hero */
@@ -161,6 +176,7 @@ function lang_strings(string $lang): array {
         'footer_built'   => 'Built on PHP 8 · Hosted on Hostinger',
         'footer_login'   => 'Login',
         'footer_reg'     => 'Register',
+        'footer_pricing' => 'Pricing',
     ],
 
     /* ══ INDONESIAN ════════════════════════════════════════════════ */
@@ -172,6 +188,7 @@ function lang_strings(string $lang): array {
         'nav_features'   => 'Fitur',
         'nav_how'        => 'Cara Kerja',
         'nav_providers'  => 'Provider',
+        'nav_pricing'    => 'Harga',
         'nav_login'      => 'Masuk',
         'nav_register'   => 'Daftar Gratis',
         'hero_eyebrow'   => 'Trial Gratis · Tanpa Kartu Kredit',
@@ -239,6 +256,7 @@ function lang_strings(string $lang): array {
         'footer_built'   => 'Dibangun di atas PHP 8 · Hosted on Hostinger',
         'footer_login'   => 'Login',
         'footer_reg'     => 'Daftar',
+        'footer_pricing' => 'Harga',
     ],
 
     /* ══ SPANISH ════════════════════════════════════════════════ */
@@ -247,7 +265,8 @@ function lang_strings(string $lang): array {
         'page_title'     => 'ChatLM — Widget de Chat IA para tu Sitio',
         'page_desc'      => 'Añade un widget de chat IA en 5 minutos. Multi-proveedor, marca personalizada, memoria de conversación.',
         'nav_features'   => 'Funciones',  'nav_how' => 'Cómo Funciona',
-        'nav_providers'  => 'Proveedores','nav_login' => 'Iniciar Sesión',
+        'nav_providers'  => 'Proveedores','nav_pricing' => 'Precios',
+        'nav_login' => 'Iniciar Sesión',
         'nav_register'   => 'Empezar Gratis',
         'hero_eyebrow'   => 'Prueba Gratis · Sin Tarjeta',
         'hero_h1_a'      => 'Asistente IA',
@@ -299,6 +318,7 @@ function lang_strings(string $lang): array {
         'cta_btn'   => 'Crear Cuenta Gratis',
         'footer_built' => 'Construido en PHP 8 · Alojado en Hostinger',
         'footer_login' => 'Login', 'footer_reg' => 'Registro',
+        'footer_pricing' => 'Precios',
     ],
 
     /* ══ FRENCH ════════════════════════════════════════════════ */
@@ -307,7 +327,8 @@ function lang_strings(string $lang): array {
         'page_title'     => 'ChatLM — Widget Chat IA pour votre Site',
         'page_desc'      => 'Ajoutez un widget chat IA en 5 minutes. Multi-fournisseur, marque personnalisée, mémoire de conversation.',
         'nav_features'   => 'Fonctionnalités', 'nav_how' => 'Comment ça marche',
-        'nav_providers'  => 'Fournisseurs',    'nav_login' => 'Connexion',
+        'nav_providers'  => 'Fournisseurs',    'nav_pricing' => 'Tarifs',
+        'nav_login' => 'Connexion',
         'nav_register'   => 'Commencer Gratuitement',
         'hero_eyebrow'   => 'Essai Gratuit · Sans CB',
         'hero_h1_a'      => 'Assistant IA',
@@ -359,6 +380,7 @@ function lang_strings(string $lang): array {
         'cta_btn' => 'Créer un compte gratuit',
         'footer_built' => 'Construit sur PHP 8 · Hébergé sur Hostinger',
         'footer_login' => 'Connexion', 'footer_reg' => 'Inscription',
+        'footer_pricing' => 'Tarifs',
     ],
 
     /* ══ PORTUGUESE ════════════════════════════════════════════════ */
@@ -367,7 +389,8 @@ function lang_strings(string $lang): array {
         'page_title'     => 'ChatLM — Widget de Chat IA para seu Site',
         'page_desc'      => 'Adicione um widget de chat IA em 5 minutos. Multi-provedor, marca personalizada, memória de conversa.',
         'nav_features'   => 'Recursos', 'nav_how' => 'Como Funciona',
-        'nav_providers'  => 'Provedores','nav_login' => 'Entrar',
+        'nav_providers'  => 'Provedores','nav_pricing' => 'Preços',
+        'nav_login' => 'Entrar',
         'nav_register'   => 'Começar Grátis',
         'hero_eyebrow'   => 'Trial Grátis · Sem Cartão',
         'hero_h1_a'      => 'Assistente IA',
@@ -419,6 +442,7 @@ function lang_strings(string $lang): array {
         'cta_btn' => 'Criar Conta Grátis',
         'footer_built' => 'Construído em PHP 8 · Hospedado na Hostinger',
         'footer_login' => 'Entrar', 'footer_reg' => 'Cadastro',
+        'footer_pricing' => 'Preços',
     ],
 
     /* ══ JAPANESE ════════════════════════════════════════════════ */
@@ -427,7 +451,8 @@ function lang_strings(string $lang): array {
         'page_title'     => 'ChatLM — ウェブサイト向けAIチャットウィジェット',
         'page_desc'      => '5分でAIチャットウィジェットを追加。マルチプロバイダー対応、カスタムブランド、会話メモリ付き。',
         'nav_features'   => '機能', 'nav_how' => '使い方',
-        'nav_providers'  => 'プロバイダー', 'nav_login' => 'ログイン',
+        'nav_providers'  => 'プロバイダー', 'nav_pricing' => '料金',
+        'nav_login' => 'ログイン',
         'nav_register'   => '無料で始める',
         'hero_eyebrow'   => '無料トライアル · クレカ不要',
         'hero_h1_a'      => 'AIアシスタントを',
@@ -479,6 +504,7 @@ function lang_strings(string $lang): array {
         'cta_btn' => '無料アカウント作成',
         'footer_built' => 'PHP 8で構築 · Hostingerでホスティング',
         'footer_login' => 'ログイン', 'footer_reg' => '登録',
+        'footer_pricing' => '料金',
     ],
 
     ]; /* end $all */

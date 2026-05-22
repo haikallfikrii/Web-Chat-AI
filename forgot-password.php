@@ -3,12 +3,15 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/i18n_auth.php';
 require_once __DIR__ . '/includes/brand.php';
 
 if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
 
-$lang = get_lang();
-$t = lang_strings($lang);
+$lang  = get_lang();
+$t     = lang_strings($lang);
+$at    = auth_strings($lang);
+$lmeta = lang_meta();
 
 $error    = '';
 $info     = '';
@@ -18,13 +21,13 @@ $emailSent = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf($_POST['csrf_token'] ?? '')) {
-        $error = 'Sesi tidak valid. Muat ulang halaman lalu coba lagi.';
+        $error = $at['csrf_error'];
     } else {
         $result = create_password_reset_token($prefill);
         if (!$result['ok']) {
             $error = $result['error'] ?? 'Gagal membuat token reset.';
         } else {
-            $info = 'Jika email tersebut terdaftar, kami sudah mengirim instruksi reset password ke inbox Anda. Cek folder Spam jika belum muncul dalam 5 menit.';
+            $info = $at['forgot_sent'];
             $emailSent = true;
 
             if ($result['exists'] && $result['token']) {
@@ -45,12 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
-<title>Lupa Password — <?= e(APP_NAME) ?></title>
+<title><?= e($at['forgot_title']) ?> — <?= e(APP_NAME) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/theme.css">
+<script src="/js/ui.js" defer></script>
 <style>
+.auth-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .auth-shell{min-height:100vh;display:flex;flex-direction:column;padding:0 20px}
 .auth-top{position:sticky;top:0;z-index:30;background:rgba(3,7,18,.72);backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);margin:0 -20px;padding:0 24px;height:64px;
@@ -93,15 +98,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?= brand_mark_html(36) ?>
       <span class="brand-text"><?= brand_name_html() ?></span>
     </a>
-    <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> Kembali ke Login</a>
+    <div class="auth-top-actions">
+      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
+      <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> <?= e($at['back_login']) ?></a>
+    </div>
   </div>
 
   <div class="auth-wrap">
     <div class="auth-card">
       <div class="auth-head">
         <div class="auth-icon"><?= icon('key', 28) ?></div>
-        <h1 class="auth-title">Lupa Password?</h1>
-        <p class="auth-sub">Masukkan email Anda. Kami akan mengirim link reset password yang berlaku 60 menit.</p>
+        <h1 class="auth-title"><?= e($at['forgot_title']) ?></h1>
+        <p class="auth-sub"><?= e($at['forgot_sub']) ?></p>
       </div>
 
       <?php if ($error): ?>
@@ -121,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         <div style="margin-top:18px">
           <a href="<?= e(app_url('/login.php')) ?>" class="btn btn-outline btn-block">
-            <?= icon('arrow-left', 16) ?> Kembali ke Login
+            <?= icon('arrow-left', 16) ?> <?= e($at['back_login']) ?>
           </a>
         </div>
       <?php else: ?>
@@ -129,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
           <div class="field">
-            <label class="field-label" for="email"><?= icon('mail', 14) ?> Alamat Email</label>
+            <label class="field-label" for="email"><?= icon('mail', 14) ?> <?= e($at['email']) ?></label>
             <div class="input-wrap">
               <span class="input-icon"><?= icon('mail', 16) ?></span>
               <input type="email" id="email" name="email" class="input"
@@ -139,12 +147,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
 
           <button type="submit" class="btn btn-primary btn-block btn-lg">
-            Kirim Link Reset <?= icon('send', 16) ?>
+            <?= e($at['send_reset']) ?> <?= icon('send', 16) ?>
           </button>
         </form>
 
-        <div class="divider">atau</div>
-        <p class="auth-foot">Ingat password Anda? <a href="<?= e(app_url('/login.php')) ?>">Masuk</a></p>
+        <div class="divider"><?= e($at['or']) ?></div>
+        <p class="auth-foot"><?= e($at['remember']) ?> <a href="<?= e(app_url('/login.php')) ?>"><?= e($at['login_link']) ?></a></p>
       <?php endif; ?>
     </div>
   </div>

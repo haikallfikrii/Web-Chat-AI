@@ -39,6 +39,6 @@ return [
 
     'TRIAL_DAYS' => '14',
 
-    // Widget demo di chatlm.tech — ganti dengan API key client production Anda
-    'LANDING_WIDGET_API_KEY' => '',
+    // Widget di beranda chatlm.tech (index.php) — demo untuk situs sendiri
+    'LANDING_WIDGET_API_KEY' => '0156790afc7edc03c198d93a358243c7750464c345d6596d7fe8806410cda026',
 ];

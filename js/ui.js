@@ -131,6 +131,51 @@
     });
   }
 
+  function bindCompactLanguageDropdown(root) {
+    root = root || document;
+    root.querySelectorAll('[data-lang-compact]').forEach(function (wrap) {
+      var btn = wrap.querySelector('.lang-btn');
+      var drop = wrap.querySelector('.lang-drop');
+      if (!btn || !drop || btn.dataset.cpLangCompact) return;
+      btn.dataset.cpLangCompact = '1';
+
+      function positionDrop() {
+        var rect = btn.getBoundingClientRect();
+        drop.style.top = (rect.bottom + 6) + 'px';
+        var dropWidth = drop.offsetWidth || 160;
+        var left = rect.right - dropWidth;
+        if (left < 8) left = 8;
+        drop.style.left = left + 'px';
+        drop.style.right = 'auto';
+      }
+
+      function closeDrop() {
+        wrap.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (wrap.classList.contains('open')) {
+          closeDrop();
+        } else {
+          positionDrop();
+          wrap.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!wrap.contains(e.target)) closeDrop();
+      });
+
+      window.addEventListener('resize', function () {
+        if (wrap.classList.contains('open')) positionDrop();
+      }, { passive: true });
+    });
+  }
+
   function bindDashboardLanguageDropdown(root) {
     root = root || document;
     var wrap = root.getElementById ? root.getElementById('dashLangWrap') : document.getElementById('dashLangWrap');
@@ -188,11 +233,13 @@
     bindCopyButtons: bindCopyButtons,
     bindDashboardAccordion: bindDashboardAccordion,
     bindDashboardLanguageDropdown: bindDashboardLanguageDropdown,
+    bindCompactLanguageDropdown: bindCompactLanguageDropdown,
     init: function (root) {
       bindPwToggles(root);
       bindCopyButtons(root);
       bindDashboardAccordion(root);
       bindDashboardLanguageDropdown(root);
+      bindCompactLanguageDropdown(root);
     },
   };
 
