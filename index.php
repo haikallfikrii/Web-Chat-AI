@@ -704,5 +704,15 @@ footer a:hover{opacity:.75}
 </footer>
 
 <script src="/js/landing.js"></script>
+<?php
+$landingWidgetKey = defined('LANDING_WIDGET_API_KEY') ? LANDING_WIDGET_API_KEY : '';
+if ($landingWidgetKey !== '' && is_valid_api_key($landingWidgetKey)):
+    $widgetBase = app_base_url();
+?>
+<script src="<?= esc($widgetBase) ?>/widget/widget.js"
+  data-api-key="<?= esc($landingWidgetKey) ?>"
+  data-base-url="<?= esc($widgetBase) ?>"
+  async></script>
+<?php endif; ?>
 </body>
 </html>

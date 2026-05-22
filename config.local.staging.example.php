@@ -38,4 +38,7 @@ return [
     'MAIL_SUPPORT' => 'support@chatlm.tech',
 
     'TRIAL_DAYS' => '14',
+
+    // Widget demo di landing page (index.php) — API key dari dashboard staging
+    'LANDING_WIDGET_API_KEY' => '0156790afc7edc03c198d93a358243c7750464c345d6596d7fe8806410cda026',
 ];

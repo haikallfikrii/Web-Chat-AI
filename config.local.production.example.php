@@ -38,4 +38,7 @@ return [
     'MAIL_SUPPORT' => 'support@chatlm.tech',
 
     'TRIAL_DAYS' => '14',
+
+    // Widget demo di chatlm.tech — ganti dengan API key client production Anda
+    'LANDING_WIDGET_API_KEY' => '',
 ];
