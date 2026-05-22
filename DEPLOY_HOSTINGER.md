@@ -96,6 +96,24 @@ File ini **tidak** ada di GitHub. Buat lewat File Manager Hostinger.
    ```
 7. Widget demo di beranda — set `LANDING_WIDGET_API_KEY` (API key 64 karakter dari dashboard)
 
+### Widget tidak muncul di website / WordPress
+
+1. **Dashboard → Allowed Origins** — isi URL situs pengunjung (bukan wp-admin saja), contoh:
+   ```
+   https://tokoanda.com, https://www.tokoanda.com
+   ```
+   Atau sementara `*` untuk uji. Simpan pengaturan.
+
+2. **WordPress cache** (LiteSpeed, WP Rocket, dll.) — kosongkan cache setelah menambah script embed. Banyak kasus widget hanya terlihat saat admin karena halaman tamu masih cache lama tanpa script.
+
+3. **Paste embed di footer global** (Appearance → Theme File Editor → `footer.php` sebelum `</body>`, atau plugin "Insert Headers and Footers") — jangan hanya di halaman draft/preview admin.
+
+4. **chatlm.tech / staging** — pastikan `config.local.php` berisi `LANDING_WIDGET_API_KEY` yang sama dengan API key di dashboard, lalu `git pull` di server.
+
+5. Buka **DevTools → Console** di halaman tamu: jika ada error CORS / `Origin not allowed`, tambahkan domain persis dari error ke Allowed Origins.
+
+6. Pastikan **AI API key** + model sudah diisi di dashboard (widget tampil, chat bisa gagal tanpa ini).
+
 ### Di server PRODUCTION
 
 1. Salin `config.local.production.example.php` → **`config.local.php`**

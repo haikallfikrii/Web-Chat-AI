@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/lang.php';
+require_once __DIR__ . '/../includes/cors.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -129,7 +130,7 @@ if ($n8n_webhook_url !== '' && filter_var($n8n_webhook_url, FILTER_VALIDATE_URL)
     exit;
 }
 
-$origins_clean = $allowed_origins !== '' ? $allowed_origins : '*';
+$origins_clean = cors_ensure_app_site_in_list(cors_normalize_allowed_field($allowed_origins));
 $tg_chat_clean = $telegram_chat_id !== '' ? mb_substr($telegram_chat_id, 0, 64, 'UTF-8') : null;
 
 try {

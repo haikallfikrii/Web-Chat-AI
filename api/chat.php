@@ -21,6 +21,7 @@ set_time_limit(60);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/ai_providers.php';
+require_once __DIR__ . '/../includes/cors.php';
 
 // ── 1. CORS — harus dikirim SEBELUM semua validasi ───────────
 // Ditetapkan ke '*' dulu agar semua error response bisa dibaca
@@ -137,17 +138,9 @@ if (!$has_ai && !$n8n_ok) {
     ], 503);
 }
 
-// ── 8. Perketat CORS ke origin spesifik klien ────────────────
-$allowed_origin = $client['allowed_origins'] ?? '*';
-$request_origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
-
-if ($allowed_origin !== '*') {
-    $origins_list = array_map('trim', explode(',', $allowed_origin));
-    $origins_list = array_filter(array_map('trim', $origins_list));
-    $matched      = in_array($request_origin, $origins_list, true)
-        ? $request_origin
-        : ($origins_list[0] ?? '*');
-    header('Access-Control-Allow-Origin: ' . $matched, true);
+// ── 8. CORS — origin harus cocok persis dengan Allowed Origins ─
+if (!cors_apply_for_widget((string) ($client['allowed_origins'] ?? '*'))) {
+    send_json(['error' => cors_forbidden_message((string) ($client['allowed_origins'] ?? ''))], 403);
 }
 
 $user_ip = get_client_ip();
