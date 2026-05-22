@@ -3,12 +3,15 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/i18n_auth.php';
 require_once __DIR__ . '/includes/brand.php';
 
 if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
 
-$lang = get_lang();
-$t = lang_strings($lang);
+$lang  = get_lang();
+$t     = lang_strings($lang);
+$at    = auth_strings($lang);
+$lmeta = lang_meta();
 
 $token = trim((string) ($_GET['token'] ?? $_POST['token'] ?? ''));
 $error = '';
@@ -18,9 +21,9 @@ $tokenValid  = $tokenUserId !== null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf($_POST['csrf_token'] ?? '')) {
-        $error = 'Sesi tidak valid. Muat ulang halaman.';
+        $error = $at['csrf_error'];
     } elseif (!$tokenValid) {
-        $error = 'Link reset sudah kedaluwarsa atau tidak valid. Mohon ajukan ulang.';
+        $error = $at['reset_invalid'];
     } else {
         $result = consume_password_reset(
             $token,
@@ -31,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ' . app_url('/login.php', ['password_reset' => 1]));
             exit;
         }
-        $error = $result['error'] ?? 'Gagal mereset password.';
+        $error = $result['error'] ?? $at['csrf_error'];
     }
 }
 ?>
@@ -41,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
-<title>Reset Password — <?= e(APP_NAME) ?></title>
+<?= brand_favicon_tags() ?>
+<title><?= e($at['reset_title']) ?> — <?= e(APP_NAME) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -51,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 .auth-shell{min-height:100vh;display:flex;flex-direction:column;padding:0 20px}
 .auth-top{position:sticky;top:0;z-index:30;background:rgba(3,7,18,.72);backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);margin:0 -20px;padding:0 24px;height:64px;
-  display:flex;align-items:center;justify-content:space-between}
-.auth-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2);transition:color .2s}
+  display:flex;align-items:center;justify-content:space-between;gap:12px}
+.auth-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2);transition:color .2s;white-space:nowrap}
 .auth-back:hover{color:var(--green)}
 .auth-back svg{width:16px;height:16px}
 .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 0}
@@ -91,24 +95,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?= brand_mark_html(36) ?>
       <span class="brand-text"><?= brand_name_html() ?></span>
     </a>
-    <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> Kembali</a>
+    <div class="auth-top-actions">
+      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
+      <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> <?= e($at['back_login']) ?></a>
+    </div>
   </div>
 
   <div class="auth-wrap">
     <div class="auth-card">
       <div class="auth-head">
         <div class="auth-icon"><?= icon('key', 28) ?></div>
-        <h1 class="auth-title">Buat Password Baru</h1>
-        <p class="auth-sub">Pilih password yang kuat untuk menjaga akun Anda aman.</p>
+        <h1 class="auth-title"><?= e($at['reset_title']) ?></h1>
+        <p class="auth-sub"><?= e($at['reset_sub']) ?></p>
       </div>
 
       <?php if (!$tokenValid): ?>
         <div class="alert alert-error">
           <?= icon('alert', 18) ?>
-          <span>Link reset password ini sudah kedaluwarsa atau tidak valid. Mohon ajukan ulang.</span>
+          <span><?= e($at['reset_invalid']) ?></span>
         </div>
         <a href="<?= e(app_url('/forgot-password.php')) ?>" class="btn btn-primary btn-block btn-lg">
-          Ajukan Link Baru <?= icon('refresh', 16) ?>
+          <?= e($at['reset_request_link']) ?> <?= icon('refresh', 16) ?>
         </a>
       <?php else: ?>
 
@@ -121,28 +128,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="hidden" name="token" value="<?= e($token) ?>">
 
           <div class="field">
-            <label class="field-label" for="password"><?= icon('lock', 14) ?> Password Baru</label>
+            <label class="field-label" for="password"><?= icon('lock', 14) ?> <?= e($at['pw_new']) ?></label>
             <div class="input-wrap">
               <span class="input-icon"><?= icon('lock', 16) ?></span>
               <input type="password" id="password" name="password" class="input"
-                     placeholder="Minimal 8 karakter" required autocomplete="new-password"
+                     placeholder="<?= e($at['pw_min8']) ?>" required autocomplete="new-password"
                      oninput="checkStrength(this.value)">
-              <button type="button" class="input-action pw-toggle-btn" data-pw-target="password" aria-label="Tampilkan password" aria-pressed="false">
+              <button type="button" class="input-action pw-toggle-btn" data-pw-target="password"
+                      aria-label="<?= e($at['show_pw']) ?>" aria-pressed="false">
                 <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
                 <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
               </button>
             </div>
             <div class="pw-meter"><div class="pw-meter-fill" id="pwBar"></div></div>
-            <div class="pw-hint" id="pwHint">Masukkan password baru</div>
+            <div class="pw-hint" id="pwHint"><?= e($at['pw_enter_new']) ?></div>
           </div>
 
           <div class="field">
-            <label class="field-label" for="password_confirm"><?= icon('lock', 14) ?> Konfirmasi Password</label>
+            <label class="field-label" for="password_confirm"><?= icon('lock', 14) ?> <?= e($at['password_confirm']) ?></label>
             <div class="input-wrap">
               <span class="input-icon"><?= icon('lock', 16) ?></span>
               <input type="password" id="password_confirm" name="password_confirm" class="input"
-                     placeholder="Ulangi password" required autocomplete="new-password">
-              <button type="button" class="input-action pw-toggle-btn" data-pw-target="password_confirm" aria-label="Tampilkan password" aria-pressed="false">
+                     placeholder="<?= e($at['pw_repeat']) ?>" required autocomplete="new-password">
+              <button type="button" class="input-action pw-toggle-btn" data-pw-target="password_confirm"
+                      aria-label="<?= e($at['show_pw']) ?>" aria-pressed="false">
                 <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
                 <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
               </button>
@@ -150,35 +159,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
 
           <button type="submit" class="btn btn-primary btn-block btn-lg">
-            Simpan Password Baru <?= icon('check', 16) ?>
+            <?= e($at['save_password']) ?> <?= icon('check', 16) ?>
           </button>
         </form>
 
       <?php endif; ?>
 
-      <div class="divider">atau</div>
-      <p class="auth-foot"><a href="<?= e(app_url('/login.php')) ?>">Kembali ke Login</a></p>
+      <div class="divider"><?= e($at['or']) ?></div>
+      <p class="auth-foot"><a href="<?= e(app_url('/login.php')) ?>"><?= e($at['back_login']) ?></a></p>
     </div>
   </div>
 </div>
 
 <script>
-function checkStrength(v){
-  var bar = document.getElementById('pwBar');
-  var hint = document.getElementById('pwHint');
-  if(!bar||!hint) return;
-  var score = 0;
-  if(v.length >= 8) score++;
-  if(/[A-Z]/.test(v)) score++;
-  if(/[0-9]/.test(v)) score++;
-  if(/[^A-Za-z0-9]/.test(v)) score++;
-  var colors = ['var(--red)','#F97316','var(--yellow)','var(--green)'];
-  var labels = ['Sangat lemah','Cukup','Kuat','Sangat kuat'];
-  bar.style.width = (score * 25) + '%';
-  bar.style.background = colors[score - 1] || colors[0];
-  hint.textContent = v.length === 0 ? 'Masukkan password baru' : (labels[score - 1] || labels[0]);
-  hint.style.color = score === 0 ? 'var(--muted)' : (colors[score - 1] || 'var(--muted)');
-}
+(function(){
+  var labels = <?= json_encode([
+      $at['pw_weak'], $at['pw_fair'], $at['pw_strong'], $at['pw_very_strong'],
+  ], JSON_UNESCAPED_UNICODE) ?>;
+  var emptyHint = <?= json_encode($at['pw_enter_new'], JSON_UNESCAPED_UNICODE) ?>;
+  window.checkStrength = function(v){
+    var bar = document.getElementById('pwBar');
+    var hint = document.getElementById('pwHint');
+    if(!bar||!hint) return;
+    var score = 0;
+    if(v.length >= 8) score++;
+    if(/[A-Z]/.test(v)) score++;
+    if(/[0-9]/.test(v)) score++;
+    if(/[^A-Za-z0-9]/.test(v)) score++;
+    var colors = ['var(--red)','#F97316','var(--yellow)','var(--green)'];
+    bar.style.width = (score * 25) + '%';
+    bar.style.background = colors[score - 1] || colors[0];
+    hint.textContent = v.length === 0 ? emptyHint : (labels[score - 1] || labels[0]);
+    hint.style.color = score === 0 ? 'var(--muted)' : (colors[score - 1] || 'var(--muted)');
+  };
+})();
 </script>
 </body>
 </html>

@@ -84,9 +84,10 @@ function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8
 
 /* Mobile-only inline lang picker inside the drawer */
 .nav-langs-mobile{
-  display:none; /* hidden on desktop */
-  flex-wrap:wrap;gap:6px;padding:10px 14px 4px;
-  border-top:1px solid var(--border);margin-top:4px;
+  display:none;
+  flex-shrink:0;
+  gap:6px;padding:10px 0 4px;
+  border-top:1px solid var(--border);margin-top:6px;
 }
 .nlm-opt{
   display:flex;align-items:center;gap:5px;
@@ -99,9 +100,12 @@ function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8
 .nlm-lbl{font-size:12px}
 
 @media(max-width:780px){
-  .lang-wrap{display:none} /* hide globe button on mobile */
-  .nav-langs-mobile{display:flex} /* show inline flags in drawer */
-  .lang-label-text{display:none} /* not needed but just in case */
+  .lang-wrap{display:none}
+  .nav-langs-mobile{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .lang-label-text{display:none}
 }
 
 /* ── Hero ── */
@@ -438,13 +442,15 @@ footer a:hover{opacity:.75}
     </button>
 
     <nav class="nav-links" id="navLinks" aria-label="Main navigation">
-      <a class="nav-link" href="#features"><?= esc($t['nav_features']) ?></a>
-      <a class="nav-link" href="#how"><?= esc($t['nav_how']) ?></a>
-      <a class="nav-link" href="#providers"><?= esc($t['nav_providers']) ?></a>
-      <a class="nav-link" href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['nav_login']) ?></a>
+      <div class="nav-drawer-main">
+        <a class="nav-link" href="#features"><?= esc($t['nav_features']) ?></a>
+        <a class="nav-link" href="#how"><?= esc($t['nav_how']) ?></a>
+        <a class="nav-link" href="#providers"><?= esc($t['nav_providers']) ?></a>
+        <a class="nav-link" href="<?= esc(app_url('/pricing.php')) ?>"><?= esc($t['nav_pricing']) ?></a>
+        <a class="nav-link" href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['nav_login']) ?></a>
+      </div>
 
-      <!-- Mobile-only: inline lang flags inside the drawer -->
-      <div class="nav-langs-mobile">
+      <div class="nav-langs-mobile" aria-label="Language">
         <?php foreach ($meta as $code => $info): ?>
         <a class="nlm-opt <?= $code === $lang ? 'cur' : '' ?>"
            href="<?= esc(lang_switch_url($code)) ?>">
@@ -454,7 +460,7 @@ footer a:hover{opacity:.75}
         <?php endforeach; ?>
       </div>
 
-      <a class="nav-link btn btn-primary" href="<?= esc(app_url('/register.php')) ?>">
+      <a class="nav-link btn btn-primary nav-cta-register" href="<?= esc(app_url('/register.php')) ?>">
         <?= esc($t['nav_register']) ?> <?= icon('arrow-right', 14) ?>
       </a>
     </nav>
@@ -698,6 +704,7 @@ footer a:hover{opacity:.75}
 <footer>
   <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?> &nbsp;·&nbsp; <?= esc($t['footer_built']) ?></span>
   <div class="footer-links">
+    <a href="<?= esc(app_url('/pricing.php')) ?>"><?= esc($t['footer_pricing']) ?></a>
     <a href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['footer_login']) ?></a>
     <a href="<?= esc(app_url('/register.php')) ?>"><?= esc($t['footer_reg']) ?></a>
   </div>
