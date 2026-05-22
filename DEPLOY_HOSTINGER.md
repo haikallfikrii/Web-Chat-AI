@@ -5,7 +5,7 @@ Panduan memisahkan **2 database**, **2 domain**, dan **2 branch Git** tanpa sali
 | Lingkungan | Domain | Branch Git | Database (contoh nama) |
 |------------|--------|------------|-------------------------|
 | **Staging** | `staging.chatlm.tech` | `staging` | `uXXX_chatlm_staging` |
-| **Production** | `chatlm.tech` | `production` | `uXXX_chatlm_prod` |
+| **Production** | `chatlm.tech` | `production` | `u451240370_chatlm_prod` |
 | Development | lokal | `main` | lokal / Docker |
 
 ---
@@ -94,6 +94,7 @@ File ini **tidak** ada di GitHub. Buat lewat File Manager Hostinger.
    ```
    https://staging.chatlm.tech/api/webhooks/stripe.php
    ```
+7. Widget demo di beranda — set `LANDING_WIDGET_API_KEY` (API key 64 karakter dari dashboard)
 
 ### Di server PRODUCTION
 

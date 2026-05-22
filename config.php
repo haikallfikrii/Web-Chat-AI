@@ -170,6 +170,9 @@ define('OPENROUTER_HTTP_REFERER', config_env('OPENROUTER_HTTP_REFERER', APP_SITE
 define('OPENROUTER_APP_TITLE', config_env('OPENROUTER_APP_TITLE', APP_NAME));
 define('WEBHOOK_TIMEOUT', (int) config_env('WEBHOOK_TIMEOUT', '30'));
 
+/** API key widget demo di halaman marketing (index.php). Kosongkan untuk menonaktifkan. */
+define('LANDING_WIDGET_API_KEY', config_env('LANDING_WIDGET_API_KEY', ''));
+
 if (APP_SECRET === '' || strlen(APP_SECRET) < 16) {
     error_log('[config] APP_SECRET terlalu pendek atau kosong — set di config.local.php');
 }
