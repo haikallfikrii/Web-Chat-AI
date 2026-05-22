@@ -10,9 +10,13 @@ require_once __DIR__ . '/includes/billing.php';
 require_once __DIR__ . '/includes/brand.php';
 
 $lang  = get_lang();
+$t     = lang_strings($lang);
 $lmeta = lang_meta();
+$at    = auth_strings($lang);
 $pt    = pricing_strings($lang);
 $user  = current_user();
+$pub_active = 'pricing';
+$pub_user   = $user;
 
 $client       = $user ? billing_fetch_client((int) $user['client_id']) : null;
 $current_plan = (string) ($client['plan_code'] ?? 'free');
@@ -43,6 +47,7 @@ function pricing_checkout_url(?array $user, string $plan_code): string
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/public-header.css">
 <link rel="stylesheet" href="/css/pricing.css">
 </head>
 <body>
@@ -51,25 +56,7 @@ function pricing_checkout_url(?array $user, string $plan_code): string
 <div class="orb orb-2"></div>
 
 <div class="pricing-shell">
-  <header class="pricing-top">
-    <a href="<?= e(app_url('/')) ?>" class="brand">
-      <?= brand_mark_html(36) ?>
-      <span class="brand-text"><?= brand_name_html() ?></span>
-    </a>
-    <div class="pricing-top-actions">
-      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
-      <?php if ($user): ?>
-        <span class="badge <?= $status === 'active' ? 'badge-green' : 'badge-yellow' ?>">
-          <?= e(ucfirst($status)) ?>
-        </span>
-        <a href="<?= e(app_url('/billing.php')) ?>" class="btn btn-ghost" style="padding:8px 14px"><?= e($pt['manage_billing']) ?></a>
-        <a href="<?= e(app_url('/dashboard.php')) ?>" class="btn btn-primary" style="padding:8px 14px"><?= e($pt['dashboard']) ?></a>
-      <?php else: ?>
-        <a href="<?= e(app_url('/login.php')) ?>" class="btn btn-ghost" style="padding:8px 14px"><?= e(auth_strings($lang)['login_link']) ?></a>
-        <a href="<?= e(app_url('/register.php')) ?>" class="btn btn-primary" style="padding:8px 14px"><?= e(auth_strings($lang)['register_link']) ?></a>
-      <?php endif; ?>
-    </div>
-  </header>
+  <?php require __DIR__ . '/includes/partials/public_header.php'; ?>
 
   <main class="pricing-main">
     <div class="pricing-hero">

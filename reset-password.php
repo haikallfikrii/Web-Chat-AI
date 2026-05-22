@@ -12,6 +12,7 @@ $lang  = get_lang();
 $t     = lang_strings($lang);
 $at    = auth_strings($lang);
 $lmeta = lang_meta();
+$pub_active = 'reset';
 
 $token = trim((string) ($_GET['token'] ?? $_POST['token'] ?? ''));
 $error = '';
@@ -50,15 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/public-header.css">
 <script src="/js/ui.js" defer></script>
 <style>
 .auth-shell{min-height:100vh;display:flex;flex-direction:column;padding:0 20px}
-.auth-top{position:sticky;top:0;z-index:30;background:rgba(3,7,18,.72);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);margin:0 -20px;padding:0 24px;height:64px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px}
-.auth-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2);transition:color .2s;white-space:nowrap}
-.auth-back:hover{color:var(--green)}
-.auth-back svg{width:16px;height:16px}
 .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 0}
 .auth-card{position:relative;z-index:1;width:100%;max-width:440px;
   background:var(--glass-2);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);
@@ -90,16 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="orb orb-2"></div>
 
 <div class="auth-shell">
-  <div class="auth-top">
-    <a href="<?= e(app_url('/')) ?>" class="brand">
-      <?= brand_mark_html(36) ?>
-      <span class="brand-text"><?= brand_name_html() ?></span>
-    </a>
-    <div class="auth-top-actions">
-      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
-      <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> <?= e($at['back_login']) ?></a>
-    </div>
-  </div>
+  <?php require __DIR__ . '/includes/partials/public_header.php'; ?>
 
   <div class="auth-wrap">
     <div class="auth-card">

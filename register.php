@@ -51,17 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/public-header.css">
 <script src="/js/ui.js" defer></script>
+<?php $pub_active = 'register'; ?>
 <style>
 .auth-shell{min-height:100vh;display:flex;flex-direction:column;padding:0 20px}
-.auth-top{position:sticky;top:0;z-index:30;
-  background:rgba(3,7,18,.72);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-  margin:0 -20px;padding:0 24px;height:64px;
-  display:flex;align-items:center;justify-content:space-between}
-.auth-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2);transition:color .2s}
-.auth-back:hover{color:var(--green)}
-.auth-back svg{width:16px;height:16px}
 .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 0}
 .auth-card{
   position:relative;z-index:1;width:100%;max-width:480px;
@@ -107,16 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="auth-shell">
 
-  <div class="auth-top">
-    <a href="<?= e(app_url('/')) ?>" class="brand">
-      <?= brand_mark_html(36) ?>
-      <span class="brand-text"><?= brand_name_html() ?></span>
-    </a>
-    <div class="auth-top-actions">
-      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
-      <a href="<?= e(app_url('/login.php')) ?>" class="auth-back"><?= e($at['has_account']) ?> <?= icon('arrow-right', 16) ?></a>
-    </div>
-  </div>
+  <?php require __DIR__ . '/includes/partials/public_header.php'; ?>
 
   <div class="auth-wrap">
     <div class="auth-card">
@@ -139,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="input-wrap">
               <span class="input-icon"><?= icon('user', 16) ?></span>
               <input type="text" id="name" name="name" class="input"
-                     placeholder="Ahmad Fauzi" value="<?= e($fields['name']) ?>"
+                     placeholder="<?= e($at['ph_name']) ?>" value="<?= e($fields['name']) ?>"
                      required autocomplete="given-name" maxlength="120">
             </div>
           </div>
@@ -148,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="input-wrap">
               <span class="input-icon"><?= icon('building', 16) ?></span>
               <input type="text" id="business_name" name="business_name" class="input"
-                     placeholder="Toko Jomsite" value="<?= e($fields['business_name']) ?>"
+                     placeholder="<?= e($at['ph_business']) ?>" value="<?= e($fields['business_name']) ?>"
                      required autocomplete="organization" maxlength="150">
             </div>
           </div>
@@ -159,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="input-wrap">
             <span class="input-icon"><?= icon('mail', 16) ?></span>
             <input type="email" id="email" name="email" class="input"
-                   placeholder="anda@email.com" value="<?= e($fields['email']) ?>"
+                   placeholder="<?= e($at['ph_email']) ?>" value="<?= e($fields['email']) ?>"
                    required autocomplete="email">
           </div>
         </div>
@@ -169,15 +154,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="input-wrap">
             <span class="input-icon"><?= icon('lock', 16) ?></span>
             <input type="password" id="password" name="password" class="input"
-                   placeholder="Minimal 8 karakter" required autocomplete="new-password"
+                   placeholder="<?= e($at['pw_min8']) ?>" required autocomplete="new-password"
                    oninput="checkStrength(this.value)">
-            <button type="button" class="input-action pw-toggle-btn" data-pw-target="password" aria-label="Tampilkan password" aria-pressed="false">
+            <button type="button" class="input-action pw-toggle-btn" data-pw-target="password"
+                    aria-label="<?= e($at['show_pw']) ?>" aria-pressed="false">
               <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
               <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
             </button>
           </div>
           <div class="pw-meter"><div class="pw-meter-fill" id="pwBar"></div></div>
-          <div class="pw-hint" id="pwHint">Masukkan password Anda</div>
+          <div class="pw-hint" id="pwHint"><?= e($at['ph_pw_hint']) ?></div>
         </div>
 
         <div class="field">
@@ -185,8 +171,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="input-wrap">
             <span class="input-icon"><?= icon('lock', 16) ?></span>
             <input type="password" id="password_confirm" name="password_confirm" class="input"
-                   placeholder="Ulangi password" required autocomplete="new-password">
-            <button type="button" class="input-action pw-toggle-btn" data-pw-target="password_confirm" aria-label="Tampilkan password" aria-pressed="false">
+                   placeholder="<?= e($at['pw_repeat']) ?>" required autocomplete="new-password">
+            <button type="button" class="input-action pw-toggle-btn" data-pw-target="password_confirm"
+                    aria-label="<?= e($at['show_pw']) ?>" aria-pressed="false">
               <span class="pw-ico-show"><?= icon('eye', 18) ?></span>
               <span class="pw-ico-hide pw-hidden"><?= icon('eye-off', 18) ?></span>
             </button>
@@ -207,21 +194,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-function checkStrength(v){
-  var bar = document.getElementById('pwBar');
-  var hint = document.getElementById('pwHint');
-  var score = 0;
-  if(v.length >= 8) score++;
-  if(/[A-Z]/.test(v)) score++;
-  if(/[0-9]/.test(v)) score++;
-  if(/[^A-Za-z0-9]/.test(v)) score++;
-  var colors = ['var(--red)','#F97316','var(--yellow)','var(--green)'];
-  var labels = ['Sangat lemah','Cukup','Kuat','Sangat kuat'];
-  bar.style.width = (score * 25) + '%';
-  bar.style.background = colors[score - 1] || colors[0];
-  hint.textContent = v.length === 0 ? 'Masukkan password Anda' : (labels[score - 1] || labels[0]);
-  hint.style.color = score === 0 ? 'var(--muted)' : (colors[score - 1] || 'var(--muted)');
-}
+(function(){
+  var labels = <?= json_encode([
+      $at['pw_weak'], $at['pw_fair'], $at['pw_strong'], $at['pw_very_strong'],
+  ], JSON_UNESCAPED_UNICODE) ?>;
+  var emptyHint = <?= json_encode($at['ph_pw_hint'], JSON_UNESCAPED_UNICODE) ?>;
+  window.checkStrength = function(v){
+    var bar = document.getElementById('pwBar');
+    var hint = document.getElementById('pwHint');
+    if(!bar||!hint) return;
+    var score = 0;
+    if(v.length >= 8) score++;
+    if(/[A-Z]/.test(v)) score++;
+    if(/[0-9]/.test(v)) score++;
+    if(/[^A-Za-z0-9]/.test(v)) score++;
+    var colors = ['var(--red)','#F97316','var(--yellow)','var(--green)'];
+    bar.style.width = (score * 25) + '%';
+    bar.style.background = colors[score - 1] || colors[0];
+    hint.textContent = v.length === 0 ? emptyHint : (labels[score - 1] || labels[0]);
+    hint.style.color = score === 0 ? 'var(--muted)' : (colors[score - 1] || 'var(--muted)');
+  };
+})();
 </script>
 </body>
 </html>

@@ -131,6 +131,39 @@
     });
   }
 
+  function bindPublicHeaderMenu() {
+    var burger = document.getElementById('pubHdBurger');
+    var drawer = document.getElementById('pubHdDrawer');
+    var backdrop = document.getElementById('pubHdBackdrop');
+    if (!burger || !drawer || !backdrop || burger.dataset.cpPubHd) return;
+    burger.dataset.cpPubHd = '1';
+
+    var openLabel = burger.getAttribute('aria-label') || 'Open menu';
+    var closeLabel = burger.getAttribute('data-close-label') || 'Close menu';
+
+    function setOpen(open) {
+      drawer.classList.toggle('is-open', open);
+      backdrop.classList.toggle('is-open', open);
+      backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      burger.setAttribute('aria-label', open ? closeLabel : openLabel);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    burger.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(!drawer.classList.contains('is-open'));
+    });
+    backdrop.addEventListener('click', function () { setOpen(false); });
+    drawer.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { setOpen(false); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setOpen(false);
+    });
+  }
+
   function bindCompactLanguageDropdown(root) {
     root = root || document;
     root.querySelectorAll('[data-lang-compact]').forEach(function (wrap) {
@@ -234,12 +267,14 @@
     bindDashboardAccordion: bindDashboardAccordion,
     bindDashboardLanguageDropdown: bindDashboardLanguageDropdown,
     bindCompactLanguageDropdown: bindCompactLanguageDropdown,
+    bindPublicHeaderMenu: bindPublicHeaderMenu,
     init: function (root) {
       bindPwToggles(root);
       bindCopyButtons(root);
       bindDashboardAccordion(root);
       bindDashboardLanguageDropdown(root);
       bindCompactLanguageDropdown(root);
+      bindPublicHeaderMenu();
     },
   };
 
