@@ -1,14 +1,18 @@
 <?php
 declare(strict_types=1);
 /**
- * Language switcher compact (auth / pricing headers).
- * Expects: $lang, $lmeta from lang_meta()
+ * Language switcher compact (desktop dropdown).
+ * Expects: $lang, $lmeta
  */
 if (!isset($lang, $lmeta) || !is_array($lmeta)) {
     return;
 }
+$lwExtra = (string) ($langSwitcherExtraClass ?? 'lang-wrap--compact');
+if (!empty($langDesktopOnly)) {
+    $lwExtra .= ' lang-wrap--desktop';
+}
 ?>
-<div class="lang-wrap lang-wrap--compact" data-lang-compact>
+<div class="lang-wrap <?= e($lwExtra) ?>" data-lang-compact>
   <button class="lang-btn" type="button" aria-haspopup="true" aria-expanded="false">
     <span class="lang-flag"><?= $lmeta[$lang]['flag'] ?? '🌐' ?></span>
     <span class="lang-label-text"><?= htmlspecialchars($lmeta[$lang]['label'] ?? $lang, ENT_QUOTES, 'UTF-8') ?></span>

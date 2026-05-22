@@ -1,0 +1,114 @@
+/* Shared header: pricing, login, register, forgot/reset password */
+.pub-hd{
+  position:sticky;top:0;z-index:100;
+  background:rgba(3,7,18,.88);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.pub-hd-in{
+  max-width:1180px;margin:0 auto;
+  height:60px;padding:0 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.pub-hd .brand{
+  flex:1;min-width:0;font-size:16px;
+}
+.pub-hd .brand-text{
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* Desktop nav */
+.pub-hd-nav{
+  display:flex;align-items:center;gap:4px;flex-shrink:0;
+}
+.pub-hd-link{
+  padding:8px 12px;border-radius:9px;font-size:13px;font-weight:600;
+  color:var(--text-2);text-decoration:none;white-space:nowrap;transition:all .2s;
+}
+.pub-hd-link:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.pub-hd-link.is-active{color:var(--green);background:var(--green-dim)}
+.pub-hd-nav .lang-wrap--desktop{display:block}
+.pub-hd-nav .btn{padding:8px 14px;font-size:13px}
+.pub-hd-nav .btn-ghost{background:transparent;border:1px solid var(--border-2);color:var(--text-2)}
+.pub-hd-nav .btn-ghost:hover{border-color:var(--green-line);color:var(--text)}
+.pub-hd-badge{font-size:11px;padding:4px 10px}
+
+/* Mobile controls */
+.pub-hd-burger{
+  display:none;width:42px;height:42px;border-radius:10px;
+  border:1px solid var(--border-2);background:var(--glass);
+  color:var(--text);cursor:pointer;place-items:center;padding:0;flex-shrink:0;
+}
+.pub-hd-burger svg{width:20px;height:20px}
+
+.pub-hd-backdrop{
+  position:fixed;inset:0;z-index:98;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s,visibility .25s;
+}
+.pub-hd-backdrop.is-open{opacity:1;visibility:visible;pointer-events:auto}
+
+.pub-hd-drawer{
+  position:fixed;top:60px;right:0;z-index:99;
+  width:min(300px,92vw);
+  height:calc(100dvh - 60px);max-height:calc(100dvh - 60px);
+  display:flex;flex-direction:column;min-height:0;
+  padding:12px 14px;
+  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  background:rgba(4,8,20,.97);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-left:1px solid rgba(20,184,166,.25);
+  box-shadow:-16px 0 48px rgba(0,0,0,.55);
+  transform:translate3d(100%,0,0);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .25s,visibility .25s;
+}
+.pub-hd-drawer.is-open{
+  transform:translate3d(0,0,0);opacity:1;visibility:visible;pointer-events:auto;
+}
+.pub-hd-drawer-links{
+  flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column;gap:4px;padding-bottom:10px;
+}
+.pub-hd-drawer-links .pub-hd-link{
+  padding:13px 14px;font-size:15px;border-radius:10px;
+}
+.pub-hd-drawer-links .btn{margin-top:6px;justify-content:center;padding:14px;font-size:15px}
+
+.pub-hd-lang{
+  flex-shrink:0;padding:12px 0 6px;border-top:1px solid var(--border);margin-top:4px;
+}
+.pub-hd-lang-label{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--muted);margin-bottom:8px;display:block;
+}
+.pub-hd-lang-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;
+  max-height:min(240px,42vh);overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.pub-hd-lang-opt{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 10px;border-radius:8px;border:1px solid var(--border-2);
+  font-size:12px;font-weight:600;color:var(--text-2);text-decoration:none;transition:all .15s;
+}
+.pub-hd-lang-opt:hover,.pub-hd-lang-opt.cur{
+  border-color:var(--green-line);color:var(--green);background:var(--green-dim);
+}
+.pub-hd-lang-opt span:first-child{font-size:15px;line-height:1}
+
+@media (max-width:900px){
+  .pub-hd-nav{display:none}
+  .pub-hd-burger{display:inline-grid}
+}
+@media (max-width:480px){
+  .pub-hd-in{padding:0 12px}
+  .pub-hd .brand-text{max-width:140px}
+}
+
+/* Auth shell uses same header offset */
+.auth-shell,.pricing-shell{padding-top:0}
+.auth-shell .pub-hd,.pricing-shell .pub-hd{margin:0 -20px}
+@media (min-width:901px){
+  .auth-shell .pub-hd,.pricing-shell .pub-hd{margin:0}
+  .pub-hd-in{padding:0 24px}
+}

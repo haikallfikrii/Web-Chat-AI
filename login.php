@@ -46,17 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/public-header.css">
 <script src="/js/ui.js" defer></script>
+<?php $pub_active = 'login'; ?>
 <style>
 .auth-shell{min-height:100vh;display:flex;flex-direction:column;padding:0 20px}
-.auth-top{position:sticky;top:0;z-index:30;
-  background:rgba(3,7,18,.72);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-  margin:0 -20px;padding:0 24px;height:64px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px}
-.auth-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2);transition:color .2s;white-space:nowrap}
-.auth-back:hover{color:var(--green)}
-.auth-back svg{width:16px;height:16px}
 .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 0}
 .auth-card{
   position:relative;z-index:1;width:100%;max-width:440px;
@@ -99,16 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="orb orb-2"></div>
 
 <div class="auth-shell">
-  <div class="auth-top">
-    <a href="<?= e(app_url('/')) ?>" class="brand">
-      <?= brand_mark_html(36) ?>
-      <span class="brand-text"><?= brand_name_html() ?></span>
-    </a>
-    <div class="auth-top-actions">
-      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
-      <a href="<?= e(app_url('/')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> <?= e($at['home']) ?></a>
-    </div>
-  </div>
+  <?php require __DIR__ . '/includes/partials/public_header.php'; ?>
 
   <div class="auth-wrap">
     <div class="auth-card">
@@ -136,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="input-wrap">
             <span class="input-icon"><?= icon('mail', 16) ?></span>
             <input type="email" id="email" name="email" class="input"
-                   placeholder="you@email.com" value="<?= e($prefill) ?>"
+                   placeholder="<?= e($at['ph_email']) ?>" value="<?= e($prefill) ?>"
                    required autocomplete="email" autofocus>
           </div>
         </div>
@@ -146,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="input-wrap">
             <span class="input-icon"><?= icon('lock', 16) ?></span>
             <input type="password" id="password" name="password" class="input"
-                   placeholder="••••••••" required autocomplete="current-password">
+                   placeholder="<?= e($at['ph_password']) ?>" required autocomplete="current-password">
             <button type="button" class="input-action pw-toggle-btn" data-pw-target="password"
                     aria-label="<?= e($at['show_pw']) ?>" aria-pressed="false">
               <span class="pw-ico-show"><?= icon('eye', 18) ?></span>

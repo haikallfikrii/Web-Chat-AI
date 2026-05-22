@@ -215,7 +215,60 @@ function auth_strings(string $lang): array
         ],
     ];
 
-    return $all[$lang] ?? $all['en'];
+    $strings = $all[$lang] ?? $all['en'];
+
+    $placeholders = [
+        'en' => [
+            'ph_email' => 'you@company.com',
+            'ph_password' => 'Your password',
+            'ph_name' => 'Alex Morgan',
+            'ph_business' => 'Acme Store',
+            'ph_pw_hint' => 'Choose a strong password',
+            'login_fail' => 'Invalid email or password.',
+            'menu_open' => 'Open menu',
+            'menu_close' => 'Close menu',
+            'lang_aria' => 'Language',
+            'nav_aria' => 'Site navigation',
+        ],
+        'id' => [
+            'ph_email' => 'anda@perusahaan.com',
+            'ph_password' => 'Password Anda',
+            'ph_name' => 'Ahmad Fauzi',
+            'ph_business' => 'Toko Anda',
+            'ph_pw_hint' => 'Pilih password yang kuat',
+            'login_fail' => 'Email atau password salah.',
+            'menu_open' => 'Buka menu',
+            'menu_close' => 'Tutup menu',
+            'lang_aria' => 'Bahasa',
+            'nav_aria' => 'Navigasi situs',
+        ],
+        'es' => [
+            'ph_email' => 'tu@empresa.com', 'ph_password' => 'Tu contraseña',
+            'ph_name' => 'María García', 'ph_business' => 'Mi Tienda',
+            'ph_pw_hint' => 'Elige una contraseña segura', 'login_fail' => 'Correo o contraseña incorrectos.',
+            'menu_open' => 'Abrir menú', 'menu_close' => 'Cerrar menú', 'lang_aria' => 'Idioma', 'nav_aria' => 'Navegación',
+        ],
+        'fr' => [
+            'ph_email' => 'vous@entreprise.com', 'ph_password' => 'Votre mot de passe',
+            'ph_name' => 'Marie Dupont', 'ph_business' => 'Ma Boutique',
+            'ph_pw_hint' => 'Choisissez un mot de passe fort', 'login_fail' => 'E-mail ou mot de passe incorrect.',
+            'menu_open' => 'Ouvrir le menu', 'menu_close' => 'Fermer le menu', 'lang_aria' => 'Langue', 'nav_aria' => 'Navigation',
+        ],
+        'pt' => [
+            'ph_email' => 'voce@empresa.com', 'ph_password' => 'Sua senha',
+            'ph_name' => 'João Silva', 'ph_business' => 'Minha Loja',
+            'ph_pw_hint' => 'Escolha uma senha forte', 'login_fail' => 'E-mail ou senha inválidos.',
+            'menu_open' => 'Abrir menu', 'menu_close' => 'Fechar menu', 'lang_aria' => 'Idioma', 'nav_aria' => 'Navegação',
+        ],
+        'ja' => [
+            'ph_email' => 'you@company.com', 'ph_password' => 'パスワード',
+            'ph_name' => '山田 太郎', 'ph_business' => 'あなたの店舗',
+            'ph_pw_hint' => '強力なパスワードを設定', 'login_fail' => 'メールまたはパスワードが正しくありません。',
+            'menu_open' => 'メニューを開く', 'menu_close' => 'メニューを閉じる', 'lang_aria' => '言語', 'nav_aria' => 'ナビゲーション',
+        ],
+    ];
+
+    return array_merge($strings, $placeholders[$lang] ?? $placeholders['en']);
 }
 
 function pricing_strings(string $lang): array
