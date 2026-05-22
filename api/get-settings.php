@@ -21,10 +21,11 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/plans.php';
 require_once __DIR__ . '/../includes/billing.php';
+require_once __DIR__ . '/../includes/cors.php';
 
 // ── 1. Handle preflight OPTIONS ──────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    set_cors_headers();
+    set_cors_headers($_SERVER['HTTP_ORIGIN'] ?? '*');
     http_response_code(204);
     exit;
 }
@@ -38,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $api_key = trim($_SERVER['HTTP_X_API_KEY'] ?? '');
 
 if (!is_valid_api_key($api_key)) {
+    cors_apply_permissive();
     send_json(['error' => 'Invalid or missing API key.'], 401);
 }
 
@@ -66,30 +68,26 @@ try {
 
 } catch (PDOException $e) {
     error_log('[get-settings] DB error: ' . $e->getMessage());
+    cors_apply_permissive();
     send_json(['error' => 'Internal server error.'], 500);
 }
 
 // ── 5. Pastikan klien ditemukan & aktif ──────────────────────
 if (!$row) {
+    cors_apply_permissive();
     send_json(['error' => 'API key not found.'], 404);
 }
 
 if ($row['subscription_status'] === 'inactive') {
+    cors_apply_for_widget((string) ($row['allowed_origins'] ?? '*'));
     send_json(['error' => 'Subscription is inactive.'], 403);
 }
 
-// ── 6. Set CORS berdasarkan allowed_origins klien ────────────
-$allowed_origin = $row['allowed_origins'] ?? '*';
-$request_origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
-
-if ($allowed_origin !== '*') {
-    $origins_list = array_map('trim', explode(',', $allowed_origin));
-    $allowed_origin = in_array($request_origin, $origins_list, true)
-        ? $request_origin
-        : $origins_list[0];
+// ── 6. CORS — origin harus cocok persis dengan Allowed Origins ─
+if (!cors_apply_for_widget((string) ($row['allowed_origins'] ?? '*'))) {
+    send_json(['error' => cors_forbidden_message((string) ($row['allowed_origins'] ?? ''))], 403);
 }
 
-set_cors_headers($allowed_origin);
 header('Cache-Control: public, max-age=300'); // Cache 5 menit di browser
 
 // ── 7. Kembalikan pengaturan widget (tidak ekspos data sensitif) ─

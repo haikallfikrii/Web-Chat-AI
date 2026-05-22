@@ -131,6 +131,7 @@ function pricing_checkout_url(?array $user, string $plan_code): string
   </main>
 </div>
 <script src="/js/ui.js" defer></script>
+<?php require __DIR__ . '/includes/partials/widget_embed.php'; ?>
 <script>
 (function(){
   const m=document.getElementById('tabMonthly'),y=document.getElementById('tabYearly');

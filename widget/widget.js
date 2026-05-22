@@ -488,14 +488,27 @@
   // ── Fetch pengaturan dari backend ──────────────────────────
   async function fetchSettings() {
     const res = await fetch(`${BASE_URL}/api/get-settings.php`, {
+      method: "GET",
+      mode: "cors",
+      credentials: "omit",
       headers: { "X-Api-Key": API_KEY },
     });
 
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (_) {
+      data = null;
     }
 
-    return res.json();
+    if (!res.ok) {
+      const msg =
+        (data && data.error) ||
+        `HTTP ${res.status} — cek Allowed Origins di dashboard ChatLM`;
+      throw new Error(msg);
+    }
+
+    return data;
   }
 
   // ── Kirim pesan ke backend ─────────────────────────────────
@@ -533,6 +546,34 @@
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + "px";
   }
 
+  function showInitError(shadow, message) {
+    shadow.innerHTML = "";
+    const styleEl = document.createElement("style");
+    styleEl.textContent = `
+      :host { all: initial; font-family: system-ui, sans-serif; }
+      #cw-error {
+        position: fixed; bottom: 24px; right: 24px; z-index: 2147483647;
+        max-width: 280px; padding: 12px 14px; border-radius: 12px;
+        background: #1e293b; color: #f8fafc; font-size: 12px; line-height: 1.45;
+        border: 1px solid #ef4444; box-shadow: 0 8px 24px rgba(0,0,0,.35);
+      }
+      #cw-error strong { display: block; color: #fca5a5; margin-bottom: 4px; font-size: 11px; }
+    `;
+    shadow.appendChild(styleEl);
+    const box = document.createElement("div");
+    box.id = "cw-error";
+    box.innerHTML = "<strong>ChatLM</strong>" + escapeHtml(String(message));
+    shadow.appendChild(box);
+  }
+
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   // ── Inisialisasi widget utama ──────────────────────────────
   async function init() {
     // Buat container host (elemen khusus agar Shadow DOM bisa attach)
@@ -564,6 +605,7 @@
       settings = await fetchSettings();
     } catch (err) {
       console.error("[ChatLM] Gagal memuat settings:", err.message);
+      showInitError(shadow, err.message || "Widget tidak dapat dimuat");
       return;
     }
 
