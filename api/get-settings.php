@@ -78,13 +78,9 @@ if (!$row) {
     send_json(['error' => 'API key not found.'], 404);
 }
 
-if ($row['subscription_status'] === 'inactive') {
-    cors_apply_for_widget((string) ($row['allowed_origins'] ?? '*'));
-    send_json(['error' => 'Subscription is inactive.'], 403);
-}
-
-// ── 6. CORS — origin harus cocok persis dengan Allowed Origins ─
-if (!cors_apply_for_widget((string) ($row['allowed_origins'] ?? '*'))) {
+// ── 6. CORS — selalu izinkan domain app + daftar Allowed Origins klien ─
+$allowed_for_cors = cors_ensure_app_site_in_list((string) ($row['allowed_origins'] ?? '*'));
+if (!cors_apply_for_widget($allowed_for_cors) && !cors_is_same_server_request()) {
     send_json(['error' => cors_forbidden_message((string) ($row['allowed_origins'] ?? ''))], 403);
 }
 

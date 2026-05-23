@@ -15,19 +15,32 @@
 (function () {
   "use strict";
 
-  // ── Konfigurasi dari atribut script tag ────────────────────
-  const currentScript =
-    document.currentScript ||
-    (function () {
-      const scripts = document.getElementsByTagName("script");
-      return scripts[scripts.length - 1];
-    })();
+  // ── Konfigurasi dari atribut script tag (async-safe) ───────
+  function findWidgetScript() {
+    if (document.currentScript) {
+      return document.currentScript;
+    }
+    const scripts = document.getElementsByTagName("script");
+    for (let i = scripts.length - 1; i >= 0; i--) {
+      const src = scripts[i].getAttribute("src") || "";
+      if (/\/widget\/widget\.js(\?|$)/i.test(src)) {
+        return scripts[i];
+      }
+    }
+    return null;
+  }
+
+  const currentScript = findWidgetScript();
+  if (!currentScript) {
+    console.warn("[ChatLM] Tag script widget tidak ditemukan.");
+    return;
+  }
 
   const API_KEY  = (currentScript.getAttribute("data-api-key")  || "").trim();
   const BASE_URL = (currentScript.getAttribute("data-base-url") || "").replace(/\/$/, "").trim();
 
   if (!API_KEY || !BASE_URL) {
-    console.warn("[ChatLM] data-api-key dan data-base-url wajib diisi.");
+    console.warn("[ChatLM] data-api-key dan data-base-url wajib diisi pada tag widget.");
     return;
   }
 
@@ -35,7 +48,7 @@
   const STATE = {
     isOpen:    false,
     isLoading: false,
-    sessionId: getOrCreateSessionId(),
+    sessionId: "",
     settings:  null,
   };
 
@@ -614,30 +627,41 @@
       .replace(/"/g, "&quot;");
   }
 
+  function showLoadingToggle(shadow) {
+    shadow.innerHTML = "";
+    const styleEl = document.createElement("style");
+    styleEl.textContent = `
+      :host { all: initial; }
+      #cw-toggle-loading {
+        position: fixed; bottom: 24px; right: 24px;
+        width: 56px; height: 56px; border-radius: 50%;
+        background: #14B8A6; border: none; cursor: wait;
+        z-index: 2147483647;
+        box-shadow: 0 4px 16px rgba(0,0,0,.25);
+        display: grid; place-items: center;
+        animation: cw-pulse 1.2s ease-in-out infinite;
+      }
+      @keyframes cw-pulse { 0%,100%{opacity:.7} 50%{opacity:1} }
+    `;
+    shadow.appendChild(styleEl);
+    const btn = document.createElement("button");
+    btn.id = "cw-toggle-loading";
+    btn.type = "button";
+    btn.setAttribute("aria-label", "Loading chat");
+    btn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M12 3C7 3 3 7 3 12s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7z"/></svg>';
+    shadow.appendChild(btn);
+  }
+
   // ── Inisialisasi widget utama ──────────────────────────────
   async function init() {
-    // Buat container host (elemen khusus agar Shadow DOM bisa attach)
+    STATE.sessionId = getOrCreateSessionId();
+
     const host = document.createElement("div");
     host.id = "chat-widget-host";
     document.body.appendChild(host);
 
-    // Attach Shadow DOM (closed = tidak bisa diakses dari luar)
     const shadow = host.attachShadow({ mode: "closed" });
-
-    // Tampilkan tombol toggle dulu sebelum settings dimuat
-    const tempStyle = document.createElement("style");
-    tempStyle.textContent = `
-      :host { all: initial; }
-      #cw-toggle-placeholder {
-        position: fixed; bottom: 24px; right: 24px;
-        width: 56px; height: 56px;
-        border-radius: 50%;
-        background: #6B7280;
-        z-index: 2147483647;
-        box-shadow: 0 4px 16px rgba(0,0,0,.25);
-      }
-    `;
-    shadow.appendChild(tempStyle);
+    showLoadingToggle(shadow);
 
     // Ambil settings dari server
     let settings;

@@ -138,8 +138,9 @@ if (!$has_ai && !$n8n_ok) {
     ], 503);
 }
 
-// ── 8. CORS — origin harus cocok persis dengan Allowed Origins ─
-if (!cors_apply_for_widget((string) ($client['allowed_origins'] ?? '*'))) {
+// ── 8. CORS — selalu izinkan domain app + Allowed Origins klien ─
+$allowed_for_cors = cors_ensure_app_site_in_list((string) ($client['allowed_origins'] ?? '*'));
+if (!cors_apply_for_widget($allowed_for_cors) && !cors_is_same_server_request()) {
     send_json(['error' => cors_forbidden_message((string) ($client['allowed_origins'] ?? ''))], 403);
 }
 
