@@ -132,6 +132,21 @@ function cors_normalize_allowed_field(string $raw): string
     return in_array('*', $list, true) ? '*' : implode(', ', $list);
 }
 
+/** Request dari halaman yang di-host di server yang sama (chatlm.tech, staging, dll.). */
+function cors_is_same_server_request(): bool
+{
+    $req = cors_request_origin();
+    if ($req === '') {
+        return true;
+    }
+
+    $serverHost = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
+    $serverHost = (string) preg_replace('/:\d+$/', '', $serverHost);
+    $reqHost    = strtolower((string) (parse_url($req, PHP_URL_HOST) ?: ''));
+
+    return $reqHost !== '' && $reqHost === $serverHost;
+}
+
 /**
  * Terapkan header CORS untuk widget. Mengembalikan false jika origin ditolak.
  */

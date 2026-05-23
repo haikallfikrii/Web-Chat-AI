@@ -13,4 +13,4 @@ $widgetBase = app_base_url();
 <script src="<?= e($widgetBase) ?>/widget/widget.js"
   data-api-key="<?= e($key) ?>"
   data-base-url="<?= e($widgetBase) ?>"
-  async></script>
+  defer></script>

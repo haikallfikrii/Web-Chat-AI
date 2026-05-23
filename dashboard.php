@@ -421,7 +421,7 @@ $firstName    = explode(' ', (string) $user['name'])[0];
 $embedSnippet = '<script src="' . $baseUrl . '/widget/widget.js"' . "\n"
     . '  data-api-key="' . (string) $user['client_api_key'] . '"' . "\n"
     . '  data-base-url="' . $baseUrl . '"' . "\n"
-    . '  async' . "\n"
+    . '  defer' . "\n"
     . '></script>';
 ?>
 <!doctype html>
@@ -1060,7 +1060,7 @@ button.sec-head:focus{outline:none;box-shadow:none}
   <span class="an">src</span>=<span class="av">"<?= e($baseUrl) ?>/widget/widget.js"</span>
   <span class="an">data-api-key</span>=<span class="av">"<?= e((string) $user['client_api_key']) ?>"</span>
   <span class="an">data-base-url</span>=<span class="av">"<?= e($baseUrl) ?>"</span>
-  <span class="an">async</span>
+  <span class="an">defer</span>
 <span class="tn">&gt;&lt;/script&gt;</span></div>
       <textarea id="embedCodeRaw" hidden readonly><?= e($embedSnippet) ?></textarea>
       <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;padding:10px;font-size:13px" id="btnCopyEmbed">
