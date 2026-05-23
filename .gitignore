@@ -2,6 +2,9 @@
 config.local.php
 .env
 
+# Google Search Console verification — upload manual di production saja
+googledd6463772c7f7bcb.html
+
 # OS / editor
 .DS_Store
 .idea/

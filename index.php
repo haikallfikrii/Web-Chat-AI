@@ -4,12 +4,14 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/includes/brand.php';
+require_once __DIR__ . '/includes/seo.php';
 
 if (current_user() !== null) { header('Location: ' . app_url('/dashboard.php')); exit; }
 
 $lang    = get_lang();
 $t       = lang_strings($lang);
 $meta    = lang_meta();
+$seoMeta = seo_landing_meta($lang);
 
 function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
 ?>
@@ -20,8 +22,14 @@ function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
 <?= brand_favicon_tags() ?>
-<title><?= esc($t['page_title']) ?></title>
-<meta name="description" content="<?= esc($t['page_desc']) ?>">
+<?php
+seo_render_head([
+    'title'       => $seoMeta['title'],
+    'description' => $seoMeta['description'],
+    'path'        => '/',
+    'json_ld'     => [seo_landing_json_ld($lang)],
+]);
+?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -447,6 +455,7 @@ footer a:hover{opacity:.75}
         <a class="nav-link" href="#how"><?= esc($t['nav_how']) ?></a>
         <a class="nav-link" href="#providers"><?= esc($t['nav_providers']) ?></a>
         <a class="nav-link" href="<?= esc(app_url('/pricing.php')) ?>"><?= esc($t['nav_pricing']) ?></a>
+        <a class="nav-link" href="<?= esc(app_url('/blog/')) ?>"><?= esc($t['nav_blog']) ?></a>
         <a class="nav-link" href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['nav_login']) ?></a>
       </div>
 
@@ -704,6 +713,7 @@ footer a:hover{opacity:.75}
 <footer>
   <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?> &nbsp;·&nbsp; <?= esc($t['footer_built']) ?></span>
   <div class="footer-links">
+    <a href="<?= esc(app_url('/blog/')) ?>"><?= esc($t['footer_blog']) ?></a>
     <a href="<?= esc(app_url('/pricing.php')) ?>"><?= esc($t['footer_pricing']) ?></a>
     <a href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['footer_login']) ?></a>
     <a href="<?= esc(app_url('/register.php')) ?>"><?= esc($t['footer_reg']) ?></a>

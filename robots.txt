@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /pricing.php
+Disallow: /dashboard.php
+Disallow: /billing.php
+Disallow: /billing-success.php
+Disallow: /billing-cancel.php
+Disallow: /checkout.php
+Disallow: /api/
+Disallow: /health.php
+Disallow: /login.php
+Disallow: /register.php
+Disallow: /forgot-password.php
+Disallow: /reset-password.php
+
+Sitemap: https://chatlm.tech/sitemap.xml

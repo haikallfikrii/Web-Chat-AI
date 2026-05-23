@@ -102,17 +102,18 @@ Target halaman yang sama dengan `?lang=`:
 ## 5. On-page SEO (checklist per halaman)
 
 ### Landing `/`
-- [ ] `<title>`: ChatLM — AI Chat Widget for Any Website | Free Trial
-- [ ] `<meta name="description">` 150–160 karakter, ada CTA
-- [ ] Satu `<h1>` (hero)
-- [ ] Canonical: `https://chatlm.tech/`
-- [ ] Open Graph + Twitter Card (og:image logo)
-- [ ] JSON-LD `SoftwareApplication` atau `WebApplication`
+- [x] `<title>`: ChatLM — AI Chat Widget for Any Website | Free Trial
+- [x] `<meta name="description">` + hreflang 6 bahasa
+- [x] Canonical + Open Graph + Twitter Card
+- [x] JSON-LD `SoftwareApplication` + `Organization`
 
 ### Pricing `/pricing.php`
-- [ ] Title: Plans & Pricing — ChatLM
-- [ ] Description menyebut Free / Starter / Pro
+- [x] Title & description SEO per bahasa
 - [ ] FAQ schema (opsional): watermark, billing, cancel
+
+### Blog `/blog/`
+- [x] Index + 3 artikel launch (lihat `includes/blog/posts.php`)
+- [x] URL bersih: `/blog/{slug}`
 
 ### Blog post
 - [ ] Title + meta unik
@@ -216,11 +217,12 @@ Hindari pembelian backlink spam.
 
 ## 11. Quick wins (minggu ini)
 
-1. Submit `sitemap.xml` + `robots.txt` di production
-2. Tulis 1 artikel pillar: *How to Add AI Chat Widget in 5 Minutes*
-3. Perbaiki meta title/description landing & pricing (EN + ID)
-4. Tambah FAQ section di landing (schema FAQPage)
-5. Pastikan widget demo hidup di homepage (social proof + dwell time)
+1. [x] `robots.txt` + `sitemap.php` di production
+2. [x] 3 artikel blog launch
+3. [x] Meta title/description landing & pricing (EN + ID + 4 bahasa)
+4. [ ] Tambah FAQ section di landing (schema FAQPage) — opsional
+5. [ ] Submit sitemap di GSC + Request indexing tiap URL
+6. [ ] Tunggu favicon SERP (logo) — crawl ulang otomatis
 
 ---
 
