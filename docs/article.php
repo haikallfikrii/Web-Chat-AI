@@ -77,7 +77,7 @@ seo_render_head([
 <div class="docs-shell">
   <?php require __DIR__ . '/../includes/partials/public_header.php'; ?>
 
-  <main class="docs-main docs-layout" style="padding-top:32px">
+  <main class="docs-main docs-layout docs-page--article" style="padding-top:32px">
     <aside class="docs-sidebar" aria-label="<?= e($ds['nav_aria']) ?>">
       <a class="docs-back" href="<?= e(app_url('/docs/')) ?>"><?= icon('arrow-left', 16) ?> <?= e($ds['back_index']) ?></a>
       <?php
@@ -104,8 +104,10 @@ seo_render_head([
       <div class="docs-article"><?= $body ?></div>
       <div class="docs-cta">
         <p style="margin-bottom:16px;color:var(--text-2)"><?= e($ds['cta_ready']) ?></p>
-        <a href="<?= e(app_url('/register.php')) ?>" class="btn btn-primary btn-lg"><?= e($at['register_link']) ?> <?= icon('arrow-right', 16) ?></a>
-        <a href="<?= e(app_url('/pricing.php')) ?>" class="btn btn-outline btn-lg" style="margin-left:8px"><?= e($t['nav_pricing']) ?></a>
+        <div class="docs-cta-actions">
+          <a href="<?= e(app_url('/register.php')) ?>" class="btn btn-primary btn-lg"><?= e($at['register_link']) ?> <?= icon('arrow-right', 16) ?></a>
+          <a href="<?= e(app_url('/pricing.php')) ?>" class="btn btn-outline btn-lg"><?= e($t['nav_pricing']) ?></a>
+        </div>
       </div>
     </article>
   </main>

@@ -78,7 +78,7 @@ seo_render_head([
 <div class="docs-shell">
   <?php require __DIR__ . '/../includes/partials/public_header.php'; ?>
 
-  <main class="docs-main">
+  <main class="docs-main docs-page--index">
     <div class="docs-hero">
       <h1><?= e($ds['hero_h1']) ?></h1>
       <p><?= e($ds['hero_p']) ?></p>
@@ -96,7 +96,7 @@ seo_render_head([
         <?php endforeach; ?>
       </aside>
 
-      <div class="docs-list">
+      <div class="docs-list docs-list-col">
         <?php foreach ($posts as $post): ?>
         <a class="docs-card" href="<?= e(docs_post_url($post['slug'])) ?>">
           <span class="docs-cat-badge"><?= e(docs_category_label($post['category'], $lang)) ?></span>
