@@ -20,7 +20,9 @@ RewriteRule ^favicon\.ico$ /assets/chatlm-logo.png [L]
 # Sitemap dinamis
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
-# Blog URL bersih: /blog/slug → post.php
+# Blog URL bersih: /blog/slug → post.php (skip file/dir yang sudah ada)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^blog/([a-z0-9-]+)/?$ blog/post.php?slug=$1 [L,QSA]
 </IfModule>
 

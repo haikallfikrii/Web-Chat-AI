@@ -9,7 +9,7 @@ require_once __DIR__ . '/brand.php';
  */
 function seo_absolute_url(string $path = '/', array $params = []): string
 {
-    $base = rtrim(app_site_url(), '/');
+    $base = rtrim(app_base_url(), '/');
     $rel  = app_url($path, $params);
 
     if (str_starts_with($rel, 'http://') || str_starts_with($rel, 'https://')) {

@@ -161,7 +161,7 @@ https://chatlm.tech/health.php
 
 ### SEO & Google Search Console (setelah deploy production)
 
-1. **Jangan hapus** `googledd6463772c7f7bcb.html` di server production (file verifikasi GSC). File ini di-`.gitignore` — tidak ikut `git pull` ke staging.
+1. File verifikasi GSC `googledd6463772c7f7bcb.html` **ikut di Git** — setelah `git pull` di production file ini harus tetap ada (jangan hapus manual).
 2. Submit sitemap: **https://chatlm.tech/sitemap.xml**
 3. Request indexing: Home, `/pricing.php`, `/blog/`, dan tiap artikel blog.
 4. Logo di hasil Google: pastikan **https://chatlm.tech/favicon.ico** terbuka (200 OK). Perubahan favicon di SERP bisa **3–14 hari**.
