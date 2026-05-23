@@ -6,7 +6,7 @@ require_once __DIR__ . '/includes/blog/posts.php';
 
 header('Content-Type: application/xml; charset=utf-8');
 
-$base      = rtrim(app_site_url(), '/');
+$base      = rtrim(app_base_url(), '/');
 $posts     = blog_all_posts();
 $today     = date('Y-m-d');
 $languages = ['en', 'id', 'es', 'fr', 'pt', 'ja'];
