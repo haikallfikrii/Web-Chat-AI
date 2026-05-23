@@ -86,6 +86,7 @@ function lang_strings(string $lang): array {
         'nav_how'        => 'How It Works',
         'nav_providers'  => 'Providers',
         'nav_pricing'    => 'Pricing',
+        'nav_blog'       => 'Blog',
         'nav_login'      => 'Log In',
         'nav_register'   => 'Start Free',
         /* hero */
@@ -177,6 +178,7 @@ function lang_strings(string $lang): array {
         'footer_login'   => 'Login',
         'footer_reg'     => 'Register',
         'footer_pricing' => 'Pricing',
+        'footer_blog'    => 'Blog',
     ],
 
     /* ══ INDONESIAN ════════════════════════════════════════════════ */
@@ -189,6 +191,7 @@ function lang_strings(string $lang): array {
         'nav_how'        => 'Cara Kerja',
         'nav_providers'  => 'Provider',
         'nav_pricing'    => 'Harga',
+        'nav_blog'       => 'Blog',
         'nav_login'      => 'Masuk',
         'nav_register'   => 'Daftar Gratis',
         'hero_eyebrow'   => 'Trial Gratis · Tanpa Kartu Kredit',
@@ -257,6 +260,7 @@ function lang_strings(string $lang): array {
         'footer_login'   => 'Login',
         'footer_reg'     => 'Daftar',
         'footer_pricing' => 'Harga',
+        'footer_blog'    => 'Blog',
     ],
 
     /* ══ SPANISH ════════════════════════════════════════════════ */
@@ -266,6 +270,7 @@ function lang_strings(string $lang): array {
         'page_desc'      => 'Añade un widget de chat IA en 5 minutos. Multi-proveedor, marca personalizada, memoria de conversación.',
         'nav_features'   => 'Funciones',  'nav_how' => 'Cómo Funciona',
         'nav_providers'  => 'Proveedores','nav_pricing' => 'Precios',
+        'nav_blog' => 'Blog',
         'nav_login' => 'Iniciar Sesión',
         'nav_register'   => 'Empezar Gratis',
         'hero_eyebrow'   => 'Prueba Gratis · Sin Tarjeta',
@@ -319,6 +324,7 @@ function lang_strings(string $lang): array {
         'footer_built' => 'Construido en PHP 8 · Alojado en Hostinger',
         'footer_login' => 'Login', 'footer_reg' => 'Registro',
         'footer_pricing' => 'Precios',
+        'footer_blog'    => 'Blog',
     ],
 
     /* ══ FRENCH ════════════════════════════════════════════════ */
@@ -328,6 +334,7 @@ function lang_strings(string $lang): array {
         'page_desc'      => 'Ajoutez un widget chat IA en 5 minutes. Multi-fournisseur, marque personnalisée, mémoire de conversation.',
         'nav_features'   => 'Fonctionnalités', 'nav_how' => 'Comment ça marche',
         'nav_providers'  => 'Fournisseurs',    'nav_pricing' => 'Tarifs',
+        'nav_blog' => 'Blog',
         'nav_login' => 'Connexion',
         'nav_register'   => 'Commencer Gratuitement',
         'hero_eyebrow'   => 'Essai Gratuit · Sans CB',
@@ -381,6 +388,7 @@ function lang_strings(string $lang): array {
         'footer_built' => 'Construit sur PHP 8 · Hébergé sur Hostinger',
         'footer_login' => 'Connexion', 'footer_reg' => 'Inscription',
         'footer_pricing' => 'Tarifs',
+        'footer_blog'    => 'Blog',
     ],
 
     /* ══ PORTUGUESE ════════════════════════════════════════════════ */
@@ -390,6 +398,7 @@ function lang_strings(string $lang): array {
         'page_desc'      => 'Adicione um widget de chat IA em 5 minutos. Multi-provedor, marca personalizada, memória de conversa.',
         'nav_features'   => 'Recursos', 'nav_how' => 'Como Funciona',
         'nav_providers'  => 'Provedores','nav_pricing' => 'Preços',
+        'nav_blog' => 'Blog',
         'nav_login' => 'Entrar',
         'nav_register'   => 'Começar Grátis',
         'hero_eyebrow'   => 'Trial Grátis · Sem Cartão',
@@ -443,6 +452,7 @@ function lang_strings(string $lang): array {
         'footer_built' => 'Construído em PHP 8 · Hospedado na Hostinger',
         'footer_login' => 'Entrar', 'footer_reg' => 'Cadastro',
         'footer_pricing' => 'Preços',
+        'footer_blog'    => 'Blog',
     ],
 
     /* ══ JAPANESE ════════════════════════════════════════════════ */
@@ -452,6 +462,7 @@ function lang_strings(string $lang): array {
         'page_desc'      => '5分でAIチャットウィジェットを追加。マルチプロバイダー対応、カスタムブランド、会話メモリ付き。',
         'nav_features'   => '機能', 'nav_how' => '使い方',
         'nav_providers'  => 'プロバイダー', 'nav_pricing' => '料金',
+        'nav_blog' => 'ブログ',
         'nav_login' => 'ログイン',
         'nav_register'   => '無料で始める',
         'hero_eyebrow'   => '無料トライアル · クレカ不要',
@@ -505,6 +516,7 @@ function lang_strings(string $lang): array {
         'footer_built' => 'PHP 8で構築 · Hostingerでホスティング',
         'footer_login' => 'ログイン', 'footer_reg' => '登録',
         'footer_pricing' => '料金',
+        'footer_blog'    => 'ブログ',
     ],
 
     ]; /* end $all */

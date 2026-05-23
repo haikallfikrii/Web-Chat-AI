@@ -26,6 +26,7 @@ $langAria   = (string) ($at['lang_aria'] ?? 'Language');
       <a class="pub-hd-link" href="<?= e(app_url('/')) ?>"><?= e($at['home']) ?></a>
       <a class="pub-hd-link <?= $pub_active === 'pricing' ? 'is-active' : '' ?>"
          href="<?= e(app_url('/pricing.php')) ?>"><?= e($navPricing) ?></a>
+      <a class="pub-hd-link" href="<?= e(app_url('/blog/')) ?>"><?= e($t['nav_blog'] ?? 'Blog') ?></a>
       <?php if ($pub_user): ?>
         <?php
         $st = (string) ($pub_user['subscription_status'] ?? 'trial');
@@ -56,6 +57,7 @@ $langAria   = (string) ($at['lang_aria'] ?? 'Language');
     <a class="pub-hd-link" href="<?= e(app_url('/')) ?>"><?= e($at['home']) ?></a>
     <a class="pub-hd-link <?= $pub_active === 'pricing' ? 'is-active' : '' ?>"
        href="<?= e(app_url('/pricing.php')) ?>"><?= e($navPricing) ?></a>
+    <a class="pub-hd-link" href="<?= e(app_url('/blog/')) ?>"><?= e($t['nav_blog'] ?? 'Blog') ?></a>
     <?php if ($pub_user): ?>
       <?php $pt = $pt ?? pricing_strings($lang); ?>
       <a class="pub-hd-link" href="<?= e(app_url('/billing.php')) ?>"><?= e($pt['manage_billing'] ?? 'Billing') ?></a>

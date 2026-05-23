@@ -31,10 +31,16 @@ function brand_name_html(): string
     return htmlspecialchars(APP_NAME, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-/** Favicon & Apple touch icon */
+/** Favicon & Apple touch icon (Google Search min 48×48; root /favicon.ico disarankan) */
 function brand_favicon_tags(): string
 {
-    $src = htmlspecialchars(brand_logo_url(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    return '<link rel="icon" href="' . $src . '" type="image/png">'
-        . '<link rel="apple-touch-icon" href="' . $src . '">';
+    $base = rtrim(app_base_url(), '/');
+    $ico  = htmlspecialchars($base . '/favicon.ico', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $png  = htmlspecialchars(brand_logo_url(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $manifest = htmlspecialchars($base . '/site.webmanifest', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+    return '<link rel="icon" href="' . $ico . '" sizes="any">'
+        . '<link rel="icon" type="image/png" sizes="192x192" href="' . $png . '">'
+        . '<link rel="apple-touch-icon" sizes="180x180" href="' . $png . '">'
+        . '<link rel="manifest" href="' . $manifest . '">';
 }

@@ -7,6 +7,23 @@
 Options -Indexes
 Options -MultiViews
 
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# Google Search Console verification (production only — jangan hapus di server)
+RewriteRule ^googledd6463772c7f7bcb\.html$ - [L]
+
+# Favicon root (Google SERP)
+RewriteRule ^favicon\.ico$ /assets/chatlm-logo.png [L]
+
+# Sitemap dinamis
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+# Blog URL bersih: /blog/slug → post.php
+RewriteRule ^blog/([a-z0-9-]+)/?$ blog/post.php?slug=$1 [L,QSA]
+</IfModule>
+
 # ── Blokir akses ke file sensitif ───────────────────────────
 <FilesMatch "^(config\.php|schema\.sql|composer\.(json|lock)|\.env.*|.*\.log)$">
     Require all denied

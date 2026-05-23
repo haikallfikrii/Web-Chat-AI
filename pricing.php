@@ -8,12 +8,14 @@ require_once __DIR__ . '/includes/i18n_auth.php';
 require_once __DIR__ . '/includes/plans.php';
 require_once __DIR__ . '/includes/billing.php';
 require_once __DIR__ . '/includes/brand.php';
+require_once __DIR__ . '/includes/seo.php';
 
 $lang  = get_lang();
 $t     = lang_strings($lang);
 $lmeta = lang_meta();
 $at    = auth_strings($lang);
-$pt    = pricing_strings($lang);
+$pt      = pricing_strings($lang);
+$seoMeta = seo_pricing_meta($lang);
 $user  = current_user();
 $pub_active = 'pricing';
 $pub_user   = $user;
@@ -42,7 +44,13 @@ function pricing_checkout_url(?array $user, string $plan_code): string
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030712">
 <?= brand_favicon_tags() ?>
-<title><?= e($pt['page_title']) ?> — <?= e(APP_NAME) ?></title>
+<?php
+seo_render_head([
+    'title'       => $seoMeta['title'],
+    'description' => $seoMeta['description'],
+    'path'        => '/pricing.php',
+]);
+?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">

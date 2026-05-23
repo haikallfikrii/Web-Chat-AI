@@ -159,6 +159,14 @@ https://staging.chatlm.tech/health.php
 https://chatlm.tech/health.php
 ```
 
+### SEO & Google Search Console (setelah deploy production)
+
+1. **Jangan hapus** `googledd6463772c7f7bcb.html` di server production (file verifikasi GSC). File ini di-`.gitignore` — tidak ikut `git pull` ke staging.
+2. Submit sitemap: **https://chatlm.tech/sitemap.xml**
+3. Request indexing: Home, `/pricing.php`, `/blog/`, dan tiap artikel blog.
+4. Logo di hasil Google: pastikan **https://chatlm.tech/favicon.ico** terbuka (200 OK). Perubahan favicon di SERP bisa **3–14 hari**.
+5. `TELEGRAM_BOT_TOKEN` di `config.local.php` (bukan di dashboard Chat ID).
+
 Harus JSON seperti:
 
 ```json
