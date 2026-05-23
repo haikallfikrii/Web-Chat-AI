@@ -23,7 +23,7 @@ $pub_user   = $user;
 $client       = $user ? billing_fetch_client((int) $user['client_id']) : null;
 $current_plan = (string) ($client['plan_code'] ?? 'free');
 $status       = (string) ($user['subscription_status'] ?? 'trial');
-$plans        = billing_plans();
+$plans        = billing_plans_for_lang($lang);
 $base         = app_site_url();
 
 $monthly = ['free', 'starter_monthly', 'pro_monthly'];
@@ -38,7 +38,7 @@ function pricing_checkout_url(?array $user, string $plan_code): string
 }
 ?>
 <!doctype html>
-<html lang="<?= e($lang) ?>">
+<html lang="<?= e($t['html_lang']) ?>" dir="<?= e($t['dir']) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -87,7 +87,7 @@ seo_render_head([
         <?php if ($featured): ?><span class="plan-badge"><?= e($pt['popular']) ?></span><?php endif; ?>
         <h2 class="plan-name"><?= e($p['name']) ?></h2>
         <p class="plan-tag"><?= e($p['tagline']) ?></p>
-        <div class="plan-price"><?= e($p['price_display']) ?><span><?= e(billing_interval_label($p['interval'] ?? null)) ?></span></div>
+        <div class="plan-price"><?= e($p['price_display']) ?><span><?= e(billing_interval_label($p['interval'] ?? null, $lang)) ?></span></div>
         <ul class="plan-features">
           <?php foreach ($p['features'] as $feat): ?>
           <li><?= icon('check', 18) ?> <span><?= e($feat) ?></span></li>

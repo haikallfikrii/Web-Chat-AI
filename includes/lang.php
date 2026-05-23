@@ -89,6 +89,7 @@ function lang_strings(string $lang): array {
         'nav_providers'  => 'Providers',
         'nav_pricing'    => 'Pricing',
         'nav_blog'       => 'Blog',
+        'nav_docs'       => 'Docs',
         'nav_login'      => 'Log In',
         'nav_register'   => 'Start Free',
         /* hero */
@@ -181,6 +182,7 @@ function lang_strings(string $lang): array {
         'footer_reg'     => 'Register',
         'footer_pricing' => 'Pricing',
         'footer_blog'    => 'Blog',
+        'footer_docs'    => 'Help Center',
     ],
 
     /* ══ INDONESIAN ════════════════════════════════════════════════ */
@@ -194,6 +196,7 @@ function lang_strings(string $lang): array {
         'nav_providers'  => 'Provider',
         'nav_pricing'    => 'Harga',
         'nav_blog'       => 'Blog',
+        'nav_docs'       => 'Panduan',
         'nav_login'      => 'Masuk',
         'nav_register'   => 'Daftar Gratis',
         'hero_eyebrow'   => 'Trial Gratis · Tanpa Kartu Kredit',
@@ -263,6 +266,7 @@ function lang_strings(string $lang): array {
         'footer_reg'     => 'Daftar',
         'footer_pricing' => 'Harga',
         'footer_blog'    => 'Blog',
+        'footer_docs'    => 'Pusat Bantuan',
     ],
 
     /* ══ SPANISH ════════════════════════════════════════════════ */
@@ -273,6 +277,7 @@ function lang_strings(string $lang): array {
         'nav_features'   => 'Funciones',  'nav_how' => 'Cómo Funciona',
         'nav_providers'  => 'Proveedores','nav_pricing' => 'Precios',
         'nav_blog' => 'Blog',
+        'nav_docs' => 'Ayuda',
         'nav_login' => 'Iniciar Sesión',
         'nav_register'   => 'Empezar Gratis',
         'hero_eyebrow'   => 'Prueba Gratis · Sin Tarjeta',
@@ -327,6 +332,7 @@ function lang_strings(string $lang): array {
         'footer_login' => 'Login', 'footer_reg' => 'Registro',
         'footer_pricing' => 'Precios',
         'footer_blog'    => 'Blog',
+        'footer_docs'    => 'Centro de ayuda',
     ],
 
     /* ══ FRENCH ════════════════════════════════════════════════ */
@@ -337,6 +343,7 @@ function lang_strings(string $lang): array {
         'nav_features'   => 'Fonctionnalités', 'nav_how' => 'Comment ça marche',
         'nav_providers'  => 'Fournisseurs',    'nav_pricing' => 'Tarifs',
         'nav_blog' => 'Blog',
+        'nav_docs' => 'Aide',
         'nav_login' => 'Connexion',
         'nav_register'   => 'Commencer Gratuitement',
         'hero_eyebrow'   => 'Essai Gratuit · Sans CB',
@@ -391,6 +398,7 @@ function lang_strings(string $lang): array {
         'footer_login' => 'Connexion', 'footer_reg' => 'Inscription',
         'footer_pricing' => 'Tarifs',
         'footer_blog'    => 'Blog',
+        'footer_docs'    => 'Centre d\'aide',
     ],
 
     /* ══ PORTUGUESE ════════════════════════════════════════════════ */
@@ -401,6 +409,7 @@ function lang_strings(string $lang): array {
         'nav_features'   => 'Recursos', 'nav_how' => 'Como Funciona',
         'nav_providers'  => 'Provedores','nav_pricing' => 'Preços',
         'nav_blog' => 'Blog',
+        'nav_docs' => 'Ajuda',
         'nav_login' => 'Entrar',
         'nav_register'   => 'Começar Grátis',
         'hero_eyebrow'   => 'Trial Grátis · Sem Cartão',
@@ -455,6 +464,7 @@ function lang_strings(string $lang): array {
         'footer_login' => 'Entrar', 'footer_reg' => 'Cadastro',
         'footer_pricing' => 'Preços',
         'footer_blog'    => 'Blog',
+        'footer_docs'    => 'Central de ajuda',
     ],
 
     /* ══ JAPANESE ════════════════════════════════════════════════ */
@@ -465,6 +475,7 @@ function lang_strings(string $lang): array {
         'nav_features'   => '機能', 'nav_how' => '使い方',
         'nav_providers'  => 'プロバイダー', 'nav_pricing' => '料金',
         'nav_blog' => 'ブログ',
+        'nav_docs' => 'ヘルプ',
         'nav_login' => 'ログイン',
         'nav_register'   => '無料で始める',
         'hero_eyebrow'   => '無料トライアル · クレカ不要',
@@ -519,6 +530,7 @@ function lang_strings(string $lang): array {
         'footer_login' => 'ログイン', 'footer_reg' => '登録',
         'footer_pricing' => '料金',
         'footer_blog'    => 'ブログ',
+        'footer_docs'    => 'ヘルプセンター',
     ],
 
     ]; /* end $all */
