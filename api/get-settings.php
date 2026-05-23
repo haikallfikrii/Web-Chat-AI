@@ -21,6 +21,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/plans.php';
 require_once __DIR__ . '/../includes/billing.php';
+require_once __DIR__ . '/../includes/managed_ai.php';
 require_once __DIR__ . '/../includes/cors.php';
 
 // ── 1. Handle preflight OPTIONS ──────────────────────────────
@@ -52,6 +53,12 @@ try {
             c.id                    AS client_id,
             c.subscription_status,
             c.plan_code,
+            c.plan_type,
+            c.api_key_source,
+            c.message_quota_limit,
+            c.message_quota_used,
+            c.quota_reset_at,
+            c.remove_branding,
             ws.primary_color,
             ws.bot_name,
             ws.bot_avatar_url,
@@ -84,21 +91,8 @@ if (!cors_apply_for_widget($allowed_for_cors) && !cors_is_same_server_request())
     send_json(['error' => cors_forbidden_message((string) ($row['allowed_origins'] ?? ''))], 403);
 }
 
-header('Cache-Control: public, max-age=300'); // Cache 5 menit di browser
+header('Cache-Control: public, max-age=300');
 
-// ── 7. Kembalikan pengaturan widget (tidak ekspos data sensitif) ─
-$show_watermark = billing_should_show_watermark([
-    'subscription_status' => $row['subscription_status'],
-    'plan_code'           => $row['plan_code'] ?? 'trial',
-]);
+$row = billing_refresh_quota_if_needed($pdo, $row);
 
-send_json([
-    'bot_name'         => $row['bot_name'],
-    'primary_color'    => $row['primary_color'],
-    'bot_avatar_url'   => $row['bot_avatar_url'],
-    'welcome_message'  => $row['welcome_message'],
-    'show_watermark'     => $show_watermark,
-    'watermark_brand'    => APP_NAME,
-    'watermark_url'      => app_base_url(),
-    'watermark_logo_url' => app_base_url() . '/assets/chatlm-logo.png',
-]);
+send_json(widget_settings_public_payload($row));

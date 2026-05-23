@@ -14,7 +14,7 @@ $lang  = get_lang();
 $t     = lang_strings($lang);
 $lmeta = lang_meta();
 $at    = auth_strings($lang);
-$pt      = pricing_strings($lang);
+$pt    = pricing_strings($lang);
 $seoMeta = seo_pricing_meta($lang);
 $user  = current_user();
 $pub_active = 'pricing';
@@ -24,16 +24,18 @@ $client       = $user ? billing_fetch_client((int) $user['client_id']) : null;
 $current_plan = (string) ($client['plan_code'] ?? 'free');
 $status       = (string) ($user['subscription_status'] ?? 'trial');
 $plans        = billing_plans_for_lang($lang);
-$base         = app_site_url();
 
-$monthly = ['free', 'starter_monthly', 'pro_monthly'];
-$yearly  = ['starter_yearly', 'pro_yearly'];
+$byokMonthly    = array_merge(['free'], billing_plan_codes_for_track('byok', 'month'));
+$byokYearly     = billing_plan_codes_for_track('byok', 'year');
+$managedMonthly = billing_plan_codes_for_track('managed', 'month');
+$managedYearly  = billing_plan_codes_for_track('managed', 'year');
 
 function pricing_checkout_url(?array $user, string $plan_code): string
 {
     if ($user !== null) {
         return app_url('/checkout.php', ['plan' => $plan_code]);
     }
+
     return app_url('/login.php', ['redirect' => '/checkout.php?plan=' . rawurlencode($plan_code)]);
 }
 ?>
@@ -70,87 +72,87 @@ seo_render_head([
     <div class="pricing-hero">
       <h1><?= e($pt['hero_h1']) ?></h1>
       <p><?= e($pt['hero_p']) ?></p>
-      <div class="billing-toggle" role="tablist">
-        <button type="button" class="active" data-cycle="monthly" id="tabMonthly"><?= e($pt['monthly']) ?></button>
-        <button type="button" data-cycle="yearly" id="tabYearly"><?= e($pt['yearly']) ?></button>
+
+      <div class="pricing-toggles">
+        <div class="track-toggle" role="tablist" aria-label="<?= e($pt['track_aria'] ?? 'Plan type') ?>">
+          <button type="button" class="active" data-track="byok" id="tabByok"><?= e($pt['track_byok']) ?></button>
+          <button type="button" data-track="managed" id="tabManaged"><?= e($pt['track_managed']) ?></button>
+        </div>
+        <div class="billing-toggle" role="tablist" aria-label="<?= e($pt['cycle_aria'] ?? 'Billing cycle') ?>">
+          <button type="button" class="active" data-cycle="monthly" id="tabMonthly"><?= e($pt['monthly']) ?></button>
+          <button type="button" data-cycle="yearly" id="tabYearly">
+            <?= e($pt['yearly']) ?>
+            <span class="save-pill"><?= e(sprintf($pt['annual_save'] ?? 'Save %d%%', billing_annual_savings_percent())) ?></span>
+          </button>
+        </div>
       </div>
+
+      <p class="pricing-track-desc" id="trackDescByok"><?= e($pt['byok_desc']) ?></p>
+      <p class="pricing-track-desc" id="trackDescManaged" style="display:none"><?= e($pt['managed_desc']) ?></p>
     </div>
 
-    <div class="plan-grid" id="planGridMonthly">
-      <?php foreach ($monthly as $code):
-          $p = $plans[$code] ?? null;
-          if ($p === null) continue;
-          $is_current = $user && $current_plan === $code && $status === 'active';
-          $featured = !empty($p['highlight']);
-      ?>
-      <article class="plan-card <?= $featured ? 'featured' : '' ?>">
-        <?php if ($featured): ?><span class="plan-badge"><?= e($pt['popular']) ?></span><?php endif; ?>
-        <h2 class="plan-name"><?= e($p['name']) ?></h2>
-        <p class="plan-tag"><?= e($p['tagline']) ?></p>
-        <div class="plan-price"><?= e($p['price_display']) ?><span><?= e(billing_interval_label($p['interval'] ?? null, $lang)) ?></span></div>
-        <ul class="plan-features">
-          <?php foreach ($p['features'] as $feat): ?>
-          <li><?= icon('check', 18) ?> <span><?= e($feat) ?></span></li>
-          <?php endforeach; ?>
-        </ul>
-        <?php if ($is_current): ?>
-          <span class="btn btn-ghost btn-block" style="pointer-events:none;opacity:.7"><?= e($pt['active_plan']) ?></span>
-        <?php else: ?>
-          <a href="<?= e(pricing_checkout_url($user, $code)) ?>" class="btn btn-primary btn-block btn-lg">
-            <?= e($user ? $p['cta'] : $pt['login_to_buy']) ?>
-          </a>
-        <?php endif; ?>
-        <?php if (!empty($p['show_watermark'])): ?>
-        <p class="watermark-note"><?= e(sprintf($pt['watermark_note'], APP_NAME)) ?></p>
-        <?php endif; ?>
-      </article>
-      <?php endforeach; ?>
+    <div class="plan-grid" id="gridByokMonthly" data-panel="byok-monthly">
+      <?php $plan_codes = $byokMonthly; require __DIR__ . '/includes/partials/pricing_plan_cards.php'; ?>
+    </div>
+    <div class="plan-grid" id="gridByokYearly" data-panel="byok-yearly" style="display:none">
+      <?php $plan_codes = $byokYearly; require __DIR__ . '/includes/partials/pricing_plan_cards.php'; ?>
+    </div>
+    <div class="plan-grid" id="gridManagedMonthly" data-panel="managed-monthly" style="display:none">
+      <?php $plan_codes = $managedMonthly; require __DIR__ . '/includes/partials/pricing_plan_cards.php'; ?>
+    </div>
+    <div class="plan-grid" id="gridManagedYearly" data-panel="managed-yearly" style="display:none">
+      <?php $plan_codes = $managedYearly; require __DIR__ . '/includes/partials/pricing_plan_cards.php'; ?>
     </div>
 
-    <div class="plan-grid" id="planGridYearly" style="display:none">
-      <?php foreach ($yearly as $code):
-          $p = $plans[$code] ?? null;
-          if ($p === null) continue;
-          $is_current = $user && $current_plan === $code && $status === 'active';
-      ?>
-      <article class="plan-card">
-        <h2 class="plan-name"><?= e($p['name']) ?> <span style="font-size:13px;color:var(--text-3)"><?= e($pt['yearly_label']) ?></span></h2>
-        <p class="plan-tag"><?= e($p['tagline']) ?></p>
-        <div class="plan-price"><?= e($p['price_display']) ?><span>/<?= e($pt['yearly_label']) ?></span></div>
-        <ul class="plan-features">
-          <?php foreach ($p['features'] as $feat): ?>
-          <li><?= icon('check', 18) ?> <span><?= e($feat) ?></span></li>
-          <?php endforeach; ?>
-        </ul>
-        <?php if ($is_current): ?>
-          <span class="btn btn-ghost btn-block" style="pointer-events:none;opacity:.7"><?= e($pt['active_plan']) ?></span>
-        <?php else: ?>
-          <a href="<?= e(pricing_checkout_url($user, $code)) ?>" class="btn btn-primary btn-block btn-lg">
-            <?= e($user ? $p['cta'] : $pt['login_to_buy']) ?>
-          </a>
-        <?php endif; ?>
-      </article>
-      <?php endforeach; ?>
-      <article class="plan-card" style="justify-content:center;text-align:center">
-        <p style="color:var(--text-2);font-size:14px"><?= e($pt['free_hint']) ?></p>
-        <a href="#" class="btn btn-ghost" onclick="document.getElementById('tabMonthly').click();return false"><?= e($pt['see_free']) ?></a>
-      </article>
-    </div>
+    <section class="pricing-compare glass" style="margin-top:48px;padding:28px;border-radius:16px">
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:16px"><?= e($pt['compare_h2'] ?? 'BYOK vs Managed AI') ?></h2>
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th><?= e($pt['track_byok']) ?></th>
+              <th><?= e($pt['track_managed']) ?></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><?= e($pt['cmp_ai_key'] ?? 'AI API key') ?></td><td><?= e($pt['cmp_you_bring'] ?? 'You bring') ?></td><td><?= e($pt['cmp_included'] ?? 'Included') ?></td></tr>
+            <tr><td><?= e($pt['cmp_token_cost'] ?? 'Token cost') ?></td><td><?= e($pt['cmp_direct'] ?? 'Pay provider directly') ?></td><td><?= e($pt['cmp_quota'] ?? 'Fixed monthly messages') ?></td></tr>
+            <tr><td><?= e($pt['cmp_setup'] ?? 'Setup friction') ?></td><td><?= e($pt['cmp_dev'] ?? 'Need API key') ?></td><td><?= e($pt['cmp_plug'] ?? 'Plug & play') ?></td></tr>
+            <tr><td><?= e($pt['cmp_price'] ?? 'From') ?></td><td>$19/mo</td><td>$29/mo</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </main>
 </div>
 <script src="/js/ui.js" defer></script>
 <?php require __DIR__ . '/includes/partials/widget_embed.php'; ?>
 <script>
 (function(){
-  const m=document.getElementById('tabMonthly'),y=document.getElementById('tabYearly');
-  const gm=document.getElementById('planGridMonthly'),gy=document.getElementById('planGridYearly');
-  function show(cycle){
-    const yearly=cycle==='yearly';
-    m.classList.toggle('active',!yearly);y.classList.toggle('active',yearly);
-    gm.style.display=yearly?'none':'grid';gy.style.display=yearly?'grid':'none';
+  var track='byok', cycle='monthly';
+  var panels={
+    'byok-monthly':document.getElementById('gridByokMonthly'),
+    'byok-yearly':document.getElementById('gridByokYearly'),
+    'managed-monthly':document.getElementById('gridManagedMonthly'),
+    'managed-yearly':document.getElementById('gridManagedYearly')
+  };
+  function refresh(){
+    Object.keys(panels).forEach(function(k){
+      if(panels[k]) panels[k].style.display=(k===track+'-'+cycle)?'grid':'none';
+    });
+    document.getElementById('tabByok').classList.toggle('active',track==='byok');
+    document.getElementById('tabManaged').classList.toggle('active',track==='managed');
+    document.getElementById('tabMonthly').classList.toggle('active',cycle==='monthly');
+    document.getElementById('tabYearly').classList.toggle('active',cycle==='yearly');
+    document.getElementById('trackDescByok').style.display=track==='byok'?'block':'none';
+    document.getElementById('trackDescManaged').style.display=track==='managed'?'block':'none';
   }
-  m.addEventListener('click',()=>show('monthly'));
-  y.addEventListener('click',()=>show('yearly'));
+  document.getElementById('tabByok').addEventListener('click',function(){track='byok';refresh();});
+  document.getElementById('tabManaged').addEventListener('click',function(){track='managed';refresh();});
+  document.getElementById('tabMonthly').addEventListener('click',function(){cycle='monthly';refresh();});
+  document.getElementById('tabYearly').addEventListener('click',function(){cycle='yearly';refresh();});
+  refresh();
 })();
 </script>
 </body>
