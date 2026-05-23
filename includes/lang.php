@@ -38,9 +38,11 @@ function lang_switch_url(string $lang): string {
 }
 
 function app_url(string $path = '/', array $params = []): string {
-    $lang = get_lang();
-    if ($lang !== '') {
-        $params['lang'] = $lang;
+    if (!array_key_exists('lang', $params)) {
+        $lang = get_lang();
+        if ($lang !== '') {
+            $params['lang'] = $lang;
+        }
     }
 
     $query = http_build_query($params);
