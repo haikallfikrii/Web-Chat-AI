@@ -122,6 +122,13 @@
       :host {
         all: initial;
         display: block;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 0;
+        overflow: visible;
+        pointer-events: none;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: 16px;
         line-height: 1.5;
@@ -146,6 +153,8 @@
         align-items: center;
         justify-content: center;
         z-index: 2147483647;
+        pointer-events: auto;
+        touch-action: manipulation;
         transition: transform .2s ease, box-shadow .2s ease;
         outline: none;
       }
@@ -605,7 +614,7 @@
     styleEl.textContent = `
       :host { all: initial; font-family: system-ui, sans-serif; }
       #cw-error {
-        position: fixed; bottom: 24px; right: 24px; z-index: 2147483647;
+        position: fixed; bottom: 24px; right: 24px; z-index: 2147483647; pointer-events: auto;
         max-width: 280px; padding: 12px 14px; border-radius: 12px;
         background: #1e293b; color: #f8fafc; font-size: 12px; line-height: 1.45;
         border: 1px solid #ef4444; box-shadow: 0 8px 24px rgba(0,0,0,.35);
@@ -636,7 +645,7 @@
         position: fixed; bottom: 24px; right: 24px;
         width: 56px; height: 56px; border-radius: 50%;
         background: #14B8A6; border: none; cursor: wait;
-        z-index: 2147483647;
+        z-index: 2147483647; pointer-events: auto;
         box-shadow: 0 4px 16px rgba(0,0,0,.25);
         display: grid; place-items: center;
         animation: cw-pulse 1.2s ease-in-out infinite;
@@ -658,6 +667,10 @@
 
     const host = document.createElement("div");
     host.id = "chat-widget-host";
+    host.setAttribute("aria-hidden", "true");
+    host.style.cssText =
+      "position:fixed;left:0;top:0;width:0;height:0;overflow:visible;" +
+      "pointer-events:none;z-index:2147483000;border:0;padding:0;margin:0;";
     document.body.appendChild(host);
 
     const shadow = host.attachShadow({ mode: "closed" });

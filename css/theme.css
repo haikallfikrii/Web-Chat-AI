@@ -176,8 +176,13 @@ svg{flex-shrink:0}
 }
 .brand-mark--logo{
   background:transparent;box-shadow:none;width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transform:none;
 }
-.brand-mark--logo .brand-logo{width:100%;height:100%;object-fit:contain}
+.brand-mark--logo .brand-logo{
+  width:100%;height:100%;max-width:36px;max-height:36px;
+  object-fit:contain;transform:none;
+}
 .brand-mark svg{width:18px;height:18px}
 .brand-text{
   background:linear-gradient(135deg,#fff,#A9B4C2);

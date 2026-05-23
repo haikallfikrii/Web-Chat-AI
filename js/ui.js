@@ -150,10 +150,32 @@
       document.body.style.overflow = open ? 'hidden' : '';
     }
 
-    burger.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
+    var touchHandled = false;
+    function toggleMenu(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       setOpen(!drawer.classList.contains('is-open'));
+    }
+
+    burger.addEventListener(
+      'touchend',
+      function (e) {
+        touchHandled = true;
+        toggleMenu(e);
+        setTimeout(function () {
+          touchHandled = false;
+        }, 450);
+      },
+      { passive: false }
+    );
+    burger.addEventListener('click', function (e) {
+      if (touchHandled) {
+        e.preventDefault();
+        return;
+      }
+      toggleMenu(e);
     });
     backdrop.addEventListener('click', function () { setOpen(false); });
     drawer.querySelectorAll('a').forEach(function (a) {
