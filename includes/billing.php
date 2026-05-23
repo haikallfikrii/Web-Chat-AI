@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/plans.php';
+require_once __DIR__ . '/managed_ai.php';
 require_once __DIR__ . '/stripe_client.php';
 require_once __DIR__ . '/mail.php';
 
@@ -13,7 +14,9 @@ function billing_fetch_client(int $client_id): ?array
 {
     $pdo  = get_db();
     $stmt = $pdo->prepare(
-        'SELECT id, name, email, subscription_status, plan_code,
+        'SELECT id, name, email, subscription_status, plan_code, plan_type,
+                api_key_source, message_quota_limit, message_quota_used, quota_reset_at,
+                max_websites, remove_branding, whitelist_domains,
                 stripe_customer_id, stripe_subscription_id,
                 trial_ends_at, subscription_ends_at, billing_email
          FROM clients WHERE id = :id LIMIT 1'
@@ -25,14 +28,20 @@ function billing_fetch_client(int $client_id): ?array
 
 function billing_should_show_watermark(array $client): bool
 {
+    if ((int) ($client['remove_branding'] ?? 0) === 1) {
+        return false;
+    }
+
     $status = (string) ($client['subscription_status'] ?? 'trial');
     if ($status === 'active') {
         $plan = billing_plan((string) ($client['plan_code'] ?? ''));
         if ($plan !== null && empty($plan['show_watermark'])) {
             return false;
         }
+
         return false;
     }
+
     return true;
 }
 
@@ -74,6 +83,8 @@ function billing_activate_free_plan(int $client_id): bool
         ':trial_ends' => $ends,
         ':id'         => $client_id,
     ]);
+
+    billing_sync_client_plan_columns($pdo, $client_id, 'free');
 
     billing_refresh_session($client_id);
     return true;
@@ -122,6 +133,8 @@ function billing_activate_paid_plan(
         ':sub_ends' => $ends,
         ':id'       => $client_id,
     ]);
+
+    billing_sync_client_plan_columns($pdo, $client_id, $plan_code);
 
     billing_refresh_session($client_id);
 }

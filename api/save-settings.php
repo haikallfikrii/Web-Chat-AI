@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/billing.php';
+require_once __DIR__ . '/../includes/managed_ai.php';
 require_once __DIR__ . '/../includes/lang.php';
 require_once __DIR__ . '/../includes/cors.php';
 
@@ -28,6 +30,9 @@ $telegram_chat_id        = trim((string) ($_POST['telegram_chat_id']        ?? '
 $avatar_file             = $_FILES['bot_avatar_file'] ?? null;
 
 $allowed_providers = ['openai', 'google', 'deepseek', 'openrouter'];
+
+$billing_client = billing_fetch_client((int) $user['client_id']);
+$is_managed_plan = $billing_client && (string) ($billing_client['api_key_source'] ?? 'user') === 'system';
 
 if (!preg_match('/^#[0-9a-fA-F]{6}$/', $primary_color)) {
     set_flash('error', 'Warna utama harus format HEX seperti #2563EB.');
@@ -217,6 +222,13 @@ try {
     }
 
     $pdo->prepare($sql)->execute($params);
+
+    $pdo->prepare(
+        'UPDATE clients SET whitelist_domains = :wl WHERE id = :id'
+    )->execute([
+        ':wl' => mb_substr($origins_clean, 0, 5000, 'UTF-8'),
+        ':id' => (int) $user['client_id'],
+    ]);
 
     set_flash('success', $ai_api_key !== ''
         ? '✅ Pengaturan tersimpan dan AI API key berhasil diperbarui.'

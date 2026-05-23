@@ -21,6 +21,7 @@ set_time_limit(60);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/ai_providers.php';
+require_once __DIR__ . '/../includes/managed_ai.php';
 require_once __DIR__ . '/../includes/cors.php';
 
 // ── 1. CORS — harus dikirim SEBELUM semua validasi ───────────
@@ -82,6 +83,13 @@ try {
         SELECT
             c.id                  AS client_id,
             c.subscription_status,
+            c.plan_code,
+            c.plan_type,
+            c.api_key_source,
+            c.message_quota_limit,
+            c.message_quota_used,
+            c.quota_reset_at,
+            c.remove_branding,
             c.name                AS client_name,
             ws.n8n_webhook_url,
             ws.allowed_origins,
@@ -114,18 +122,23 @@ if ($client['subscription_status'] === 'inactive') {
     send_json(['error' => 'Subscription is inactive.'], 403);
 }
 
-// ── 7. Dekripsi API key provider ─────────────────────────────
-$enc_provider_key = (string) ($client['ai_api_key'] ?? '');
-$provider_api_key = decrypt_secret($enc_provider_key);
+$client = billing_refresh_quota_if_needed($pdo, $client);
 
-if ($provider_api_key === null) {
-    error_log('[chat] decrypt ai_api_key failed for client_id=' . (int) $client['client_id']);
-    send_json([
-        'error' => 'Konfigurasi API key AI rusak atau tidak valid. Perbarui ai_api_key (terenkripsi) di database.',
-    ], 500);
+// ── 7. Domain whitelist (Referer / Origin) ───────────────────
+$allowed_origins = (string) ($client['allowed_origins'] ?? '*');
+$referer         = (string) ($_SERVER['HTTP_REFERER'] ?? '');
+if (!managed_ai_validate_referer($referer, $allowed_origins) && !cors_is_same_server_request()) {
+    send_json(['error' => 'This domain is not allowed to use this widget. Add it in Allowed Origins.'], 403);
 }
 
-$has_ai = trim($provider_api_key) !== '' && trim((string) ($client['ai_model'] ?? '')) !== '';
+// ── 8. Kuota pesan (Managed AI) ──────────────────────────────
+if (managed_ai_quota_exceeded($client)) {
+    send_json(['error' => 'Message quota exceeded. Please upgrade your plan.'], 402);
+}
+
+// ── 9. Credentials: Managed (system) vs BYOK (user key) ────────
+$credentials = managed_ai_resolve_credentials($client);
+$has_ai      = $credentials['ok'];
 
 $n8n_raw = trim((string) ($client['n8n_webhook_url'] ?? ''));
 $n8n_ok  = $n8n_raw !== ''
@@ -134,14 +147,14 @@ $n8n_ok  = $n8n_raw !== ''
 
 if (!$has_ai && !$n8n_ok) {
     send_json([
-        'error' => 'Belum dikonfigurasi: isi ai_api_key + ai_model atau n8n_webhook_url di pengaturan widget.',
+        'error' => $credentials['error'] ?? 'AI is not configured. Add your API key (BYOK) or upgrade to a Managed plan.',
     ], 503);
 }
 
-// ── 8. CORS — selalu izinkan domain app + Allowed Origins klien ─
-$allowed_for_cors = cors_ensure_app_site_in_list((string) ($client['allowed_origins'] ?? '*'));
+// ── 10. CORS — selalu izinkan domain app + Allowed Origins klien ─
+$allowed_for_cors = cors_ensure_app_site_in_list($allowed_origins);
 if (!cors_apply_for_widget($allowed_for_cors) && !cors_is_same_server_request()) {
-    send_json(['error' => cors_forbidden_message((string) ($client['allowed_origins'] ?? ''))], 403);
+    send_json(['error' => cors_forbidden_message($allowed_origins)], 403);
 }
 
 $user_ip = get_client_ip();
@@ -171,13 +184,18 @@ if ((int) ($client['telegram_notify_enabled'] ?? 0) === 1) {
 // ── 12. Panggil AI atau n8n ──────────────────────────────────
 if ($has_ai) {
     $widget_cfg = [
-        'ai_provider'      => (string) $client['ai_provider'],
-        'ai_model'         => (string) $client['ai_model'],
+        'ai_provider'      => (string) ($credentials['provider'] ?? $client['ai_provider']),
+        'ai_model'         => (string) ($credentials['model'] ?? $client['ai_model']),
         'ai_system_prompt' => (string) ($client['ai_system_prompt'] ?? ''),
         'bot_name'         => (string) ($client['bot_name'] ?? 'Assistant'),
     ];
 
-    $ai_result = ai_chat_complete($widget_cfg, $provider_api_key, $history_rows, $message);
+    $ai_result = ai_chat_complete(
+        $widget_cfg,
+        (string) $credentials['api_key'],
+        $history_rows,
+        $message
+    );
 
     if (!$ai_result['ok']) {
         $err = $ai_result['error'] ?? 'AI gagal memproses permintaan.';
@@ -185,6 +203,10 @@ if ($has_ai) {
     }
 
     $bot_reply = (string) $ai_result['reply'];
+
+    if (!empty($credentials['managed']) && (int) ($client['message_quota_limit'] ?? 0) > 0) {
+        managed_ai_increment_usage($pdo, (int) $client['client_id']);
+    }
 } else {
     $payload = json_encode([
         'session_id' => $session_id,

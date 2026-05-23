@@ -262,6 +262,9 @@ function register_user(
         ]);
         $user_id = (int) $pdo->lastInsertId();
 
+        require_once __DIR__ . '/managed_ai.php';
+        billing_sync_client_plan_columns($pdo, $client_id, 'free');
+
         $pdo->commit();
 
         session_regenerate_id(true);

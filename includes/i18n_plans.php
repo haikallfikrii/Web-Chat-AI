@@ -36,6 +36,36 @@ function plan_strings(string $lang): array
                 ],
                 'cta' => 'Use Free',
             ],
+            'byok_starter' => [
+                'tagline'  => 'Your AI keys · 1 website · no watermark',
+                'features' => ['1 website', 'Zero token markup', 'Whitelabel widget', 'Telegram alerts', 'You control model costs'],
+                'cta' => 'Start BYOK Starter',
+            ],
+            'byok_pro' => [
+                'tagline'  => 'Agencies & growing sites · 5 websites',
+                'features' => ['5 websites', 'Whitelabel + custom branding', 'Chat memory', 'Email support', 'BYOK — no markup'],
+                'cta' => 'Start BYOK Pro',
+            ],
+            'byok_agency' => [
+                'tagline'  => '25 websites · client work',
+                'features' => ['25 websites', 'Priority support', 'Multi-brand setup', 'Advanced origins', 'Platform fee only'],
+                'cta' => 'Start BYOK Agency',
+            ],
+            'managed_starter' => [
+                'tagline'  => '3,000 AI messages/mo · plug & play',
+                'features' => ['3,000 messages included', '1 website', 'No API key setup', 'GPT-4o-mini class models', 'ChatLM branding'],
+                'cta' => 'Start Managed',
+            ],
+            'managed_pro' => [
+                'tagline'  => '4,000 messages · 3 sites · whitelabel',
+                'features' => ['4,000 messages/mo', '3 websites', 'No watermark', 'OpenRouter routing', 'Lead-ready chat'],
+                'cta' => 'Start Growth',
+            ],
+            'managed_agency' => [
+                'tagline'  => '12,000 messages · 10 websites',
+                'features' => ['12,000 messages/mo', '10 websites', 'Whitelabel', 'Priority support', 'Best for agencies'],
+                'cta' => 'Start Business',
+            ],
             'starter_monthly' => [
                 'tagline'  => 'For small businesses & solo founders',
                 'features' => [
@@ -90,6 +120,36 @@ function plan_strings(string $lang): array
                     'Multi-provider AI (BYOK)',
                 ],
                 'cta' => 'Pakai Gratis',
+            ],
+            'byok_starter' => [
+                'tagline'  => 'API key Anda · 1 website · tanpa watermark',
+                'features' => ['1 website', 'Tanpa markup token', 'Widget whitelabel', 'Notifikasi Telegram', 'Biaya model ke provider'],
+                'cta' => 'Mulai BYOK Starter',
+            ],
+            'byok_pro' => [
+                'tagline'  => '5 website · agensi & bisnis',
+                'features' => ['5 website', 'Whitelabel', 'Memori chat', 'Dukungan email', 'BYOK tanpa markup'],
+                'cta' => 'Mulai BYOK Pro',
+            ],
+            'byok_agency' => [
+                'tagline'  => '25 website · klien agency',
+                'features' => ['25 website', 'Prioritas dukungan', 'Multi-brand', 'Origins lanjutan', 'Hanya biaya platform'],
+                'cta' => 'Mulai BYOK Agency',
+            ],
+            'managed_starter' => [
+                'tagline'  => '3.000 pesan AI/bulan · langsung pakai',
+                'features' => ['3.000 pesan termasuk', '1 website', 'Tanpa setup API key', 'Model kelas GPT-4o-mini', 'Branding ChatLM'],
+                'cta' => 'Mulai Managed',
+            ],
+            'managed_pro' => [
+                'tagline'  => '4.000 pesan · 3 situs · whitelabel',
+                'features' => ['4.000 pesan/bulan', '3 website', 'Tanpa watermark', 'Routing OpenRouter', 'Siap lead gen'],
+                'cta' => 'Mulai Growth',
+            ],
+            'managed_agency' => [
+                'tagline'  => '12.000 pesan · 10 website',
+                'features' => ['12.000 pesan/bulan', '10 website', 'Whitelabel', 'Prioritas dukungan', 'Untuk agency'],
+                'cta' => 'Mulai Business',
             ],
             'starter_monthly' => [
                 'tagline'  => 'Untuk bisnis kecil & solo founder',
