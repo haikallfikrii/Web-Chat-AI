@@ -455,6 +455,7 @@ footer a:hover{opacity:.75}
         <a class="nav-link" href="#how"><?= esc($t['nav_how']) ?></a>
         <a class="nav-link" href="#providers"><?= esc($t['nav_providers']) ?></a>
         <a class="nav-link" href="<?= esc(app_url('/pricing.php')) ?>"><?= esc($t['nav_pricing']) ?></a>
+        <a class="nav-link" href="<?= esc(app_url('/docs/')) ?>"><?= esc($t['nav_docs']) ?></a>
         <a class="nav-link" href="<?= esc(app_url('/blog/')) ?>"><?= esc($t['nav_blog']) ?></a>
         <a class="nav-link" href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['nav_login']) ?></a>
       </div>
@@ -713,6 +714,7 @@ footer a:hover{opacity:.75}
 <footer>
   <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?> &nbsp;·&nbsp; <?= esc($t['footer_built']) ?></span>
   <div class="footer-links">
+    <a href="<?= esc(app_url('/docs/')) ?>"><?= esc($t['footer_docs']) ?></a>
     <a href="<?= esc(app_url('/blog/')) ?>"><?= esc($t['footer_blog']) ?></a>
     <a href="<?= esc(app_url('/pricing.php')) ?>"><?= esc($t['footer_pricing']) ?></a>
     <a href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['footer_login']) ?></a>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/includes/blog/posts.php';
+require_once __DIR__ . '/includes/docs/articles.php';
 
 header('Content-Type: application/xml; charset=utf-8');
 
@@ -16,6 +17,7 @@ $paths = [
     ['loc' => '/', 'file' => __DIR__ . '/index.php', 'priority' => '1.0', 'changefreq' => 'weekly'],
     ['loc' => '/pricing.php', 'file' => __DIR__ . '/pricing.php', 'priority' => '0.9', 'changefreq' => 'weekly'],
     ['loc' => '/blog/', 'file' => __DIR__ . '/blog/index.php', 'priority' => '0.8', 'changefreq' => 'weekly'],
+    ['loc' => '/docs/', 'file' => __DIR__ . '/docs/index.php', 'priority' => '0.85', 'changefreq' => 'weekly'],
 ];
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -49,6 +51,18 @@ foreach ($posts as $post) {
     echo "    <lastmod>{$lastmod}</lastmod>\n";
     echo "    <changefreq>monthly</changefreq>\n";
     echo "    <priority>0.7</priority>\n";
+    echo "  </url>\n";
+}
+
+$docSlugs = docs_registry();
+foreach ($docSlugs as $doc) {
+    $path = '/docs/' . rawurlencode((string) $doc['slug']);
+    $loc  = htmlspecialchars($base . $path, ENT_XML1, 'UTF-8');
+    echo "  <url>\n";
+    echo "    <loc>{$loc}</loc>\n";
+    echo "    <lastmod>{$today}</lastmod>\n";
+    echo "    <changefreq>monthly</changefreq>\n";
+    echo "    <priority>0.75</priority>\n";
     echo "  </url>\n";
 }
 

@@ -5,7 +5,9 @@ require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/includes/billing.php';
 require_once __DIR__ . '/includes/brand.php';
+require_once __DIR__ . '/includes/i18n_auth.php';
 $lang = get_lang();
+$ptDash = pricing_strings($lang);
 $lmeta = lang_meta();
 $pageLang = lang_strings($lang);
 
@@ -19,6 +21,7 @@ function dash_text(string $lang): array {
             'page_title' => 'Dashboard',
             'switch_language' => 'Switch language',
             'logout' => 'Log Out',
+            'nav_help' => 'Help Center',
             'welcome_flash' => 'Welcome! Your account was created successfully. Configure your widget below.',
             'hello' => 'Hello',
             'widget_dashboard_for' => 'Widget dashboard for',
@@ -80,6 +83,7 @@ function dash_text(string $lang): array {
             'page_title' => 'Dashboard',
             'switch_language' => 'Ganti bahasa',
             'logout' => 'Keluar',
+            'nav_help' => 'Pusat Bantuan',
             'welcome_flash' => 'Selamat datang! Akun Anda berhasil dibuat. Mari konfigurasi widget di bawah ini.',
             'hello' => 'Halo',
             'widget_dashboard_for' => 'Dashboard widget untuk',
@@ -141,6 +145,7 @@ function dash_text(string $lang): array {
             'page_title' => 'Panel',
             'switch_language' => 'Cambiar idioma',
             'logout' => 'Cerrar sesión',
+            'nav_help' => 'Centro de ayuda',
             'welcome_flash' => 'Bienvenido. Tu cuenta fue creada correctamente. Configura tu widget abajo.',
             'hello' => 'Hola',
             'widget_dashboard_for' => 'Panel del widget para',
@@ -202,6 +207,7 @@ function dash_text(string $lang): array {
             'page_title' => 'Tableau de bord',
             'switch_language' => 'Changer de langue',
             'logout' => 'Se deconnecter',
+            'nav_help' => 'Centre d\'aide',
             'welcome_flash' => 'Bienvenue. Votre compte a ete cree avec succes. Configurez votre widget ci-dessous.',
             'hello' => 'Bonjour',
             'widget_dashboard_for' => 'Tableau de bord du widget pour',
@@ -263,6 +269,7 @@ function dash_text(string $lang): array {
             'page_title' => 'Painel',
             'switch_language' => 'Mudar idioma',
             'logout' => 'Sair',
+            'nav_help' => 'Central de ajuda',
             'welcome_flash' => 'Bem-vindo. Sua conta foi criada com sucesso. Configure seu widget abaixo.',
             'hello' => 'Ola',
             'widget_dashboard_for' => 'Painel do widget para',
@@ -324,6 +331,7 @@ function dash_text(string $lang): array {
             'page_title' => 'ダッシュボード',
             'switch_language' => '言語を変更',
             'logout' => 'ログアウト',
+            'nav_help' => 'ヘルプセンター',
             'welcome_flash' => 'ようこそ。アカウント作成が完了しました。下でウィジェットを設定してください。',
             'hello' => 'こんにちは',
             'widget_dashboard_for' => 'ウィジェットのダッシュボード',
@@ -757,7 +765,8 @@ button.sec-head:focus{outline:none;box-shadow:none}
       </div>
     </div>
 
-    <a href="<?= e(app_url('/pricing.php')) ?>" class="badge <?= $statusBadge ?>" style="text-decoration:none" title="Kelola paket">
+    <a href="<?= e(app_url('/docs/quick-start')) ?>" class="pub-hd-link" style="font-size:14px;text-decoration:none;color:var(--text-2)"><?= e($dt['nav_help']) ?></a>
+    <a href="<?= e(app_url('/pricing.php')) ?>" class="badge <?= $statusBadge ?>" style="text-decoration:none" title="<?= e($ptDash['manage_billing']) ?>">
       <span class="badge-dot"></span> <?= e($statusLabel) ?>
     </a>
     <div class="dash-user-info">

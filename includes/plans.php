@@ -114,6 +114,27 @@ function billing_plans(): array
     ];
 }
 
+/** Paket dengan tagline, fitur, dan CTA sesuai bahasa. */
+function billing_plans_for_lang(string $lang): array
+{
+    require_once __DIR__ . '/i18n_plans.php';
+
+    $plans  = billing_plans();
+    $copy   = plan_strings($lang);
+
+    foreach ($plans as $code => &$plan) {
+        if (!isset($copy[$code])) {
+            continue;
+        }
+        $plan['tagline']  = $copy[$code]['tagline'];
+        $plan['features'] = $copy[$code]['features'];
+        $plan['cta']      = $copy[$code]['cta'];
+    }
+    unset($plan);
+
+    return $plans;
+}
+
 function billing_plan(string $code): ?array
 {
     $plans = billing_plans();
@@ -126,11 +147,14 @@ function billing_plan_is_paid(string $code): bool
     return $plan !== null && ($plan['price_usd'] ?? 0) > 0;
 }
 
-function billing_interval_label(?string $interval): string
+function billing_interval_label(?string $interval, string $lang = 'en'): string
 {
+    require_once __DIR__ . '/i18n_plans.php';
+    $labels = plan_interval_labels($lang);
+
     return match ($interval) {
-        'month' => '/bulan',
-        'year'  => '/tahun',
+        'month' => $labels['month'],
+        'year'  => $labels['year'],
         default => '',
     };
 }

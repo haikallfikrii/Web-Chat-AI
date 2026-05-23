@@ -24,6 +24,11 @@ RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^blog/([a-z0-9-]+)/?$ blog/post.php?slug=$1 [L,QSA]
+
+# Docs / knowledge base: /docs/slug → article.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^docs/([a-z0-9-]+)/?$ docs/article.php?slug=$1 [L,QSA]
 </IfModule>
 
 # ── Blokir akses ke file sensitif ───────────────────────────
