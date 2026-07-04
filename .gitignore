@@ -2,6 +2,16 @@
 config.local.php
 .env
 
+# Lead generation & scraping — hanya di komputer lokal (jangan deploy ke public_html)
+*.csv
+job_intent_monitor.py
+reddit_intent_monitor.py
+linkedin_jobs_scraper.py
+indeed_browser_scraper.py
+lead_generation_maps.py
+us_eu_lead_generation.py
+hostinger_sender.py
+
 # OS / editor
 .DS_Store
 .idea/
