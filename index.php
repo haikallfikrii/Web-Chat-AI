@@ -260,6 +260,9 @@ seo_render_head([
 }
 .feat-card:hover::after{transform:scaleY(1)}
 .feat-card.span2{grid-column:span 2}
+.feat-bento-pair{
+  grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;
+}
 .feat-icon{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;
   background:var(--green-dim);border:1px solid var(--green-line);color:var(--green);
   margin-bottom:18px;transition:transform .3s;}
@@ -383,6 +386,7 @@ footer a:hover{opacity:.75}
 }
 @media(max-width:600px){
   .feat-bento{grid-template-columns:1fr}
+  .feat-bento-pair{grid-template-columns:1fr}
   .testi-grid{grid-template-columns:1fr}
   .prov-grid{grid-template-columns:repeat(2,1fr)}
   .hero h1{font-size:38px;letter-spacing:-1.5px}
@@ -601,15 +605,17 @@ footer a:hover{opacity:.75}
       <h3><?= esc($t['feat_4_h']) ?></h3>
       <p><?= esc($t['feat_4_p']) ?></p>
     </div>
-    <div class="feat-card sr d5">
-      <div class="feat-icon"><?= icon('phone', 22) ?></div>
-      <h3><?= esc($t['feat_5_h']) ?></h3>
-      <p><?= esc($t['feat_5_p']) ?></p>
-    </div>
-    <div class="feat-card sr d6">
-      <div class="feat-icon"><?= icon('shield', 22) ?></div>
-      <h3><?= esc($t['feat_6_h']) ?></h3>
-      <p><?= esc($t['feat_6_p']) ?></p>
+    <div class="feat-bento-pair">
+      <div class="feat-card sr d5">
+        <div class="feat-icon"><?= icon('shield', 22) ?></div>
+        <h3><?= esc($t['feat_6_h']) ?></h3>
+        <p><?= esc($t['feat_6_p']) ?></p>
+      </div>
+      <div class="feat-card sr d6">
+        <div class="feat-icon"><?= icon('phone', 22) ?></div>
+        <h3><?= esc($t['feat_5_h']) ?></h3>
+        <p><?= esc($t['feat_5_p']) ?></p>
+      </div>
     </div>
   </div>
 </section>
