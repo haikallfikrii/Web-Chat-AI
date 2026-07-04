@@ -127,33 +127,7 @@ seo_render_head([
   </main>
 </div>
 <script src="/js/ui.js" defer></script>
+<script src="/js/pricing.js" defer></script>
 <?php require __DIR__ . '/includes/partials/widget_embed.php'; ?>
-<script>
-(function(){
-  var track='byok', cycle='monthly';
-  var panels={
-    'byok-monthly':document.getElementById('gridByokMonthly'),
-    'byok-yearly':document.getElementById('gridByokYearly'),
-    'managed-monthly':document.getElementById('gridManagedMonthly'),
-    'managed-yearly':document.getElementById('gridManagedYearly')
-  };
-  function refresh(){
-    Object.keys(panels).forEach(function(k){
-      if(panels[k]) panels[k].style.display=(k===track+'-'+cycle)?'grid':'none';
-    });
-    document.getElementById('tabByok').classList.toggle('active',track==='byok');
-    document.getElementById('tabManaged').classList.toggle('active',track==='managed');
-    document.getElementById('tabMonthly').classList.toggle('active',cycle==='monthly');
-    document.getElementById('tabYearly').classList.toggle('active',cycle==='yearly');
-    document.getElementById('trackDescByok').style.display=track==='byok'?'block':'none';
-    document.getElementById('trackDescManaged').style.display=track==='managed'?'block':'none';
-  }
-  document.getElementById('tabByok').addEventListener('click',function(){track='byok';refresh();});
-  document.getElementById('tabManaged').addEventListener('click',function(){track='managed';refresh();});
-  document.getElementById('tabMonthly').addEventListener('click',function(){cycle='monthly';refresh();});
-  document.getElementById('tabYearly').addEventListener('click',function(){cycle='yearly';refresh();});
-  refresh();
-})();
-</script>
 </body>
 </html>

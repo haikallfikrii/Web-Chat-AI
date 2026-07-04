@@ -17,6 +17,21 @@ Panduan memisahkan **2 database**, **2 domain**, dan **2 branch Git** tanpa sali
 3. Setiap `git pull` dari branch `staging` / `production` **tidak menghapus** `config.local.php`.
 4. Staging dan production **wajib** punya database MySQL terpisah.
 
+### File yang ikut / tidak ikut saat `git pull`
+
+| Jenis | Ikut deploy? | Catatan |
+|-------|--------------|---------|
+| PHP, CSS, JS, `.sql` di repo | **Ya** | File `.sql` hanya **skrip migrasi** — tidak otomatis mengubah MySQL; jalankan manual di phpMyAdmin bila perlu. |
+| `config.local.php` | **Tidak** | Ada di `.gitignore`; dibuat manual per server. |
+| CSV hasil scraping, script Python leads | **Tidak** (setelah `.gitignore`) | `*.csv` dan script seperti `job_intent_monitor.py` **hanya untuk lokal** — jangan commit ke Git agar tidak masuk `public_html` production. |
+| Data di MySQL production | **Tidak** | `git pull` tidak menyentuh isi database; hanya file di disk. |
+
+Jika CSV/script leads **sudah pernah** di-commit, hapus dari Git (tetap simpan di laptop):
+
+```bash
+git rm --cached *.csv job_intent_monitor.py reddit_intent_monitor.py  # sesuaikan nama file
+```
+
 ---
 
 ## Langkah 1 — Buat 2 database di Hostinger
