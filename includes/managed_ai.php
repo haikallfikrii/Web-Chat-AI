@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/plans.php';
+require_once __DIR__ . '/db_schema.php';
 
 /** @return array<string, mixed> */
 function ai_system_config(): array
@@ -30,6 +31,10 @@ function billing_plan_is_byok(string $plan_type): bool
  */
 function billing_sync_client_plan_columns(PDO $pdo, int $client_id, string $plan_code): void
 {
+    if (!clients_managed_ai_ready($pdo)) {
+        return;
+    }
+
     $plan = billing_plan($plan_code);
     if ($plan === null) {
         return;
@@ -75,6 +80,10 @@ function billing_next_quota_reset_date(): string
  */
 function billing_refresh_quota_if_needed(PDO $pdo, array $client): array
 {
+    if (!clients_managed_ai_ready($pdo)) {
+        return $client;
+    }
+
     $limit = (int) ($client['message_quota_limit'] ?? 0);
     if ($limit <= 0) {
         return $client;
@@ -177,6 +186,10 @@ function managed_ai_quota_exceeded(array $client): bool
 
 function managed_ai_increment_usage(PDO $pdo, int $client_id): void
 {
+    if (!clients_managed_ai_ready($pdo)) {
+        return;
+    }
+
     $pdo->prepare(
         'UPDATE clients SET message_quota_used = message_quota_used + 1 WHERE id = :id'
     )->execute([':id' => $client_id]);

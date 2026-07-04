@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/plans.php';
+require_once __DIR__ . '/db_schema.php';
 require_once __DIR__ . '/managed_ai.php';
 require_once __DIR__ . '/stripe_client.php';
 require_once __DIR__ . '/mail.php';
@@ -12,18 +13,31 @@ require_once __DIR__ . '/mail.php';
  */
 function billing_fetch_client(int $client_id): ?array
 {
-    $pdo  = get_db();
+    $pdo   = get_db();
+    $cols  = [
+        'id', 'name', 'email', 'subscription_status', 'plan_code',
+    ];
+    if (clients_managed_ai_ready($pdo)) {
+        $cols = array_merge($cols, [
+            'plan_type', 'api_key_source', 'message_quota_limit', 'message_quota_used',
+            'quota_reset_at', 'max_websites', 'remove_branding', 'whitelist_domains',
+        ]);
+    }
+    $cols = array_merge($cols, [
+        'stripe_customer_id', 'stripe_subscription_id',
+        'trial_ends_at', 'subscription_ends_at', 'billing_email',
+    ]);
+
     $stmt = $pdo->prepare(
-        'SELECT id, name, email, subscription_status, plan_code, plan_type,
-                api_key_source, message_quota_limit, message_quota_used, quota_reset_at,
-                max_websites, remove_branding, whitelist_domains,
-                stripe_customer_id, stripe_subscription_id,
-                trial_ends_at, subscription_ends_at, billing_email
-         FROM clients WHERE id = :id LIMIT 1'
+        'SELECT ' . implode(', ', $cols) . ' FROM clients WHERE id = :id LIMIT 1'
     );
     $stmt->execute([':id' => $client_id]);
     $row = $stmt->fetch();
-    return $row ?: null;
+    if (!$row) {
+        return null;
+    }
+
+    return clients_enrich_row($row, $pdo);
 }
 
 function billing_should_show_watermark(array $client): bool
