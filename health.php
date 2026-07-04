@@ -31,6 +31,22 @@ try {
         $out['ok'] = false;
         $out['hint'] = 'Jalankan schema/hostinger_install.sql di phpMyAdmin untuk DB ini.';
     }
+
+    require_once __DIR__ . '/includes/db_schema.php';
+    $out['managed_ai_schema'] = clients_managed_ai_ready($pdo);
+
+    $headFile = __DIR__ . '/.git/HEAD';
+    if (is_file($headFile)) {
+        $head = trim((string) file_get_contents($headFile));
+        if (str_starts_with($head, 'ref: ')) {
+            $ref = __DIR__ . '/.git/' . substr($head, 5);
+            if (is_file($ref)) {
+                $out['git_commit'] = substr(trim((string) file_get_contents($ref)), 0, 7);
+            }
+        } else {
+            $out['git_commit'] = substr($head, 0, 7);
+        }
+    }
 } catch (Throwable $e) {
     $out['ok'] = false;
     $out['db_connected'] = false;
