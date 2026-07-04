@@ -21,6 +21,7 @@ set_time_limit(60);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/ai_providers.php';
+require_once __DIR__ . '/../includes/db_schema.php';
 require_once __DIR__ . '/../includes/managed_ai.php';
 require_once __DIR__ . '/../includes/cors.php';
 
@@ -78,18 +79,14 @@ if ($message === '' || mb_strlen($message, 'UTF-8') > 4000) {
 // ── 6. Ambil data klien & pengaturan widget ──────────────────
 try {
     $pdo = get_db();
+    $managedCols = clients_select_managed_columns_sql($pdo);
 
     $stmt = $pdo->prepare("
         SELECT
             c.id                  AS client_id,
             c.subscription_status,
             c.plan_code,
-            c.plan_type,
-            c.api_key_source,
-            c.message_quota_limit,
-            c.message_quota_used,
-            c.quota_reset_at,
-            c.remove_branding,
+            {$managedCols}
             c.name                AS client_name,
             ws.n8n_webhook_url,
             ws.allowed_origins,
@@ -108,6 +105,9 @@ try {
 
     $stmt->execute([':api_key' => $api_key_header]);
     $client = $stmt->fetch();
+    if (is_array($client)) {
+        $client = clients_enrich_row($client, $pdo);
+    }
 
 } catch (PDOException $e) {
     error_log('[chat] DB error: ' . $e->getMessage());

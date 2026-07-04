@@ -21,6 +21,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/plans.php';
 require_once __DIR__ . '/../includes/billing.php';
+require_once __DIR__ . '/../includes/db_schema.php';
 require_once __DIR__ . '/../includes/managed_ai.php';
 require_once __DIR__ . '/../includes/cors.php';
 
@@ -47,18 +48,14 @@ if (!is_valid_api_key($api_key)) {
 // ── 4. Query settings berdasarkan api_key ────────────────────
 try {
     $pdo = get_db();
+    $managedCols = clients_select_managed_columns_sql($pdo);
 
     $stmt = $pdo->prepare("
         SELECT
             c.id                    AS client_id,
             c.subscription_status,
             c.plan_code,
-            c.plan_type,
-            c.api_key_source,
-            c.message_quota_limit,
-            c.message_quota_used,
-            c.quota_reset_at,
-            c.remove_branding,
+            {$managedCols}
             ws.primary_color,
             ws.bot_name,
             ws.bot_avatar_url,
@@ -72,6 +69,9 @@ try {
 
     $stmt->execute([':api_key' => $api_key]);
     $row = $stmt->fetch();
+    if (is_array($row)) {
+        $row = clients_enrich_row($row, $pdo);
+    }
 
 } catch (PDOException $e) {
     error_log('[get-settings] DB error: ' . $e->getMessage());
