@@ -80,7 +80,7 @@ seo_render_head([
         </div>
         <div class="billing-toggle" role="tablist" aria-label="<?= e($pt['cycle_aria'] ?? 'Billing cycle') ?>">
           <button type="button" class="active" data-cycle="monthly" id="tabMonthly"><?= e($pt['monthly']) ?></button>
-          <button type="button" data-cycle="yearly" id="tabYearly">
+          <button type="button" data-cycle="yearly" id="tabYearly" class="toggle-btn--yearly">
             <?= e($pt['yearly']) ?>
             <span class="save-pill"><?= e(sprintf($pt['annual_save'] ?? 'Save %d%%', billing_annual_savings_percent())) ?></span>
           </button>
