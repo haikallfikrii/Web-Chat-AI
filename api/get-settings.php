@@ -48,30 +48,15 @@ if (!is_valid_api_key($api_key)) {
 // ── 4. Query settings berdasarkan api_key ────────────────────
 try {
     $pdo = get_db();
-    $managedCols = clients_select_managed_columns_sql($pdo);
-
-    $stmt = $pdo->prepare("
-        SELECT
-            c.id                    AS client_id,
-            c.subscription_status,
-            c.plan_code,
-            {$managedCols}
-            ws.primary_color,
+    $row = clients_fetch_widget_row(
+        $pdo,
+        $api_key,
+        'ws.primary_color,
             ws.bot_name,
             ws.bot_avatar_url,
             ws.welcome_message,
-            ws.allowed_origins
-        FROM clients c
-        INNER JOIN widget_settings ws ON ws.client_id = c.id
-        WHERE c.api_key = :api_key
-        LIMIT 1
-    ");
-
-    $stmt->execute([':api_key' => $api_key]);
-    $row = $stmt->fetch();
-    if (is_array($row)) {
-        $row = clients_enrich_row($row, $pdo);
-    }
+            ws.allowed_origins'
+    );
 
 } catch (PDOException $e) {
     error_log('[get-settings] DB error: ' . $e->getMessage());
@@ -93,6 +78,10 @@ if (!cors_apply_for_widget($allowed_for_cors) && !cors_is_same_server_request())
 
 header('Cache-Control: public, max-age=300');
 
-$row = billing_refresh_quota_if_needed($pdo, $row);
+try {
+    $row = billing_refresh_quota_if_needed($pdo, $row);
+} catch (PDOException $e) {
+    error_log('[get-settings] Quota refresh skipped: ' . $e->getMessage());
+}
 
 send_json(widget_settings_public_payload($row));

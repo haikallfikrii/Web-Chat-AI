@@ -79,15 +79,10 @@ if ($message === '' || mb_strlen($message, 'UTF-8') > 4000) {
 // ── 6. Ambil data klien & pengaturan widget ──────────────────
 try {
     $pdo = get_db();
-    $managedCols = clients_select_managed_columns_sql($pdo);
-
-    $stmt = $pdo->prepare("
-        SELECT
-            c.id                  AS client_id,
-            c.subscription_status,
-            c.plan_code,
-            {$managedCols}
-            c.name                AS client_name,
+    $client = clients_fetch_widget_row(
+        $pdo,
+        $api_key_header,
+        'c.name AS client_name,
             ws.n8n_webhook_url,
             ws.allowed_origins,
             ws.bot_name,
@@ -96,18 +91,8 @@ try {
             ws.ai_model,
             ws.ai_system_prompt,
             ws.telegram_notify_enabled,
-            ws.telegram_chat_id
-        FROM clients c
-        INNER JOIN widget_settings ws ON ws.client_id = c.id
-        WHERE c.api_key = :api_key
-        LIMIT 1
-    ");
-
-    $stmt->execute([':api_key' => $api_key_header]);
-    $client = $stmt->fetch();
-    if (is_array($client)) {
-        $client = clients_enrich_row($client, $pdo);
-    }
+            ws.telegram_chat_id'
+    );
 
 } catch (PDOException $e) {
     error_log('[chat] DB error: ' . $e->getMessage());
