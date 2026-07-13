@@ -11,6 +11,9 @@ indeed_browser_scraper.py
 lead_generation_maps.py
 us_eu_lead_generation.py
 hostinger_sender.py
+requirements-leads.txt
+seen_jobs.json
+seen_posts.json
 
 # OS / editor
 .DS_Store
@@ -18,6 +21,7 @@ hostinger_sender.py
 .vscode/
 *.log
 
-# Uploads lokal (jika ada)
+# Uploads lokal (jika ada) — kecuali .htaccess pelindung yang WAJIB ikut deploy
 uploads/*
 !uploads/.gitkeep
+!uploads/.htaccess

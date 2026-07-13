@@ -1,0 +1,12 @@
+# Defense-in-depth: file di folder ini hanya untuk gambar avatar bot.
+# Cegah eksekusi script apa pun meski ada file yang lolos validasi MIME.
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+<FilesMatch "\.(php\d?|phtml|php[3-8]?|pl|py|cgi|sh|asp|aspx)$">
+    Require all denied
+</FilesMatch>
+
+Options -ExecCGI -Indexes
+AddType text/plain .php .php3 .php4 .php5 .php7 .phtml
