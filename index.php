@@ -750,40 +750,6 @@ footer a:hover{opacity:.75}
     </a>
   </div>
 </section>
-<script>
-(function () {
-  var slider = document.getElementById('calcConvos');
-  if (!slider) { return; }
-  var convosVal = document.getElementById('calcConvosVal');
-  var humanEl   = document.getElementById('calcHuman');
-  var chatlmEl  = document.getElementById('calcChatlm');
-  var savingsEl = document.getElementById('calcSavings');
-  var HUMAN_COST_PER_CONVO = 0.50;
-  var CHATLM_FLAT_COST = 19;
-
-  function fmt(n) {
-    return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
-  }
-
-  function update() {
-    var convos = parseInt(slider.value, 10) || 0;
-    var pct = (convos - slider.min) / (slider.max - slider.min) * 100;
-    slider.style.setProperty('--fill', pct + '%');
-
-    var humanCost = convos * HUMAN_COST_PER_CONVO;
-    var savings = Math.max(0, humanCost - CHATLM_FLAT_COST);
-
-    convosVal.textContent = convos.toLocaleString('en-US');
-    humanEl.textContent = fmt(humanCost);
-    chatlmEl.textContent = fmt(CHATLM_FLAT_COST);
-    savingsEl.textContent = fmt(savings);
-  }
-
-  slider.addEventListener('input', update);
-  update();
-})();
-</script>
-
 <!-- ═══ TESTIMONIALS ═══ -->
 <section class="lp-sec" id="testimonials">
   <div class="sec-kicker sr"><?= icon('check-circle', 13) ?> <?= esc($t['testi_tag']) ?></div>
