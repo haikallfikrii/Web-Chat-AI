@@ -327,8 +327,9 @@ seo_render_head([
 .calc-card{
   max-width:640px;margin:0 auto;padding:40px clamp(22px,5vw,44px);border-radius:24px;
   background:linear-gradient(160deg,rgba(0,229,154,.06),rgba(10,16,28,.92) 55%);
-  border:1px solid var(--green-line);position:relative;overflow:hidden;
+  border:1px solid var(--green-line);position:relative;overflow:visible;
   box-shadow:0 30px 70px rgba(0,0,0,.45);
+  transform:none;-webkit-transform:none;
 }
 .calc-card::before{
   content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;
@@ -340,7 +341,9 @@ seo_render_head([
 .calc-slider{
   width:100%;-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;
   background:linear-gradient(90deg,var(--green),var(--cyan) var(--fill,50%),rgba(255,255,255,.1) var(--fill,50%));
-  outline:none;margin-bottom:26px;position:relative;z-index:1;cursor:pointer;
+  outline:none;margin:0 0 26px;padding:18px 0;min-height:44px;position:relative;z-index:2;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  box-sizing:content-box;
 }
 .calc-slider::-webkit-slider-thumb{
   -webkit-appearance:none;width:24px;height:24px;border-radius:50%;
@@ -428,6 +431,10 @@ footer a:hover{opacity:.75}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .stat-cell:nth-child(2){border-right:none}
   .stat-cell:nth-child(1),.stat-cell:nth-child(2){border-bottom:1px solid var(--border-2)}
+}
+@media(max-width:780px){
+  .calc-slider::-webkit-slider-thumb{width:32px;height:32px;border-width:5px}
+  .calc-slider::-moz-range-thumb{width:32px;height:32px;border-width:5px}
 }
 @media(max-width:600px){
   .feat-bento{grid-template-columns:1fr}
@@ -722,7 +729,7 @@ footer a:hover{opacity:.75}
   <div class="sec-kicker sr"><?= icon('calculator', 13) ?> <?= esc($t['calc_tag']) ?></div>
   <h2 class="sec-h2 sr d1"><?= esc($t['calc_h2']) ?></h2>
   <p class="sec-sub sr d2"><?= esc($t['calc_sub']) ?></p>
-  <div class="calc-card sr sc">
+  <div class="calc-card">
     <div class="calc-input-row">
       <label for="calcConvos"><?= esc($t['calc_label_convos']) ?></label>
       <span class="calc-convos-val" id="calcConvosVal">800</span>
@@ -803,8 +810,10 @@ footer a:hover{opacity:.75}
   </div>
 </footer>
 
+<?php $calcJsVer = (int) (@filemtime(__DIR__ . '/js/calc.js') ?: time()); ?>
 <script src="/js/ui.js" defer></script>
-<script src="/js/landing.js"></script>
+<script src="/js/calc.js?v=<?= $calcJsVer ?>" defer></script>
+<script src="/js/landing.js" defer></script>
 <?php require __DIR__ . '/includes/partials/widget_embed.php'; ?>
 </body>
 </html>
