@@ -52,6 +52,7 @@ $langAria   = (string) ($at['lang_aria'] ?? 'Language');
     </button>
   </div>
 </header>
+<div class="pub-hd-spacer" aria-hidden="true"></div>
 
 <div class="pub-hd-backdrop" id="pubHdBackdrop" aria-hidden="true"></div>
 <nav class="pub-hd-drawer" id="pubHdDrawer" aria-label="<?= e($at['nav_aria'] ?? 'Main') ?>">

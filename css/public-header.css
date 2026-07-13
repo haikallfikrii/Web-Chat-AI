@@ -1,6 +1,6 @@
 /* Shared header: pricing, login, register, forgot/reset password */
 .pub-hd{
-  position:sticky;top:0;z-index:1000;
+  position:fixed;top:0;left:0;right:0;z-index:1000;
   padding-top:env(safe-area-inset-top,0px);
   background:rgba(3,7,18,.92);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
@@ -8,12 +8,15 @@
   isolation:isolate;
   transform:translateZ(0);
   -webkit-transform:translateZ(0);
-  transition:transform .35s cubic-bezier(.22,1,.36,1),margin-bottom .35s cubic-bezier(.22,1,.36,1);
-  will-change:transform,margin-bottom;
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+  will-change:transform;
+}
+.pub-hd-spacer{
+  height:calc(60px + env(safe-area-inset-top,0px));
+  flex-shrink:0;
 }
 .pub-hd.is-scroll-hidden{
   transform:translate3d(0,calc(-100% - env(safe-area-inset-top,0px)),0);
-  margin-bottom:calc(-60px - env(safe-area-inset-top,0px));
   pointer-events:none;
 }
 .pub-hd-in{

@@ -136,40 +136,40 @@
     header.dataset.cpScrollHide = '1';
 
     var lastY = window.scrollY || document.documentElement.scrollTop || 0;
-    var ticking = false;
-    var minDelta = 6;
-    var topThreshold = 64;
+    var hidden = false;
+    var hideAfter = 72;
+    var scrollDelta = 1;
+
     function menuOpen() {
       return typeof isMenuOpen === 'function' && isMenuOpen();
     }
 
-    function setHidden(hidden) {
-      header.classList.toggle('is-scroll-hidden', !!hidden);
-    }
-
-    function update() {
-      var y = window.scrollY || document.documentElement.scrollTop || 0;
-      var dy = y - lastY;
-
-      if (menuOpen() || y <= topThreshold) {
-        setHidden(false);
-      } else if (dy > minDelta) {
-        setHidden(true);
-      } else if (dy < -minDelta) {
-        setHidden(false);
-      }
-
-      lastY = y;
-      ticking = false;
+    function setHidden(nextHidden) {
+      if (hidden === nextHidden) return;
+      hidden = nextHidden;
+      header.classList.toggle('is-scroll-hidden', nextHidden);
     }
 
     window.addEventListener(
       'scroll',
       function () {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(update);
+        var y = window.scrollY || document.documentElement.scrollTop || 0;
+
+        if (menuOpen()) {
+          setHidden(false);
+          lastY = y;
+          return;
         }
+
+        if (y <= 8) {
+          setHidden(false);
+        } else if (y < lastY - scrollDelta) {
+          setHidden(false);
+        } else if (y > lastY + scrollDelta && y > hideAfter) {
+          setHidden(true);
+        }
+
+        lastY = y;
       },
       { passive: true }
     );
