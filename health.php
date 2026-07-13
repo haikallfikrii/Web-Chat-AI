@@ -10,16 +10,22 @@ require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+$is_prod = APP_ENV === 'production';
+
 $out = [
     'ok'           => true,
     'app_env'      => APP_ENV,
     'app_site_url' => APP_SITE_URL,
-    'db_name'      => DB_NAME,
-    'db_host'      => DB_HOST,
-    'http_host'    => $_SERVER['HTTP_HOST'] ?? '',
-    'detected'     => config_detect_environment(),
-    'has_local'    => is_file(__DIR__ . '/config.local.php'),
 ];
+
+if (!$is_prod) {
+    // Detail sensitif (nama DB, host, dsb) hanya ditampilkan di luar production.
+    $out['db_name']   = DB_NAME;
+    $out['db_host']   = DB_HOST;
+    $out['http_host'] = $_SERVER['HTTP_HOST'] ?? '';
+    $out['detected']  = config_detect_environment();
+    $out['has_local'] = is_file(__DIR__ . '/config.local.php');
+}
 
 try {
     $pdo = get_db();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/plans.php';
 require_once __DIR__ . '/brand.php';
+require_once __DIR__ . '/i18n_mail.php';
 
 function mail_from_address(): string
 {
@@ -20,10 +21,11 @@ function mail_support_address(): string
 }
 
 /**
- * Template HTML email dengan identitas ChatLM.
+ * Template HTML email dengan identitas ChatLM. $lang menentukan bahasa footer/preheader/dir.
  */
-function mail_html_layout(string $title, string $body_html, ?string $preheader = null): string
+function mail_html_layout(string $title, string $body_html, ?string $preheader = null, string $lang = 'en'): string
 {
+    $mt     = mail_strings($lang);
     $site   = app_site_url();
     $brand  = APP_NAME;
     $logo   = brand_logo_url();
@@ -32,9 +34,10 @@ function mail_html_layout(string $title, string $body_html, ?string $preheader =
     $pre    = $preheader !== null && $preheader !== ''
         ? '<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">' . htmlspecialchars($preheader, ENT_QUOTES, 'UTF-8') . '</div>'
         : '';
+    $rights = sprintf($mt['footer_rights'], (int) $year, $brand);
 
     return '<!DOCTYPE html>
-<html lang="id">
+<html lang="' . htmlspecialchars($mt['html_lang'], ENT_QUOTES, 'UTF-8') . '">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -48,7 +51,7 @@ function mail_html_layout(string $title, string $body_html, ?string $preheader =
 <tr><td style="padding:28px 32px 20px;background:linear-gradient(135deg,#14B8A6 0%,#2DD4BF 100%);">
 <table role="presentation" width="100%"><tr>
 <td style="font-size:22px;font-weight:800;color:#031018;letter-spacing:-.3px;">' . $logo_html . htmlspecialchars($brand, ENT_QUOTES, 'UTF-8') . '</td>
-<td align="right" style="font-size:12px;color:rgba(3,16,24,.65);font-weight:600;">AI Chat Widget</td>
+<td align="right" style="font-size:12px;color:rgba(3,16,24,.65);font-weight:600;">' . htmlspecialchars($mt['header_tag'], ENT_QUOTES, 'UTF-8') . '</td>
 </tr></table>
 </td></tr>
 <tr><td style="padding:32px;color:#e2e8f0;font-size:15px;line-height:1.65;">
@@ -56,9 +59,9 @@ function mail_html_layout(string $title, string $body_html, ?string $preheader =
 ' . $body_html . '
 </td></tr>
 <tr><td style="padding:20px 32px 28px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:#64748b;line-height:1.5;">
-<p style="margin:0 0 8px;">&copy; ' . $year . ' ' . htmlspecialchars($brand, ENT_QUOTES, 'UTF-8') . '. Semua hak dilindungi.</p>
+<p style="margin:0 0 8px;">' . htmlspecialchars($rights, ENT_QUOTES, 'UTF-8') . '</p>
 <p style="margin:0;"><a href="' . htmlspecialchars($site, ENT_QUOTES, 'UTF-8') . '" style="color:#14B8A6;text-decoration:none;">' . htmlspecialchars($site, ENT_QUOTES, 'UTF-8') . '</a>
- &nbsp;&middot;&nbsp; <a href="mailto:' . htmlspecialchars(mail_support_address(), ENT_QUOTES, 'UTF-8') . '" style="color:#94a3b8;text-decoration:none;">Dukungan</a></p>
+ &nbsp;&middot;&nbsp; <a href="mailto:' . htmlspecialchars(mail_support_address(), ENT_QUOTES, 'UTF-8') . '" style="color:#94a3b8;text-decoration:none;">' . htmlspecialchars($mt['footer_support'], ENT_QUOTES, 'UTF-8') . '</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -120,79 +123,87 @@ function send_subscription_activated_email(
     string $to_email,
     string $client_name,
     string $plan_name,
-    string $interval_label
+    string $interval_label,
+    string $lang = 'en'
 ): bool {
+    $mt   = mail_strings($lang);
     $dash = app_site_url() . '/dashboard.php';
-    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">Halo <strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>,</p>'
-        . '<p style="margin:0 0 12px;">Pembayaran Anda berhasil. Langganan <strong style="color:#14B8A6;">' . htmlspecialchars($plan_name, ENT_QUOTES, 'UTF-8') . '</strong>'
-        . ($interval_label !== '' ? ' (' . htmlspecialchars($interval_label, ENT_QUOTES, 'UTF-8') . ')' : '')
-        . ' sekarang <strong style="color:#f8fafc;">aktif</strong>.</p>'
+    $interval_suffix = $interval_label !== '' ? ' (' . htmlspecialchars($interval_label, ENT_QUOTES, 'UTF-8') . ')' : '';
+
+    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">' . sprintf(htmlspecialchars($mt['greeting'], ENT_QUOTES, 'UTF-8'), '<strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>') . '</p>'
+        . '<p style="margin:0 0 12px;">' . sprintf($mt['active_line1'], htmlspecialchars($plan_name, ENT_QUOTES, 'UTF-8'), $interval_suffix) . '</p>'
         . mail_info_box(
-            '<strong style="color:#14B8A6;">Yang berubah:</strong><ul style="margin:8px 0 0;padding-left:18px;">'
-            . '<li>Watermark di widget dihilangkan</li>'
-            . '<li>Widget tetap aktif di website Anda</li>'
-            . '<li>Kelola langganan kapan saja dari dashboard</li></ul>'
+            '<strong style="color:#14B8A6;">' . htmlspecialchars($mt['active_changed'], ENT_QUOTES, 'UTF-8') . '</strong><ul style="margin:8px 0 0;padding-left:18px;">'
+            . '<li>' . htmlspecialchars($mt['active_item1'], ENT_QUOTES, 'UTF-8') . '</li>'
+            . '<li>' . htmlspecialchars($mt['active_item2'], ENT_QUOTES, 'UTF-8') . '</li>'
+            . '<li>' . htmlspecialchars($mt['active_item3'], ENT_QUOTES, 'UTF-8') . '</li></ul>'
         )
-        . mail_button($dash, 'Buka Dashboard');
+        . mail_button($dash, $mt['btn_dashboard']);
 
-    $html = mail_html_layout('Langganan Aktif', $body, 'Pembayaran berhasil — langganan Anda aktif.');
-    $plain = "Langganan {$plan_name} aktif.\n\nBuka dashboard: {$dash}\n\n— " . APP_NAME;
+    $html = mail_html_layout($mt['active_title'], $body, $mt['active_preheader'], $lang);
+    $plain = sprintf($mt['plain_active'], $plan_name, $dash, APP_NAME);
 
-    return send_html_email($to_email, 'Langganan Aktif — ' . APP_NAME, $html, $plain);
+    return send_html_email($to_email, sprintf($mt['subject_active'], APP_NAME), $html, $plain);
 }
 
 function send_subscription_cancelled_email(
     string $to_email,
     string $client_name,
-    ?string $ends_at_human
+    ?string $ends_at_human,
+    string $lang = 'en'
 ): bool {
+    $mt      = mail_strings($lang);
     $billing = app_site_url() . '/billing.php';
     $ends = $ends_at_human !== null && $ends_at_human !== ''
-        ? '<p style="margin:0;">Akses berbayar berakhir pada: <strong style="color:#f8fafc;">' . htmlspecialchars($ends_at_human, ENT_QUOTES, 'UTF-8') . '</strong>. Setelah itu widget kembali nonaktif atau trial dengan watermark.</p>'
-        : '<p style="margin:0;">Langganan Anda telah dibatalkan. Widget dapat berhenti berfungsi setelah periode berjalan habis.</p>';
+        ? '<p style="margin:0;">' . sprintf($mt['cancel_ends'], htmlspecialchars($ends_at_human, ENT_QUOTES, 'UTF-8')) . '</p>'
+        : '<p style="margin:0;">' . htmlspecialchars($mt['cancel_ended'], ENT_QUOTES, 'UTF-8') . '</p>';
 
-    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">Halo <strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>,</p>'
-        . '<p style="margin:0 0 12px;">Kami mengonfirmasi <strong style="color:#f8fafc;">pembatalan langganan</strong> Anda.</p>'
+    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">' . sprintf(htmlspecialchars($mt['greeting'], ENT_QUOTES, 'UTF-8'), '<strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>') . '</p>'
+        . '<p style="margin:0 0 12px;">' . $mt['cancel_confirm'] . '</p>'
         . mail_info_box($ends)
-        . '<p style="margin:16px 0 0;color:#94a3b8;font-size:14px;">Ingin tetap menggunakan tanpa watermark? Anda dapat berlangganan lagi kapan saja.</p>'
-        . mail_button($billing, 'Kelola / Berlangganan Lagi');
+        . '<p style="margin:16px 0 0;color:#94a3b8;font-size:14px;">' . htmlspecialchars($mt['cancel_note'], ENT_QUOTES, 'UTF-8') . '</p>'
+        . mail_button($billing, $mt['btn_manage']);
 
-    $html = mail_html_layout('Langganan Dibatalkan', $body, 'Langganan Anda telah dibatalkan.');
-    $plain = "Langganan dibatalkan.\n\nKelola: {$billing}\n\n— " . APP_NAME;
+    $html = mail_html_layout($mt['cancel_title'], $body, $mt['cancel_preheader'], $lang);
+    $plain = sprintf($mt['plain_cancel'], $billing, APP_NAME);
 
-    return send_html_email($to_email, 'Langganan Dibatalkan — ' . APP_NAME, $html, $plain);
+    return send_html_email($to_email, sprintf($mt['subject_cancel'], APP_NAME), $html, $plain);
 }
 
 function send_checkout_receipt_email(
     string $to_email,
     string $client_name,
     string $plan_name,
-    string $amount_display
+    string $amount_display,
+    string $lang = 'en'
 ): bool {
+    $mt   = mail_strings($lang);
     $dash = app_site_url() . '/dashboard.php';
-    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">Terima kasih, <strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>!</p>'
-        . '<p style="margin:0 0 12px;">Kami menerima pembayaran Anda untuk paket <strong style="color:#14B8A6;">' . htmlspecialchars($plan_name, ENT_QUOTES, 'UTF-8') . '</strong>.</p>'
+
+    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">' . sprintf($mt['receipt_thanks'], htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8')) . '</p>'
+        . '<p style="margin:0 0 12px;">' . sprintf($mt['receipt_received'], htmlspecialchars($plan_name, ENT_QUOTES, 'UTF-8')) . '</p>'
         . mail_info_box('<table role="presentation" width="100%" style="font-size:14px;">'
-            . '<tr><td style="color:#94a3b8;padding:4px 0;">Total</td><td align="right" style="color:#f8fafc;font-weight:700;">' . htmlspecialchars($amount_display, ENT_QUOTES, 'UTF-8') . '</td></tr>'
-            . '<tr><td style="color:#94a3b8;padding:4px 0;">Status</td><td align="right" style="color:#14B8A6;font-weight:700;">Lunas</td></tr></table>')
-        . '<p style="margin:12px 0 0;color:#94a3b8;font-size:13px;">Invoice resmi dari Stripe akan dikirim terpisah ke email ini.</p>'
-        . mail_button($dash, 'Mulai Konfigurasi Widget');
+            . '<tr><td style="color:#94a3b8;padding:4px 0;">' . htmlspecialchars($mt['receipt_total'], ENT_QUOTES, 'UTF-8') . '</td><td align="right" style="color:#f8fafc;font-weight:700;">' . htmlspecialchars($amount_display, ENT_QUOTES, 'UTF-8') . '</td></tr>'
+            . '<tr><td style="color:#94a3b8;padding:4px 0;">' . htmlspecialchars($mt['receipt_status'], ENT_QUOTES, 'UTF-8') . '</td><td align="right" style="color:#14B8A6;font-weight:700;">' . htmlspecialchars($mt['receipt_paid'], ENT_QUOTES, 'UTF-8') . '</td></tr></table>')
+        . '<p style="margin:12px 0 0;color:#94a3b8;font-size:13px;">' . htmlspecialchars($mt['receipt_note'], ENT_QUOTES, 'UTF-8') . '</p>'
+        . mail_button($dash, $mt['btn_configure']);
 
-    $html = mail_html_layout('Konfirmasi Pembayaran', $body, 'Terima kasih — pembayaran Anda diterima.');
-    $plain = "Pembayaran {$plan_name} ({$amount_display}) diterima.\nDashboard: {$dash}\n\n— " . APP_NAME;
+    $html = mail_html_layout($mt['receipt_title'], $body, $mt['receipt_preheader'], $lang);
+    $plain = sprintf($mt['plain_receipt'], $plan_name, $amount_display, $dash, APP_NAME);
 
-    return send_html_email($to_email, 'Konfirmasi Pembayaran — ' . APP_NAME, $html, $plain);
+    return send_html_email($to_email, sprintf($mt['subject_receipt'], APP_NAME), $html, $plain);
 }
 
-function send_password_reset_email_html(string $to_email, string $reset_link): bool
+function send_password_reset_email_html(string $to_email, string $reset_link, string $lang = 'en'): bool
 {
-    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">Kami menerima permintaan reset password untuk akun Anda.</p>'
-        . '<p style="margin:0 0 12px;color:#94a3b8;font-size:14px;">Link berlaku <strong style="color:#f8fafc;">60 menit</strong>. Jika Anda tidak meminta ini, abaikan email ini.</p>'
-        . mail_button($reset_link, 'Reset Password')
+    $mt = mail_strings($lang);
+    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">' . htmlspecialchars($mt['reset_line1'], ENT_QUOTES, 'UTF-8') . '</p>'
+        . '<p style="margin:0 0 12px;color:#94a3b8;font-size:14px;">' . $mt['reset_line2'] . '</p>'
+        . mail_button($reset_link, $mt['btn_reset'])
         . '<p style="margin:16px 0 0;font-size:12px;color:#64748b;word-break:break-all;">' . htmlspecialchars($reset_link, ENT_QUOTES, 'UTF-8') . '</p>';
 
-    $html = mail_html_layout('Reset Password', $body, 'Reset password akun ' . APP_NAME . ' Anda.');
-    $plain = "Reset password (60 menit):\n{$reset_link}\n\n— " . APP_NAME;
+    $html = mail_html_layout($mt['reset_title'], $body, sprintf($mt['reset_preheader'], APP_NAME), $lang);
+    $plain = sprintf($mt['plain_reset'], $reset_link, APP_NAME);
 
-    return send_html_email($to_email, 'Reset Password — ' . APP_NAME, $html, $plain);
+    return send_html_email($to_email, sprintf($mt['subject_reset'], APP_NAME), $html, $plain);
 }

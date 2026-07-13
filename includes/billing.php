@@ -7,6 +7,15 @@ require_once __DIR__ . '/db_schema.php';
 require_once __DIR__ . '/managed_ai.php';
 require_once __DIR__ . '/stripe_client.php';
 require_once __DIR__ . '/mail.php';
+require_once __DIR__ . '/lang.php';
+
+/** Normalize any string to a supported UI language, defaulting to English. */
+function billing_normalize_lang(string $lang): string
+{
+    $allowed = ['en', 'id', 'es', 'fr', 'pt', 'ja'];
+    $lang = strtolower(trim($lang));
+    return in_array($lang, $allowed, true) ? $lang : 'en';
+}
 
 /**
  * @return array<string, mixed>|null
@@ -248,6 +257,7 @@ function billing_create_checkout(int $client_id, string $plan_code, string $user
         return ['ok' => false, 'error' => 'Gagal membuat pelanggan Stripe.'];
     }
 
+    $checkout_lang = billing_normalize_lang(get_lang());
     $base = app_site_url();
     $session = stripe_create_checkout_session([
         'mode'                => 'subscription',
@@ -256,16 +266,18 @@ function billing_create_checkout(int $client_id, string $plan_code, string $user
         'line_items'          => [
             ['price' => $price_id, 'quantity' => 1],
         ],
-        'success_url'         => $base . '/billing-success.php?session_id={CHECKOUT_SESSION_ID}',
-        'cancel_url'          => $base . '/billing-cancel.php?plan=' . rawurlencode($plan_code),
+        'success_url'         => $base . '/billing-success.php?session_id={CHECKOUT_SESSION_ID}&lang=' . $checkout_lang,
+        'cancel_url'          => $base . '/billing-cancel.php?plan=' . rawurlencode($plan_code) . '&lang=' . $checkout_lang,
         'metadata'            => [
             'client_id' => (string) $client_id,
             'plan_code' => $plan_code,
+            'lang'      => $checkout_lang,
         ],
         'subscription_data'   => [
             'metadata' => [
                 'client_id' => (string) $client_id,
                 'plan_code' => $plan_code,
+                'lang'      => $checkout_lang,
             ],
         ],
         'allow_promotion_codes' => true,
@@ -321,18 +333,21 @@ function billing_handle_checkout_completed(array $session): void
     $to   = (string) ($client['billing_email'] ?: $client['email']);
     $name = (string) $client['name'];
     $interval = billing_interval_label($plan['interval'] ?? null);
+    $mail_lang = billing_normalize_lang((string) ($session['metadata']['lang'] ?? 'en'));
 
     send_checkout_receipt_email(
         $to,
         $name,
         (string) ($plan['name'] ?? $plan_code),
-        (string) ($plan['price_display'] ?? '') . $interval
+        (string) ($plan['price_display'] ?? '') . $interval,
+        $mail_lang
     );
     send_subscription_activated_email(
         $to,
         $name,
         (string) ($plan['name'] ?? $plan_code),
-        trim($interval, '/')
+        trim($interval, '/'),
+        $mail_lang
     );
 }
 
@@ -386,11 +401,13 @@ function billing_handle_subscription_deleted(array $sub): void
 
     $ends = $client['subscription_ends_at'] ?? null;
     $ends_human = $ends ? (new DateTime((string) $ends))->format('d M Y H:i') : null;
+    $mail_lang = billing_normalize_lang((string) ($sub['metadata']['lang'] ?? 'en'));
 
     send_subscription_cancelled_email(
         (string) ($client['billing_email'] ?: $client['email']),
         (string) $client['name'],
-        $ends_human
+        $ends_human,
+        $mail_lang
     );
 }
 

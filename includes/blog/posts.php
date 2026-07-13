@@ -39,6 +39,33 @@ function blog_all_posts(): array
             'keywords'    => 'WordPress AI chat, embed chat WordPress, ChatLM widget',
             'body'        => blog_body_wordpress(),
         ],
+        [
+            'slug'        => 'byok-vs-managed-ai',
+            'title'       => 'BYOK vs Managed AI: Which ChatLM Plan Fits Your Business?',
+            'description' => 'Bring your own API key or let ChatLM host the model for you? Compare cost, setup effort, and control to pick the right track.',
+            'published'   => '2026-07-13',
+            'updated'     => '2026-07-13',
+            'keywords'    => 'BYOK vs managed AI, AI chat widget pricing, ChatLM plans',
+            'body'        => blog_body_byok_vs_managed(),
+        ],
+        [
+            'slug'        => 'ai-chatbot-cost-2026',
+            'title'       => 'How Much Does an AI Chatbot Cost in 2026? Full Price Breakdown',
+            'description' => 'From $0 watermarked widgets to $200+/mo enterprise suites — see what you actually pay for an AI chat widget and where the hidden costs are.',
+            'published'   => '2026-07-13',
+            'updated'     => '2026-07-13',
+            'keywords'    => 'AI chatbot cost, chat widget pricing, live chat software price',
+            'body'        => blog_body_chatbot_cost(),
+        ],
+        [
+            'slug'        => 'chat-widget-conversion-tips',
+            'title'       => '7 Chat Widget Best Practices That Turn Visitors Into Leads',
+            'description' => 'Placement, timing, welcome message, and persona tweaks that measurably increase chat engagement and lead capture.',
+            'published'   => '2026-07-13',
+            'updated'     => '2026-07-13',
+            'keywords'    => 'chat widget conversion, increase website leads, AI chatbot best practices',
+            'body'        => blog_body_conversion_tips(),
+        ],
     ];
 
     return $posts;
@@ -146,5 +173,100 @@ function blog_body_wordpress(): string
 <h2>Next steps</h2>
 <p>Configure your AI key, welcome message, and optional Telegram alerts. Then run a test message as a guest user.</p>
 <p><a href="/register.php">Get started free</a> · <a href="/pricing.php">See pricing</a></p>
+HTML;
+}
+
+function blog_body_byok_vs_managed(): string
+{
+    return <<<'HTML'
+<p>When you set up an AI chat widget, the first real decision isn't the color of the bubble — it's <strong>who pays for the AI, and who manages the key</strong>. ChatLM offers two tracks: <strong>BYOK</strong> (Bring Your Own Key) and <strong>Managed AI</strong>. Both power the same widget; they just move the API cost and setup step to a different place.</p>
+
+<h2>BYOK: you control the model and the bill</h2>
+<p>With BYOK, you paste your own API key from OpenAI, Google Gemini, DeepSeek, or OpenRouter into the dashboard. ChatLM only charges a flat platform fee — the AI usage itself is billed to you directly by the provider, at their raw rate.</p>
+<ul>
+<li><strong>Best for:</strong> technical founders, agencies with existing provider accounts, high-volume sites where token costs matter</li>
+<li><strong>You get:</strong> full model choice (GPT-4o, GPT-4o-mini, Gemini 1.5, DeepSeek Chat, or anything on OpenRouter), zero markup on tokens</li>
+<li><strong>Setup effort:</strong> ~2 minutes — create a provider account, generate a key, paste it in</li>
+</ul>
+
+<h2>Managed AI: zero setup, flat monthly quota</h2>
+<p>Managed AI plans skip the API key step entirely. ChatLM hosts the model (via OpenRouter, GPT-4o-mini class) and includes a fixed number of messages per month in the subscription price. You pick a plan, configure your bot persona, and you're done.</p>
+<ul>
+<li><strong>Best for:</strong> non-technical owners, agencies onboarding clients quickly, anyone who wants one predictable invoice</li>
+<li><strong>You get:</strong> no provider account needed, predictable monthly cost, faster onboarding for clients</li>
+<li><strong>Setup effort:</strong> under 60 seconds — no key, no provider dashboard</li>
+</ul>
+
+<h2>Side-by-side</h2>
+<table>
+<tr><th>Question</th><th>BYOK</th><th>Managed AI</th></tr>
+<tr><td>Who pays the AI provider?</td><td>You, directly</td><td>Included in plan</td></tr>
+<tr><td>Message limits?</td><td>None from ChatLM (provider limits apply)</td><td>Fixed monthly quota per plan</td></tr>
+<tr><td>Setup time</td><td>~2 minutes</td><td>&lt;1 minute</td></tr>
+<tr><td>Model choice</td><td>Any supported provider/model</td><td>Curated, cost-optimized model</td></tr>
+</table>
+
+<h2>How to choose</h2>
+<p>If you already have (or don't mind creating) an OpenAI/OpenRouter account and want the lowest possible per-message cost at scale, go <strong>BYOK</strong>. If you want to be live in under a minute with one flat bill and no provider account to manage, go <strong>Managed AI</strong>. Both remove the watermark on paid tiers and include the same customization: colors, persona, welcome message, and Telegram alerts.</p>
+
+<p>Compare exact prices on the <a href="/pricing.php">pricing page</a>, or <a href="/register.php">start free</a> and switch tracks later — nothing is locked in.</p>
+HTML;
+}
+
+function blog_body_chatbot_cost(): string
+{
+    return <<<'HTML'
+<p>"How much does an AI chatbot cost?" has a wide answer — anywhere from <strong>$0 to $300+ per month</strong> — because the price depends on who hosts the model, how many conversations you run, and how much branding control you need. Here's a realistic breakdown for 2026.</p>
+
+<h2>Free tier: $0/month</h2>
+<p>Most AI chat widgets, including ChatLM, offer a free tier. Expect a small "Powered by" watermark and, on some platforms, a message cap. This is enough to validate that an AI widget actually helps your site before paying anything.</p>
+
+<h2>Small business plans: $15–$40/month</h2>
+<p>This tier typically removes the watermark and adds custom branding, a system prompt, and basic analytics. ChatLM's Starter plan sits at <strong>$19/month</strong> (BYOK, or from $29/month Managed AI) — enough for most single-site owners, freelancers, and small stores.</p>
+
+<h2>Growing teams: $40–$90/month</h2>
+<p>At this level you usually get multiple websites, higher message quotas, priority support, and sometimes a customer-facing knowledge base. This is where ChatLM's Pro plan lives.</p>
+
+<h2>Agencies & multi-client: $90–$300+/month</h2>
+<p>Agencies managing chat widgets for several client sites need multi-website support, white-label branding, and centralized billing. Enterprise live-chat suites (Intercom, Drift-style tools) often start here even before adding AI add-ons — see our <a href="/blog/chatlm-vs-intercom">ChatLM vs Intercom comparison</a> for a direct cost breakdown.</p>
+
+<h2>The hidden cost most people miss: token usage</h2>
+<p>If a platform is "BYOK" (bring your own key), the platform fee is only half the bill — you also pay the AI provider per token. A GPT-4o-mini-class model costs a fraction of a cent per short conversation, but high-volume sites should estimate this separately. Our <a href="/blog/byok-vs-managed-ai">BYOK vs Managed AI guide</a> explains how to avoid surprise token bills, or you can pick a Managed AI plan with a flat included quota instead.</p>
+
+<h2>Quick math: is it worth it?</h2>
+<p>A human support agent costs roughly $0.30–$1.00 in time per handled conversation, once you include salary, tools, and overhead. Use the savings calculator on our <a href="/#calculator">homepage</a> to estimate your break-even point based on your actual monthly conversation volume.</p>
+
+<p>Ready to see real numbers for your site? <a href="/pricing.php">Compare ChatLM plans</a> or <a href="/register.php">start free</a> — no credit card required.</p>
+HTML;
+}
+
+function blog_body_conversion_tips(): string
+{
+    return <<<'HTML'
+<p>Adding a chat widget is easy. Getting visitors to actually <strong>use</strong> it — and turning that conversation into a lead — takes a few deliberate choices. Here are seven changes that reliably move the needle.</p>
+
+<h2>1. Write a welcome message that asks a question</h2>
+<p>"Hi! How can I help?" is passive. Try "Looking for pricing, or have a quick question about setup?" — a specific opening invites a specific reply instead of silence.</p>
+
+<h2>2. Match your bot name and avatar to your brand</h2>
+<p>A generic "Support Bot" feels like a cost center. A named assistant ("Maya from Acme") feels like part of the team. This is a two-minute change in the ChatLM dashboard and measurably increases first-message rates.</p>
+
+<h2>3. Give the AI a real system prompt, not a generic one</h2>
+<p>The default "You are a helpful assistant" wastes the AI's potential. Tell it your product, your tone, your top 5 FAQs, and what to do when it doesn't know an answer (e.g. "offer to connect them via the contact form"). This single change is usually the biggest lever for lead quality.</p>
+
+<h2>4. Don't hide the widget on your highest-intent pages</h2>
+<p>Pricing pages, checkout pages, and product pages are where visitors have the most questions and the highest buying intent. Make sure your <strong>Allowed Origins</strong> and embed script cover every page, not just the homepage.</p>
+
+<h2>5. Turn on Telegram notifications</h2>
+<p>The fastest way to lose a warm lead is not knowing they're chatting. ChatLM's Telegram alerts ping you the moment a new message arrives, so you (or a human teammate) can jump in on high-value conversations within minutes.</p>
+
+<h2>6. Keep response scope honest</h2>
+<p>An AI that confidently invents pricing or policies erodes trust fast. Instruct it to say "let me connect you with the team" for anything outside its system prompt, rather than guessing.</p>
+
+<h2>7. Review real conversations monthly</h2>
+<p>Patterns emerge fast — the same three questions, a confusing product name, a missing FAQ. Revisit your system prompt every few weeks based on what visitors actually ask, not what you assumed they'd ask.</p>
+
+<h2>Put it into practice</h2>
+<p>Most of these changes take under ten minutes combined in the ChatLM dashboard. If you haven't installed the widget yet, see <a href="/blog/add-ai-chat-widget-5-minutes">how to add it in 5 minutes</a>, or <a href="/register.php">start free</a> to test these tips on your own site today.</p>
 HTML;
 }

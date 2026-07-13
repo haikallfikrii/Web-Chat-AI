@@ -3,17 +3,24 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
+require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/i18n_billing.php';
 require_once __DIR__ . '/includes/plans.php';
 require_once __DIR__ . '/includes/billing.php';
 require_once __DIR__ . '/includes/stripe_client.php';
 require_once __DIR__ . '/includes/brand.php';
+
+$lang  = get_lang();
+$t     = lang_strings($lang);
+$lmeta = lang_meta();
+$bt    = billing_strings($lang);
 
 $user = require_login();
 $plan_code = trim((string) ($_GET['plan'] ?? $_POST['plan'] ?? ''));
 $plan = billing_plan($plan_code);
 
 if ($plan === null) {
-    set_flash('error', 'Paket tidak valid.');
+    set_flash('error', $bt['invalid_plan']);
     header('Location: ' . app_url('/pricing.php'));
     exit;
 }
@@ -23,11 +30,11 @@ $client = billing_fetch_client((int) $user['client_id']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf($_POST['csrf_token'] ?? '')) {
-        $error = 'Sesi tidak valid. Muat ulang halaman.';
+        $error = $bt['session_invalid'];
     } else {
         if (!billing_plan_is_paid($plan_code)) {
             billing_activate_free_plan((int) $user['client_id']);
-            set_flash('success', 'Paket Free aktif. Widget menggunakan watermark ' . APP_NAME . '.');
+            set_flash('success', sprintf($bt['free_plan_active'], APP_NAME));
             header('Location: ' . app_url('/billing-success.php', ['plan' => 'free']));
             exit;
         }
@@ -42,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ' . $result['url']);
             exit;
         }
-        $error = $result['error'] ?? 'Checkout gagal.';
+        $error = $result['error'] ?? $bt['checkout_generic_fail'];
     }
 }
 
@@ -51,7 +58,7 @@ $is_paid = billing_plan_is_paid($plan_code);
 $stripe_ok = stripe_configured();
 ?>
 <!doctype html>
-<html lang="id">
+<html lang="<?= e($t['html_lang']) ?>" dir="<?= e($t['dir']) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -71,18 +78,21 @@ $stripe_ok = stripe_configured();
 <div class="pricing-shell">
   <header class="pricing-top">
     <a href="<?= e(app_url('/pricing.php')) ?>" class="auth-back" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-2)">
-      <?= icon('arrow-left', 16) ?> Kembali ke paket
+      <?= icon('arrow-left', 16) ?> <?= e($bt['checkout_back']) ?>
     </a>
-    <a href="<?= e(app_url('/dashboard.php')) ?>" class="brand">
-      <?= brand_mark_html(36) ?>
-      <span class="brand-text"><?= brand_name_html() ?></span>
-    </a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
+      <a href="<?= e(app_url('/dashboard.php')) ?>" class="brand">
+        <?= brand_mark_html(36) ?>
+        <span class="brand-text"><?= brand_name_html() ?></span>
+      </a>
+    </div>
   </header>
 
   <main class="pricing-main">
     <div class="checkout-card">
-      <h1 style="font-size:24px;font-weight:800;margin-bottom:8px">Checkout</h1>
-      <p style="color:var(--text-2);font-size:14px;margin-bottom:24px">Konfirmasi paket sebelum melanjutkan pembayaran.</p>
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:8px"><?= e($bt['checkout_title']) ?></h1>
+      <p style="color:var(--text-2);font-size:14px;margin-bottom:24px"><?= e($bt['checkout_sub']) ?></p>
 
       <?php if ($error): ?>
         <div class="alert alert-error"><?= icon('alert', 18) ?> <span><?= e($error) ?></span></div>
@@ -91,25 +101,25 @@ $stripe_ok = stripe_configured();
       <?php if ($is_paid && !$stripe_ok): ?>
         <div class="alert alert-error">
           <?= icon('alert', 18) ?>
-          <span>Stripe belum dikonfigurasi di server. Lihat <code>STRIPE_SETUP.md</code> atau hubungi administrator.</span>
+          <span><?= sprintf(e($bt['stripe_not_configured']), '<code>STRIPE_SETUP.md</code>') ?></span>
         </div>
       <?php endif; ?>
 
       <div class="checkout-summary">
-        <div class="checkout-row"><span>Paket</span><strong style="color:var(--text)"><?= e($plan['name']) ?></strong></div>
-        <div class="checkout-row"><span>Tagihan</span><span><?= e($interval_label !== '' ? trim($interval_label, '/') : 'Sekali') ?></span></div>
-        <div class="checkout-row"><span>Akun</span><span><?= e((string) $user['email']) ?></span></div>
-        <div class="checkout-row"><span>Bisnis</span><span><?= e((string) ($client['name'] ?? $user['client_name'])) ?></span></div>
-        <div class="checkout-row total"><span>Total</span><span><?= e($plan['price_display']) ?><?= e($interval_label) ?></span></div>
+        <div class="checkout-row"><span><?= e($bt['row_plan']) ?></span><strong style="color:var(--text)"><?= e($plan['name']) ?></strong></div>
+        <div class="checkout-row"><span><?= e($bt['row_billing']) ?></span><span><?= e($interval_label !== '' ? trim($interval_label, '/') : $bt['row_billing_once']) ?></span></div>
+        <div class="checkout-row"><span><?= e($bt['row_account']) ?></span><span><?= e((string) $user['email']) ?></span></div>
+        <div class="checkout-row"><span><?= e($bt['row_business']) ?></span><span><?= e((string) ($client['name'] ?? $user['client_name'])) ?></span></div>
+        <div class="checkout-row total"><span><?= e($bt['row_total']) ?></span><span><?= e($plan['price_display']) ?><?= e($interval_label) ?></span></div>
       </div>
 
       <?php if (!empty($plan['show_watermark'])): ?>
         <p class="watermark-note">
-          Paket ini menyertakan watermark <strong>Powered by <?= e(APP_NAME) ?></strong> di widget dengan link ke situs kami.
+          <?= sprintf(e($bt['watermark_note']), '<strong>' . e(APP_NAME) . '</strong>') ?>
         </p>
       <?php else: ?>
         <p style="font-size:13px;color:var(--text-3);margin-bottom:16px">
-          Setelah pembayaran, watermark dihilangkan dan langganan diaktifkan otomatis via Stripe.
+          <?= e($bt['no_watermark_note']) ?>
         </p>
       <?php endif; ?>
 
@@ -119,14 +129,14 @@ $stripe_ok = stripe_configured();
 
         <?php if ($is_paid): ?>
           <button type="submit" class="btn btn-primary btn-block btn-lg" <?= $stripe_ok ? '' : 'disabled' ?>>
-            <?= icon('zap', 18) ?> Bayar dengan Stripe
+            <?= icon('zap', 18) ?> <?= e($bt['pay_stripe_btn']) ?>
           </button>
           <p style="text-align:center;font-size:12px;color:var(--text-3);margin-top:12px">
-            Pembayaran aman oleh Stripe. Kartu internasional &amp; metode lokal (tergantung negara).
+            <?= e($bt['pay_stripe_hint']) ?>
           </p>
         <?php else: ?>
           <button type="submit" class="btn btn-primary btn-block btn-lg">
-            <?= icon('check-circle', 18) ?> Aktifkan Paket Gratis
+            <?= icon('check-circle', 18) ?> <?= e($bt['activate_free_btn']) ?>
           </button>
         <?php endif; ?>
       </form>

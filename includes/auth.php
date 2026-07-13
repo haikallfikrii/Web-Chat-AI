@@ -435,9 +435,9 @@ function consume_password_reset(string $token, string $new_password, string $con
     }
 }
 
-/** Kirim link reset password via email HTML branded. */
+/** Kirim link reset password via email HTML branded, sesuai bahasa aktif user saat ini. */
 function send_password_reset_email(string $to_email, string $reset_link): bool
 {
     require_once __DIR__ . '/mail.php';
-    return send_password_reset_email_html($to_email, $reset_link);
+    return send_password_reset_email_html($to_email, $reset_link, get_lang());
 }

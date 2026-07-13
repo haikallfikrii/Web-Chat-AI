@@ -32,7 +32,7 @@ RewriteRule ^docs/([a-z0-9-]+)/?$ docs/article.php?slug=$1 [L,QSA]
 </IfModule>
 
 # ── Blokir akses ke file sensitif ───────────────────────────
-<FilesMatch "^(config\.php|schema\.sql|composer\.(json|lock)|\.env.*|.*\.log)$">
+<FilesMatch "^(config\.php|config\.local\.php|composer\.(json|lock)|\.env.*|.*\.log|.*\.sql|.*\.md|requirements.*\.txt|seen_.*\.json)$">
     Require all denied
 </FilesMatch>
 

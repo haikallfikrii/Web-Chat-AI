@@ -323,6 +323,56 @@ seo_render_head([
 .testi-name{font-size:13.5px;font-weight:700;color:var(--text)}
 .testi-role{font-size:11.5px;color:var(--muted);margin-top:2px}
 
+/* ── Savings calculator (interactive card) ── */
+.calc-card{
+  max-width:640px;margin:0 auto;padding:40px clamp(22px,5vw,44px);border-radius:24px;
+  background:linear-gradient(160deg,rgba(0,229,154,.06),rgba(10,16,28,.92) 55%);
+  border:1px solid var(--green-line);position:relative;overflow:hidden;
+  box-shadow:0 30px 70px rgba(0,0,0,.45);
+}
+.calc-card::before{
+  content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,229,154,.18),transparent 70%);pointer-events:none;
+}
+.calc-input-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;position:relative;z-index:1}
+.calc-input-row label{font-size:13.5px;font-weight:700;color:var(--text-2)}
+.calc-convos-val{font-size:22px;font-weight:900;color:var(--green);letter-spacing:-.5px}
+.calc-slider{
+  width:100%;-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;
+  background:linear-gradient(90deg,var(--green),var(--cyan) var(--fill,50%),rgba(255,255,255,.1) var(--fill,50%));
+  outline:none;margin-bottom:26px;position:relative;z-index:1;cursor:pointer;
+}
+.calc-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:24px;height:24px;border-radius:50%;
+  background:#fff;border:4px solid var(--green);box-shadow:0 3px 10px rgba(0,0,0,.4);cursor:pointer;
+  transition:transform .15s;
+}
+.calc-slider::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.calc-slider::-moz-range-thumb{
+  width:24px;height:24px;border-radius:50%;background:#fff;border:4px solid var(--green);
+  box-shadow:0 3px 10px rgba(0,0,0,.4);cursor:pointer;
+}
+.calc-results{
+  display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;
+  margin-bottom:22px;position:relative;z-index:1;
+}
+.calc-result-cell{text-align:center;padding:16px 10px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--border-2)}
+.calc-result-cell--vs{background:none;border:none;color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase;padding:0}
+.calc-result-lbl{display:block;font-size:11.5px;color:var(--text-2);margin-bottom:8px;font-weight:600;line-height:1.3}
+.calc-result-val{font-size:24px;font-weight:900;letter-spacing:-.5px}
+.calc-human{color:#fb923c}
+.calc-chatlm{color:var(--green)}
+.calc-savings{
+  text-align:center;padding:22px;border-radius:18px;margin-bottom:18px;position:relative;z-index:1;
+  background:linear-gradient(135deg,rgba(0,229,154,.14),rgba(45,212,191,.08));
+  border:1px solid var(--green-line);
+}
+.calc-savings-lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.calc-savings-val{font-size:40px;font-weight:900;letter-spacing:-1.5px;color:var(--green)}
+.calc-per-month{font-size:15px;font-weight:700;color:var(--text-2);margin-left:4px}
+.calc-note{font-size:12px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:22px;position:relative;z-index:1}
+.calc-card .btn{position:relative;z-index:1}
+
 /* ── CTA box ── */
 .cta-wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px 100px}
 .cta-box{
@@ -666,6 +716,73 @@ footer a:hover{opacity:.75}
     </div>
   </div>
 </section>
+
+<!-- ═══ SAVINGS CALCULATOR ═══ -->
+<section class="lp-sec" id="calculator">
+  <div class="sec-kicker sr"><?= icon('calculator', 13) ?> <?= esc($t['calc_tag']) ?></div>
+  <h2 class="sec-h2 sr d1"><?= esc($t['calc_h2']) ?></h2>
+  <p class="sec-sub sr d2"><?= esc($t['calc_sub']) ?></p>
+  <div class="calc-card sr sc">
+    <div class="calc-input-row">
+      <label for="calcConvos"><?= esc($t['calc_label_convos']) ?></label>
+      <span class="calc-convos-val" id="calcConvosVal">800</span>
+    </div>
+    <input type="range" id="calcConvos" class="calc-slider" min="100" max="5000" step="50" value="800"
+           aria-label="<?= esc($t['calc_label_convos']) ?>">
+    <div class="calc-results">
+      <div class="calc-result-cell">
+        <span class="calc-result-lbl"><?= esc($t['calc_label_human']) ?></span>
+        <span class="calc-result-val calc-human" id="calcHuman">$400</span>
+      </div>
+      <div class="calc-result-cell calc-result-cell--vs">vs</div>
+      <div class="calc-result-cell">
+        <span class="calc-result-lbl"><?= esc($t['calc_label_chatlm']) ?></span>
+        <span class="calc-result-val calc-chatlm" id="calcChatlm">$19</span>
+      </div>
+    </div>
+    <div class="calc-savings">
+      <span class="calc-savings-lbl"><?= esc($t['calc_label_savings']) ?></span>
+      <span class="calc-savings-val"><span id="calcSavings">$381</span><span class="calc-per-month"><?= esc($t['calc_per_month']) ?></span></span>
+    </div>
+    <p class="calc-note"><?= esc($t['calc_note']) ?></p>
+    <a class="btn btn-primary btn-lg btn-block btn-mag" href="<?= esc(app_url('/register.php')) ?>">
+      <?= esc($t['calc_cta']) ?> <?= icon('arrow-right', 18) ?>
+    </a>
+  </div>
+</section>
+<script>
+(function () {
+  var slider = document.getElementById('calcConvos');
+  if (!slider) { return; }
+  var convosVal = document.getElementById('calcConvosVal');
+  var humanEl   = document.getElementById('calcHuman');
+  var chatlmEl  = document.getElementById('calcChatlm');
+  var savingsEl = document.getElementById('calcSavings');
+  var HUMAN_COST_PER_CONVO = 0.50;
+  var CHATLM_FLAT_COST = 19;
+
+  function fmt(n) {
+    return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
+
+  function update() {
+    var convos = parseInt(slider.value, 10) || 0;
+    var pct = (convos - slider.min) / (slider.max - slider.min) * 100;
+    slider.style.setProperty('--fill', pct + '%');
+
+    var humanCost = convos * HUMAN_COST_PER_CONVO;
+    var savings = Math.max(0, humanCost - CHATLM_FLAT_COST);
+
+    convosVal.textContent = convos.toLocaleString('en-US');
+    humanEl.textContent = fmt(humanCost);
+    chatlmEl.textContent = fmt(CHATLM_FLAT_COST);
+    savingsEl.textContent = fmt(savings);
+  }
+
+  slider.addEventListener('input', update);
+  update();
+})();
+</script>
 
 <!-- ═══ TESTIMONIALS ═══ -->
 <section class="lp-sec" id="testimonials">
