@@ -158,6 +158,13 @@ svg{flex-shrink:0}
   backdrop-filter:blur(20px) saturate(140%);
   -webkit-backdrop-filter:blur(20px) saturate(140%);
   border-bottom:1px solid var(--border);
+  transition:transform .35s cubic-bezier(.22,1,.36,1),margin-bottom .35s cubic-bezier(.22,1,.36,1);
+  will-change:transform,margin-bottom;
+}
+.nav.is-scroll-hidden{
+  transform:translate3d(0,calc(-100% - env(safe-area-inset-top,0px)),0);
+  margin-bottom:calc(-64px - env(safe-area-inset-top,0px));
+  pointer-events:none;
 }
 .nav-in{
   max-width:1180px;margin:0 auto;padding:0 24px;height:64px;

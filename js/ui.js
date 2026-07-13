@@ -131,6 +131,50 @@
     });
   }
 
+  function bindAutoHideHeader(header, isMenuOpen) {
+    if (!header || header.dataset.cpScrollHide) return;
+    header.dataset.cpScrollHide = '1';
+
+    var lastY = window.scrollY || document.documentElement.scrollTop || 0;
+    var ticking = false;
+    var minDelta = 6;
+    var topThreshold = 64;
+    function menuOpen() {
+      return typeof isMenuOpen === 'function' && isMenuOpen();
+    }
+
+    function setHidden(hidden) {
+      header.classList.toggle('is-scroll-hidden', !!hidden);
+    }
+
+    function update() {
+      var y = window.scrollY || document.documentElement.scrollTop || 0;
+      var dy = y - lastY;
+
+      if (menuOpen() || y <= topThreshold) {
+        setHidden(false);
+      } else if (dy > minDelta) {
+        setHidden(true);
+      } else if (dy < -minDelta) {
+        setHidden(false);
+      }
+
+      lastY = y;
+      ticking = false;
+    }
+
+    window.addEventListener(
+      'scroll',
+      function () {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true }
+    );
+  }
+
   function bindPublicHeaderMenu() {
     var burger = document.getElementById('pubHdBurger');
     var drawer = document.getElementById('pubHdDrawer');
@@ -290,15 +334,24 @@
     bindDashboardLanguageDropdown: bindDashboardLanguageDropdown,
     bindCompactLanguageDropdown: bindCompactLanguageDropdown,
     bindPublicHeaderMenu: bindPublicHeaderMenu,
+    bindAutoHideHeader: bindAutoHideHeader,
     init: function (root) {
       bindPwToggles(root);
       bindCopyButtons(root);
       bindDashboardAccordion(root);
       bindDashboardLanguageDropdown(root);
-      bindCompactLanguageDropdown(root);
-      bindPublicHeaderMenu();
-    },
-  };
+    bindCompactLanguageDropdown(root);
+    bindPublicHeaderMenu();
+    bindAutoHideHeader(document.querySelector('.pub-hd'), function () {
+      var drawer = document.getElementById('pubHdDrawer');
+      return drawer && drawer.classList.contains('is-open');
+    });
+    bindAutoHideHeader(document.querySelector('.nav'), function () {
+      var drawer = document.getElementById('navLinks');
+      return drawer && drawer.classList.contains('is-open');
+    });
+  },
+};
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
