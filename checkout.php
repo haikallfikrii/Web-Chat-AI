@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/i18n_auth.php';
 require_once __DIR__ . '/includes/i18n_billing.php';
 require_once __DIR__ . '/includes/plans.php';
 require_once __DIR__ . '/includes/billing.php';
@@ -13,6 +14,8 @@ require_once __DIR__ . '/includes/brand.php';
 $lang  = get_lang();
 $t     = lang_strings($lang);
 $lmeta = lang_meta();
+$at    = auth_strings($lang);
+$pt    = pricing_strings($lang);
 $bt    = billing_strings($lang);
 
 $user = require_login();
@@ -56,6 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $interval_label = billing_interval_label($plan['interval'] ?? null);
 $is_paid = billing_plan_is_paid($plan_code);
 $stripe_ok = stripe_configured();
+$pub_user   = $user;
+$pub_active = 'pricing';
 ?>
 <!doctype html>
 <html lang="<?= e($t['html_lang']) ?>" dir="<?= e($t['dir']) ?>">
@@ -68,7 +73,9 @@ $stripe_ok = stripe_configured();
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/public-header.css">
 <link rel="stylesheet" href="/css/pricing.css">
+<script src="/js/ui.js" defer></script>
 </head>
 <body>
 <div class="bg-grid"></div>
@@ -76,21 +83,13 @@ $stripe_ok = stripe_configured();
 <div class="orb orb-2"></div>
 
 <div class="pricing-shell">
-  <header class="pricing-top">
-    <a href="<?= e(app_url('/pricing.php')) ?>" class="auth-back" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-2)">
-      <?= icon('arrow-left', 16) ?> <?= e($bt['checkout_back']) ?>
-    </a>
-    <div style="display:flex;align-items:center;gap:14px">
-      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
-      <a href="<?= e(app_url('/dashboard.php')) ?>" class="brand">
-        <?= brand_mark_html(36) ?>
-        <span class="brand-text"><?= brand_name_html() ?></span>
-      </a>
-    </div>
-  </header>
+  <?php require __DIR__ . '/includes/partials/public_header.php'; ?>
 
   <main class="pricing-main">
     <div class="checkout-card">
+      <a href="<?= e(app_url('/pricing.php')) ?>" class="auth-back" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-2);margin-bottom:16px;font-size:13px;font-weight:600">
+        <?= icon('arrow-left', 16) ?> <?= e($bt['checkout_back']) ?>
+      </a>
       <h1 style="font-size:24px;font-weight:800;margin-bottom:8px"><?= e($bt['checkout_title']) ?></h1>
       <p style="color:var(--text-2);font-size:14px;margin-bottom:24px"><?= e($bt['checkout_sub']) ?></p>
 

@@ -803,6 +803,7 @@ footer a:hover{opacity:.75}
   </div>
 </footer>
 
+<script src="/js/ui.js" defer></script>
 <script src="/js/landing.js"></script>
 <?php require __DIR__ . '/includes/partials/widget_embed.php'; ?>
 </body>

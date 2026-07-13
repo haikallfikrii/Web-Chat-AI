@@ -4,14 +4,18 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/lang.php';
+require_once __DIR__ . '/includes/i18n_auth.php';
 require_once __DIR__ . '/includes/i18n_billing.php';
 require_once __DIR__ . '/includes/plans.php';
 require_once __DIR__ . '/includes/billing.php';
 require_once __DIR__ . '/includes/stripe_client.php';
+require_once __DIR__ . '/includes/brand.php';
 
 $lang  = get_lang();
 $t     = lang_strings($lang);
 $lmeta = lang_meta();
+$at    = auth_strings($lang);
+$pt    = pricing_strings($lang);
 $bt    = billing_strings($lang);
 
 $user = require_login();
@@ -42,6 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'porta
 $plan = billing_plan((string) ($client['plan_code'] ?? 'free'));
 $days_left = billing_trial_days_left($client['trial_ends_at'] ?? null);
 $sub_ends = $client['subscription_ends_at'] ?? null;
+$pub_user   = $user;
+$pub_active = 'pricing';
 ?>
 <!doctype html>
 <html lang="<?= e($t['html_lang']) ?>" dir="<?= e($t['dir']) ?>">
@@ -50,19 +56,15 @@ $sub_ends = $client['subscription_ends_at'] ?? null;
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= e($bt['billing_title']) ?> — <?= e(APP_NAME) ?></title>
 <link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/public-header.css">
 <link rel="stylesheet" href="/css/pricing.css">
+<script src="/js/ui.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="bg-grid"></div>
 <div class="pricing-shell">
-  <header class="pricing-top">
-    <a href="<?= e(app_url('/dashboard.php')) ?>" class="auth-back"><?= icon('arrow-left', 16) ?> <?= e($bt['billing_dashboard_link']) ?></a>
-    <div style="display:flex;align-items:center;gap:14px">
-      <?php require __DIR__ . '/includes/partials/lang_switcher.php'; ?>
-      <a href="<?= e(app_url('/pricing.php')) ?>" class="btn btn-primary" style="padding:8px 16px"><?= e($bt['billing_upgrade_btn']) ?></a>
-    </div>
-  </header>
+  <?php require __DIR__ . '/includes/partials/public_header.php'; ?>
   <main class="pricing-main">
     <div class="checkout-card" style="max-width:640px">
       <h1 style="font-size:24px;font-weight:800;margin-bottom:8px"><?= e($bt['billing_title']) ?></h1>
