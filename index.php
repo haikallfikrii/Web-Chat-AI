@@ -531,6 +531,7 @@ footer a:hover{opacity:.75}
     </nav>
   </div>
 </header>
+<div class="nav-spacer" aria-hidden="true"></div>
 <div class="nav-backdrop" id="navBackdrop"></div>
 
 <!-- ═══ HERO ═══ -->
