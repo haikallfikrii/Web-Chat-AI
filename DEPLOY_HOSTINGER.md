@@ -216,6 +216,8 @@ Saat menambah kolom/tabel baru:
 3. Tes aplikasi di staging
 4. Jalankan SQL yang sama di phpMyAdmin **production**
 
+**Admin dashboard (v7):** setelah deploy, jalankan `schema_migration_v7_admin.sql` di DB staging/production. Tambahkan `PLATFORM_ADMIN_EMAILS` (email login yang boleh buka `/admin.php`) dan `PLATFORM_NOTIFY_EMAIL` (`team@chatlm.tech`) di `config.local.php`.
+
 ---
 
 ## Local development

@@ -349,6 +349,14 @@ function billing_handle_checkout_completed(array $session): void
         trim($interval, '/'),
         $mail_lang
     );
+
+    require_once __DIR__ . '/admin.php';
+    admin_notify_new_subscription(
+        $client_id,
+        $name,
+        $plan_code,
+        $to
+    );
 }
 
 function billing_handle_subscription_updated(array $sub): void

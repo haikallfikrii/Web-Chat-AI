@@ -39,6 +39,10 @@ return [
 
     'TRIAL_DAYS' => '14',
 
+    // Akses /admin.php (email login harus ada di daftar ini)
+    'PLATFORM_ADMIN_EMAILS' => 'team@chatlm.tech',
+    'PLATFORM_NOTIFY_EMAIL' => 'team@chatlm.tech',
+
     // Kosongkan jika tidak ingin widget di beranda staging
     'LANDING_WIDGET_API_KEY' => '',
 ];

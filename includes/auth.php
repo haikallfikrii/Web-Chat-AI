@@ -283,6 +283,9 @@ function register_user(
         $pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')
             ->execute([':id' => $user_id]);
 
+        require_once __DIR__ . '/admin.php';
+        admin_notify_new_registration($client_id, $business_name, $name, $email);
+
         return ['ok' => true, 'error' => null];
 
     } catch (Throwable $e) {

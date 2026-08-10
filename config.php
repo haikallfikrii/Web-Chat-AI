@@ -166,6 +166,11 @@ define('MAIL_FROM_NAME', config_env('MAIL_FROM_NAME', APP_NAME));
 define('MAIL_SUPPORT', config_env('MAIL_SUPPORT', ''));
 define('TRIAL_DAYS', (int) config_env('TRIAL_DAYS', '14'));
 
+/** Email yang boleh akses /admin.php (pisahkan dengan koma). */
+define('PLATFORM_ADMIN_EMAILS', config_env('PLATFORM_ADMIN_EMAILS', 'team@chatlm.tech'));
+/** Inbox notifikasi registrasi & langganan baru. */
+define('PLATFORM_NOTIFY_EMAIL', config_env('PLATFORM_NOTIFY_EMAIL', 'team@chatlm.tech'));
+
 define('OPENROUTER_HTTP_REFERER', config_env('OPENROUTER_HTTP_REFERER', APP_SITE_URL));
 define('OPENROUTER_APP_TITLE', config_env('OPENROUTER_APP_TITLE', APP_NAME));
 define('WEBHOOK_TIMEOUT', (int) config_env('WEBHOOK_TIMEOUT', '30'));

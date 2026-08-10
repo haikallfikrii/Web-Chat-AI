@@ -58,6 +58,9 @@ return [
 
     'TRIAL_DAYS' => '14',
 
+    'PLATFORM_ADMIN_EMAILS' => 'team@chatlm.tech',
+    'PLATFORM_NOTIFY_EMAIL' => 'team@chatlm.tech',
+
     // Widget di beranda chatlm.tech (index.php) — demo untuk situs sendiri
     'LANDING_WIDGET_API_KEY' => '0156790afc7edc03c198d93a358243c7750464c345d6596d7fe8806410cda026',
 ];
