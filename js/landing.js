@@ -199,13 +199,15 @@
   }
 
   /* ─────────────────────────────────────────────
-     3. 3D TILT (mock browser)
+     3. 3D TILT (mock browser) — paused while demo chat is open
   ───────────────────────────────────────────── */
   var tilt = document.getElementById('mockTilt');
+  var mockChatEl = document.getElementById('mockChat');
   if (tilt && window.matchMedia('(hover:hover)').matches) {
     var wrap = tilt.parentElement;
     if (wrap) {
       wrap.addEventListener('mousemove', function (e) {
+        if (mockChatEl && mockChatEl.classList.contains('open')) return;
         var r = wrap.getBoundingClientRect();
         var rx = -((e.clientY - r.top)  / r.height - .5) * 9;
         var ry =  ((e.clientX - r.left) / r.width  - .5) * 13;
@@ -300,10 +302,165 @@
   }
 
   /* ─────────────────────────────────────────────
-     9. MOCK CHAT — user bubble delayed reveal
+     9. MOCK CHAT — interactive live demo
+        FAB toggles the panel; quick-reply chips play
+        a scripted conversation with typing dots.
   ───────────────────────────────────────────── */
-  var ubbl = document.getElementById('mockUserMsg');
-  if (ubbl) setTimeout(function () { ubbl.style.opacity = '1'; ubbl.style.transform = 'none'; }, 2200);
+  (function initMockDemo() {
+    var root = document.getElementById('mockChat');
+    if (!root) return;
+
+    var panel = document.getElementById('mockPanel');
+    var msgs  = document.getElementById('mockMsgs');
+    var chips = document.getElementById('mockChips');
+    var fab   = document.getElementById('mockFab');
+    var badge = document.getElementById('mockBadge');
+    var closeBtn = document.getElementById('mockClose');
+    if (!panel || !msgs || !chips || !fab) return;
+
+    var data;
+    try { data = JSON.parse(root.dataset.demo || '{}'); } catch (e) { data = {}; }
+    var chipData = (data.chips || []).filter(function (c) { return c && c.q && c.a; });
+    var started = false, busy = false, unseen = false;
+
+    var icoChat  = fab.querySelector('.fab-ico-chat');
+    var icoClose = fab.querySelector('.fab-ico-close');
+
+    function scrollBottom() { msgs.scrollTop = msgs.scrollHeight; }
+
+    function addMsg(cls, text) {
+      var el = document.createElement('div');
+      el.className = cls;
+      el.textContent = text;
+      msgs.appendChild(el);
+      scrollBottom();
+      if (!root.classList.contains('open')) { unseen = true; syncBadge(); }
+      return el;
+    }
+
+    function showTyping() {
+      var el = document.createElement('div');
+      el.className = 'mb-typing';
+      el.innerHTML = '<i></i><i></i><i></i>';
+      msgs.appendChild(el);
+      scrollBottom();
+      return el;
+    }
+
+    function botReply(text, delay, done) {
+      var typing = showTyping();
+      setTimeout(function () {
+        typing.remove();
+        addMsg('mb-bot', text);
+        if (done) done();
+      }, delay);
+    }
+
+    function renderChips() {
+      chips.innerHTML = '';
+      chipData.forEach(function (c, i) {
+        if (c.used) return;
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'mock-chip';
+        b.style.animationDelay = (i * 70) + 'ms';
+        b.textContent = c.q;
+        b.addEventListener('click', function () {
+          if (busy) return;
+          busy = true;
+          c.used = true;
+          chips.innerHTML = '';
+          addMsg('mb-user', c.q);
+          botReply(c.a, 850 + Math.random() * 500, function () {
+            busy = false;
+            renderChips();
+          });
+        });
+        chips.appendChild(b);
+      });
+    }
+
+    function syncBadge() {
+      if (!badge) return;
+      badge.style.display = (unseen && !root.classList.contains('open')) ? 'grid' : 'none';
+    }
+
+    function playIntro() {
+      if (started) return;
+      started = true;
+      botReply(data.bot || 'Hi!', 900, function () {
+        setTimeout(renderChips, 350);
+      });
+    }
+
+    function setOpen(open) {
+      root.classList.toggle('open', open);
+      var mockEl = root.closest('.mock');
+      if (mockEl) mockEl.classList.toggle('chat-open', open);
+      fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (icoChat)  icoChat.style.display  = open ? 'none' : '';
+      if (icoClose) icoClose.style.display = open ? '' : 'none';
+      if (open) { unseen = false; playIntro(); }
+      syncBadge();
+      if (open) setTimeout(scrollBottom, 60);
+    }
+
+    fab.addEventListener('click', function () {
+      setOpen(!root.classList.contains('open'));
+    });
+    if (closeBtn) closeBtn.addEventListener('click', function () { setOpen(false); });
+
+    /* Auto-open once the hero settles, so visitors see it's alive */
+    setTimeout(function () {
+      if (!root.classList.contains('open')) setOpen(true);
+    }, 1400);
+  })();
+
+  /* ─────────────────────────────────────────────
+     9b. PARALLAX — [data-plx] layers drift at
+         different speeds (uses the CSS `translate`
+         property so keyframe transforms still run).
+  ───────────────────────────────────────────── */
+  (function initParallax() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var els = Array.prototype.slice.call(document.querySelectorAll('[data-plx]'));
+    if (!els.length || !('translate' in document.documentElement.style)) return;
+
+    var items = els.map(function (el) {
+      return {
+        el: el,
+        speed: parseFloat(el.dataset.plx) || 0,
+        fixed: getComputedStyle(el).position === 'fixed',
+        y: 0
+      };
+    });
+
+    var ticking = false;
+    function apply() {
+      ticking = false;
+      var vh = window.innerHeight;
+      var sy = window.scrollY || document.documentElement.scrollTop;
+      items.forEach(function (it) {
+        var y;
+        if (it.fixed) {
+          y = sy * it.speed;
+        } else {
+          var r = it.el.getBoundingClientRect();
+          var center = r.top - it.y + r.height / 2; /* compensate current shift */
+          y = (center - vh / 2) * it.speed;
+        }
+        if (Math.abs(y - it.y) < 0.1) return;
+        it.y = y;
+        it.el.style.translate = '0 ' + y.toFixed(1) + 'px';
+      });
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(apply); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    apply();
+  })();
 
   /* ─────────────────────────────────────────────
      10. NAV ACTIVE LINK on scroll

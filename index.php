@@ -162,27 +162,90 @@ seo_render_head([
   box-shadow:0 32px 80px rgba(0,0,0,.65),0 0 80px rgba(0,229,154,.08);
   animation:floatY 7s ease-in-out infinite;}
 @keyframes floatY{0%,100%{transform:translateY(0) rotate(-.35deg)}50%{transform:translateY(-14px) rotate(.35deg)}}
+/* Freeze float while visitor interacts with the live demo */
+.mock.chat-open{animation-play-state:paused}
 .mock-bar{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
 .mock-bar .d{width:11px;height:11px;border-radius:50%}
 .mock-bar .d.r{background:#FF5F57}.mock-bar .d.y{background:#FFBD2E}.mock-bar .d.g{background:#28C840}
 .mock-bar .url{margin-left:8px;background:rgba(255,255,255,.05);border-radius:6px;padding:4px 12px;
   font-size:11px;color:var(--muted);font-family:'SF Mono',monospace;}
-.mock-body{position:relative;padding:22px 20px;min-height:240px}
+.mock-body{position:relative;padding:22px 20px;min-height:330px}
 .mock-skel{display:flex;flex-direction:column;gap:9px;opacity:.28}
 .mock-skel .ln{height:9px;border-radius:5px;background:rgba(255,255,255,.18)}
 .ln-80{width:80%}.ln-55{width:55%}.ln-70{width:70%}.ln-40{width:40%}.ln-90{width:90%}
-.mock-chat{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;align-items:flex-end;gap:7px;z-index:10}
-.mb-bot{background:var(--bg-2);border:1px solid var(--border-2);border-radius:14px 14px 4px 14px;
-  padding:9px 13px;font-size:12.5px;color:var(--text);max-width:200px;box-shadow:0 4px 18px rgba(0,0,0,.4);}
-.mb-user{background:linear-gradient(135deg,var(--green),var(--green-2));color:#031018;
-  border-radius:14px 14px 14px 4px;padding:9px 13px;font-size:12.5px;font-weight:600;max-width:165px;}
-.mock-fab{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+.mock-chat{position:absolute;bottom:16px;right:16px;left:16px;display:flex;flex-direction:column;align-items:flex-end;gap:9px;z-index:10}
+
+/* Interactive demo panel */
+.mock-panel{
+  width:100%;max-width:270px;
+  background:rgba(8,13,24,.97);border:1px solid var(--border-2);border-radius:16px;
+  box-shadow:0 18px 48px rgba(0,0,0,.6),0 0 0 1px rgba(0,229,154,.08);
+  overflow:hidden;display:flex;flex-direction:column;
+  opacity:0;transform:translateY(14px) scale(.94);transform-origin:bottom right;
+  transition:opacity .32s cubic-bezier(.22,1,.36,1),transform .32s cubic-bezier(.22,1,.36,1);
+  pointer-events:none;
+}
+.mock-chat.open .mock-panel{opacity:1;transform:none;pointer-events:auto}
+.mock-panel-head{
+  display:flex;align-items:center;gap:8px;padding:9px 11px;
+  background:linear-gradient(135deg,var(--green),var(--green-2));color:#031018;
+}
+.mp-avatar{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+  background:rgba(255,255,255,.28);flex-shrink:0}
+.mp-avatar svg{width:14px;height:14px;stroke-width:2.4}
+.mp-title{font-size:12px;font-weight:800;line-height:1.15;display:flex;flex-direction:column;min-width:0}
+.mp-title em{font-style:normal;font-weight:600;font-size:9.5px;opacity:.75;display:flex;align-items:center;gap:4px}
+.mp-title em::before{content:'';width:5px;height:5px;border-radius:50%;background:#065f46;box-shadow:0 0 0 2px rgba(6,95,70,.3);animation:pulseDot 2s infinite}
+.mp-close{margin-left:auto;width:22px;height:22px;border-radius:7px;border:none;cursor:pointer;
+  background:rgba(3,16,24,.14);color:#031018;display:grid;place-items:center;transition:background .2s}
+.mp-close:hover{background:rgba(3,16,24,.28)}
+.mp-close svg{width:13px;height:13px;stroke-width:2.6}
+.mock-msgs{display:flex;flex-direction:column;gap:7px;padding:11px;min-height:80px;max-height:128px;overflow-y:auto;scrollbar-width:thin}
+.mb-bot{align-self:flex-start;background:var(--bg-2);border:1px solid var(--border-2);border-radius:13px 13px 13px 4px;
+  padding:8px 12px;font-size:12px;color:var(--text);max-width:88%;line-height:1.55;
+  animation:msgIn .38s cubic-bezier(.22,1,.36,1) both;}
+.mb-user{align-self:flex-end;background:linear-gradient(135deg,var(--green),var(--green-2));color:#031018;
+  border-radius:13px 13px 4px 13px;padding:8px 12px;font-size:12px;font-weight:600;max-width:82%;line-height:1.5;
+  animation:msgIn .38s cubic-bezier(.22,1,.36,1) both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(9px) scale(.96)}to{opacity:1;transform:none}}
+.mb-typing{align-self:flex-start;display:flex;gap:4px;padding:10px 13px;background:var(--bg-2);
+  border:1px solid var(--border-2);border-radius:13px 13px 13px 4px;animation:msgIn .3s both}
+.mb-typing i{width:6px;height:6px;border-radius:50%;background:var(--text-2);animation:typDot 1.1s ease-in-out infinite}
+.mb-typing i:nth-child(2){animation-delay:.15s}
+.mb-typing i:nth-child(3){animation-delay:.3s}
+@keyframes typDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+.mock-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 11px 12px}
+.mock-chip{
+  border:1px solid var(--green-line);background:var(--green-dim);color:var(--green);
+  font-size:11px;font-weight:700;padding:6px 11px;border-radius:999px;cursor:pointer;
+  font-family:inherit;transition:all .2s;animation:msgIn .4s cubic-bezier(.22,1,.36,1) both;
+}
+.mock-chip:hover{background:rgba(0,229,154,.2);transform:translateY(-1px)}
+.mock-chip:active{transform:scale(.96)}
+
+/* FAB + hint */
+.mock-fab-row{display:flex;align-items:center;gap:9px}
+.mock-hint{
+  font-size:11px;font-weight:700;color:var(--green);
+  background:var(--green-dim);border:1px solid var(--green-line);
+  padding:5px 11px;border-radius:999px;white-space:nowrap;
+  animation:hintBob 2.4s ease-in-out infinite;
+}
+.mock-chat.open .mock-hint{display:none}
+@keyframes hintBob{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
+.mock-fab{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+  border:none;cursor:pointer;
   background:linear-gradient(135deg,var(--green),var(--green-2));
   box-shadow:0 4px 20px rgba(0,229,154,.55),0 0 0 4px rgba(0,229,154,.1);
-  animation:pulseRing 3s ease infinite;}
+  animation:pulseRing 3s ease infinite;transition:transform .2s;}
+.mock-fab:hover{transform:scale(1.08)}
+.mock-fab:active{transform:scale(.95)}
 @keyframes pulseRing{0%,100%{box-shadow:0 4px 20px rgba(0,229,154,.55),0 0 0 4px rgba(0,229,154,.1)}
   50%{box-shadow:0 4px 28px rgba(0,229,154,.7),0 0 0 9px rgba(0,229,154,.05)}}
 .mock-fab svg{color:#031018;width:22px;height:22px;stroke-width:2.5}
+.fab-badge{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:999px;
+  background:#ef4444;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;
+  padding:0 4px;box-shadow:0 2px 8px rgba(239,68,68,.5);animation:msgIn .3s both}
 .float-card{
   position:absolute;backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);
   background:var(--glass-2);border:1px solid var(--border-2);border-radius:12px;
@@ -212,14 +275,23 @@ seo_render_head([
   border:1px solid var(--border-2);border-radius:var(--r-xl);overflow:hidden;
   background:var(--glass);backdrop-filter:blur(20px);
 }
-.stat-cell{padding:28px 20px;text-align:center;border-right:1px solid var(--border-2);
-  transition:background .3s;}
-.stat-cell:hover{background:rgba(0,229,154,.05)}
+.stat-cell{position:relative;display:block;padding:28px 20px;text-align:center;border-right:1px solid var(--border-2);
+  text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;
+  transition:background .3s,transform .3s cubic-bezier(.22,1,.36,1);}
+.stat-cell:hover{background:rgba(0,229,154,.07);transform:translateY(-3px)}
 .stat-cell:last-child{border-right:none}
-.stat-val{font-size:38px;font-weight:900;letter-spacing:-1px;line-height:1}
+.stat-val{font-size:38px;font-weight:900;letter-spacing:-1px;line-height:1;transition:transform .3s}
+.stat-cell:hover .stat-val{transform:scale(1.06)}
 .stat-val span{background:linear-gradient(135deg,var(--green),var(--cyan));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.stat-lbl{font-size:13px;color:var(--text-2);margin-top:7px;font-weight:500}
+.stat-lbl{font-size:13px;color:var(--text-2);margin-top:7px;font-weight:500;transition:color .3s}
+.stat-cell:hover .stat-lbl{color:var(--green)}
+.stat-arrow{
+  position:absolute;top:10px;right:12px;color:var(--green);
+  opacity:0;transform:translate(-6px,6px);transition:opacity .28s,transform .28s cubic-bezier(.22,1,.36,1);
+}
+.stat-arrow svg{width:14px;height:14px;transform:rotate(-45deg)}
+.stat-cell:hover .stat-arrow{opacity:1;transform:none}
 
 /* ── Section wrappers ── */
 .lp-sec{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px 96px}
@@ -235,11 +307,22 @@ seo_render_head([
 /* ── Features bento — 2 kolom; kartu tunggal lebar penuh ── */
 .feat-bento{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .feat-card{
-  padding:28px 24px;border-radius:20px;
+  display:block;padding:28px 24px;border-radius:20px;
   background:rgba(10,16,28,.85);border:1px solid var(--border-2);
-  position:relative;overflow:hidden;cursor:default;
+  position:relative;overflow:hidden;cursor:pointer;
+  text-decoration:none;color:inherit;
   transition:border-color .3s,box-shadow .4s,transform .4s cubic-bezier(.22,1,.36,1);
 }
+/* Corner arrow for clickable cards */
+.card-go{
+  position:absolute;top:16px;right:16px;z-index:2;
+  width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+  background:var(--green-dim);border:1px solid var(--green-line);color:var(--green);
+  opacity:0;transform:translate(-6px,6px) rotate(-45deg);
+  transition:opacity .3s,transform .3s cubic-bezier(.22,1,.36,1);
+}
+.card-go svg{width:14px;height:14px}
+.feat-card:hover .card-go,.step-card:hover .card-go{opacity:1;transform:rotate(-45deg)}
 /* Cursor-tracking glow — set via JS */
 .feat-card::before{
   content:'';position:absolute;inset:0;border-radius:inherit;
@@ -273,8 +356,9 @@ seo_render_head([
 .steps-grid::before{content:'';position:absolute;top:50px;left:calc(16.67% + 32px);right:calc(16.67% + 32px);
   height:1px;background:linear-gradient(90deg,transparent,var(--green-line),var(--green-line),transparent);}
 .step-card{
-  padding:30px 24px;border-radius:20px;text-align:center;position:relative;z-index:1;
+  display:block;padding:30px 24px;border-radius:20px;text-align:center;position:relative;z-index:1;
   background:rgba(10,16,28,.85);border:1px solid var(--border-2);
+  text-decoration:none;color:inherit;cursor:pointer;
   transition:border-color .3s,transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s;
 }
 .step-card:hover{border-color:var(--green-line);transform:translateY(-8px);
@@ -294,7 +378,8 @@ seo_render_head([
   background:rgba(10,16,28,.85);border:1px solid var(--border-2);
   display:flex;flex-direction:column;align-items:center;gap:13px;
   text-align:center;font-weight:700;font-size:15px;color:var(--text);
-  transition:all .35s cubic-bezier(.22,1,.36,1);cursor:default;
+  text-decoration:none;cursor:pointer;
+  transition:all .35s cubic-bezier(.22,1,.36,1);
 }
 .prov-card:hover{border-color:var(--border-hover);transform:translateY(-6px);
   box-shadow:0 24px 56px rgba(0,0,0,.4),0 0 24px rgba(0,229,154,.08);}
@@ -471,9 +556,9 @@ footer a:hover{opacity:.75}
 <div class="bg-grid"></div>
 <div class="bg-noise"></div>
 <canvas id="pcv" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5"></canvas>
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
+<div class="orb orb-1" data-plx="0.1"></div>
+<div class="orb orb-2" data-plx="-0.07"></div>
+<div class="orb orb-3" data-plx="0.14"></div>
 
 <!-- ═══ NAV ═══ -->
 <header class="nav">
@@ -571,9 +656,9 @@ footer a:hover{opacity:.75}
     </div>
   </div>
 
-  <div class="mock-wrap">
-    <div class="float-card fc1"><?= icon('zap', 15) ?> <?= esc($t['float_1']) ?></div>
-    <div class="float-card fc2"><?= icon('shield', 15) ?> <?= esc($t['float_2']) ?></div>
+  <div class="mock-wrap" data-plx="-0.06">
+    <div class="float-card fc1" data-plx="-0.12"><?= icon('zap', 15) ?> <?= esc($t['float_1']) ?></div>
+    <div class="float-card fc2" data-plx="0.1"><?= icon('shield', 15) ?> <?= esc($t['float_2']) ?></div>
     <div class="mock-tilt" id="mockTilt">
       <div class="mock">
         <div class="mock-bar">
@@ -587,13 +672,35 @@ footer a:hover{opacity:.75}
             <div style="height:8px"></div>
             <div class="ln ln-70"></div><div class="ln ln-55"></div>
           </div>
-          <div class="mock-chat">
-            <div class="mb-bot" id="mockBotMsg"><?= esc($t['mock_bot']) ?></div>
-            <div class="mb-user" id="mockUserMsg"
-                 style="opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1)">
-              <?= esc($t['mock_user']) ?>
+
+          <!-- Live interactive demo chat -->
+          <div class="mock-chat" id="mockChat"
+               data-demo='<?= esc(json_encode([
+                   'bot'   => $t['mock_bot'],
+                   'user'  => $t['mock_user'],
+                   'chips' => [
+                       ['q' => $t['demo_q1'] ?? 'How much does it cost?', 'a' => $t['demo_a1'] ?? ''],
+                       ['q' => $t['demo_q2'] ?? 'How do I install it?',   'a' => $t['demo_a2'] ?? ''],
+                       ['q' => $t['demo_q3'] ?? 'Is my data secure?',     'a' => $t['demo_a3'] ?? ''],
+                   ],
+               ], JSON_UNESCAPED_UNICODE)) ?>'>
+            <div class="mock-panel" id="mockPanel">
+              <div class="mock-panel-head">
+                <span class="mp-avatar"><?= icon('bot', 14) ?></span>
+                <span class="mp-title">ChatLM<em><?= esc($t['demo_status'] ?? 'Online') ?></em></span>
+                <button type="button" class="mp-close" id="mockClose" aria-label="Close demo chat"><?= icon('x', 14) ?></button>
+              </div>
+              <div class="mock-msgs" id="mockMsgs" aria-live="polite"></div>
+              <div class="mock-chips" id="mockChips"></div>
             </div>
-            <div class="mock-fab"><?= icon('message', 20) ?></div>
+            <div class="mock-fab-row">
+              <span class="mock-hint" id="mockHint"><?= esc($t['demo_hint'] ?? 'Try me') ?></span>
+              <button type="button" class="mock-fab" id="mockFab" aria-label="Open demo chat" aria-expanded="false">
+                <span class="fab-ico-chat"><?= icon('message', 20) ?></span>
+                <span class="fab-ico-close" style="display:none"><?= icon('x', 20) ?></span>
+                <span class="fab-badge" id="mockBadge" style="display:none">1</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -617,24 +724,25 @@ footer a:hover{opacity:.75}
   </div>
 </div>
 
-<!-- ═══ STATS ═══ -->
+<!-- ═══ STATS (clickable) ═══ -->
 <div class="stats-wrap">
   <div class="stats-grid">
     <?php
     $stats = [
-      [$t['stat_1_v'], $t['stat_1_suf'], $t['stat_1_lbl']],
-      [$t['stat_2_v'], $t['stat_2_suf'], $t['stat_2_lbl']],
-      [$t['stat_3_v'], $t['stat_3_suf'], $t['stat_3_lbl']],
-      [$t['stat_4_v'], $t['stat_4_suf'], $t['stat_4_lbl']],
+      [$t['stat_1_v'], $t['stat_1_suf'], $t['stat_1_lbl'], '#how'],
+      [$t['stat_2_v'], $t['stat_2_suf'], $t['stat_2_lbl'], '#providers'],
+      [$t['stat_3_v'], $t['stat_3_suf'], $t['stat_3_lbl'], app_url('/docs/embed-widget')],
+      [$t['stat_4_v'], $t['stat_4_suf'], $t['stat_4_lbl'], app_url('/docs/')],
     ];
-    foreach ($stats as $i => [$v, $suf, $lbl]):
+    foreach ($stats as $i => [$v, $suf, $lbl, $href]):
     ?>
-    <div class="stat-cell sr d<?= $i+1 ?>">
+    <a class="stat-cell sr d<?= $i+1 ?>" href="<?= esc($href) ?>">
       <div class="stat-val">
         <span data-count="<?= esc($v) ?>" data-suf="<?= esc($suf) ?>"><?= esc($v.$suf) ?></span>
       </div>
       <div class="stat-lbl"><?= esc($lbl) ?></div>
-    </div>
+      <span class="stat-arrow" aria-hidden="true"><?= icon('arrow-right', 14) ?></span>
+    </a>
     <?php endforeach; ?>
   </div>
 </div>
@@ -645,36 +753,24 @@ footer a:hover{opacity:.75}
   <h2 class="sec-h2 sr d1"><?= nl2br(esc($t['feat_h2'])) ?></h2>
   <p class="sec-sub sr d2"><?= esc($t['feat_sub']) ?></p>
   <div class="feat-bento">
-    <div class="feat-card sr d1">
-      <div class="feat-icon"><?= icon('rocket', 22) ?></div>
-      <h3><?= esc($t['feat_1_h']) ?></h3>
-      <p><?= esc($t['feat_1_p']) ?></p>
-    </div>
-    <div class="feat-card sr d2">
-      <div class="feat-icon"><?= icon('bot', 22) ?></div>
-      <h3><?= esc($t['feat_2_h']) ?></h3>
-      <p><?= esc($t['feat_2_p']) ?></p>
-    </div>
-    <div class="feat-card span-full sr d3">
-      <div class="feat-icon"><?= icon('palette', 22) ?></div>
-      <h3><?= esc($t['feat_3_h']) ?></h3>
-      <p><?= esc($t['feat_3_p']) ?></p>
-    </div>
-    <div class="feat-card span-full sr d4">
-      <div class="feat-icon"><?= icon('brain', 22) ?></div>
-      <h3><?= esc($t['feat_4_h']) ?></h3>
-      <p><?= esc($t['feat_4_p']) ?></p>
-    </div>
-    <div class="feat-card sr d5">
-      <div class="feat-icon"><?= icon('shield', 22) ?></div>
-      <h3><?= esc($t['feat_6_h']) ?></h3>
-      <p><?= esc($t['feat_6_p']) ?></p>
-    </div>
-    <div class="feat-card sr d6">
-      <div class="feat-icon"><?= icon('phone', 22) ?></div>
-      <h3><?= esc($t['feat_5_h']) ?></h3>
-      <p><?= esc($t['feat_5_p']) ?></p>
-    </div>
+    <?php
+    $featCards = [
+      ['rocket',  $t['feat_1_h'], $t['feat_1_p'], app_url('/docs/quick-start'),   '',          'd1'],
+      ['bot',     $t['feat_2_h'], $t['feat_2_p'], app_url('/docs/ai-providers'),  '',          'd2'],
+      ['palette', $t['feat_3_h'], $t['feat_3_p'], app_url('/docs/create-account'),'span-full', 'd3'],
+      ['brain',   $t['feat_4_h'], $t['feat_4_p'], app_url('/docs/embed-widget'),  'span-full', 'd4'],
+      ['shield',  $t['feat_6_h'], $t['feat_6_p'], app_url('/docs/allowed-domains'),'',         'd5'],
+      ['phone',   $t['feat_5_h'], $t['feat_5_p'], app_url('/docs/telegram'),      '',          'd6'],
+    ];
+    foreach ($featCards as [$ico, $h, $p, $href, $span, $delay]):
+    ?>
+    <a class="feat-card <?= $span ?> sr <?= $delay ?>" href="<?= esc($href) ?>">
+      <div class="feat-icon"><?= icon($ico, 22) ?></div>
+      <h3><?= esc($h) ?></h3>
+      <p><?= esc($p) ?></p>
+      <span class="card-go" aria-hidden="true"><?= icon('arrow-right', 15) ?></span>
+    </a>
+    <?php endforeach; ?>
   </div>
 </section>
 
@@ -684,21 +780,24 @@ footer a:hover{opacity:.75}
   <h2 class="sec-h2 sr d1"><?= esc($t['how_h2']) ?></h2>
   <p class="sec-sub sr d2"><?= esc($t['how_sub']) ?></p>
   <div class="steps-grid">
-    <div class="step-card sr d1">
+    <a class="step-card sr d1" href="<?= esc(app_url('/register.php')) ?>">
       <div class="step-num">1</div>
       <h3><?= esc($t['step_1_h']) ?></h3>
       <p><?= $t['step_1_p'] /* contains escaped HTML entity */ ?></p>
-    </div>
-    <div class="step-card sr d2">
+      <span class="card-go" aria-hidden="true"><?= icon('arrow-right', 15) ?></span>
+    </a>
+    <a class="step-card sr d2" href="<?= esc(app_url('/docs/create-account')) ?>">
       <div class="step-num">2</div>
       <h3><?= esc($t['step_2_h']) ?></h3>
       <p><?= esc($t['step_2_p']) ?></p>
-    </div>
-    <div class="step-card sr d3">
+      <span class="card-go" aria-hidden="true"><?= icon('arrow-right', 15) ?></span>
+    </a>
+    <a class="step-card sr d3" href="<?= esc(app_url('/docs/embed-widget')) ?>">
       <div class="step-num">3</div>
       <h3><?= esc($t['step_3_h']) ?></h3>
       <p><?= $t['step_3_p'] /* contains &lt;/body&gt; */ ?></p>
-    </div>
+      <span class="card-go" aria-hidden="true"><?= icon('arrow-right', 15) ?></span>
+    </a>
   </div>
 </section>
 
@@ -708,28 +807,28 @@ footer a:hover{opacity:.75}
   <h2 class="sec-h2 sr d1"><?= esc($t['prov_h2']) ?></h2>
   <p class="sec-sub sr d2"><?= esc($t['prov_sub']) ?></p>
   <div class="prov-grid">
-    <div class="prov-card rec sr d1">
+    <a class="prov-card rec sr d1" href="<?= esc(app_url('/docs/ai-providers')) ?>">
       <div class="prov-icon" style="background:rgba(0,229,154,.12);color:var(--green);box-shadow:0 0 22px rgba(0,229,154,.3)">
         <?= icon('sparkles', 22) ?>
       </div>
       <span><?= esc($t['prov_1']) ?></span>
       <span class="prov-sub"><?= esc($t['prov_1_sub']) ?></span>
-    </div>
-    <div class="prov-card sr d2">
+    </a>
+    <a class="prov-card sr d2" href="<?= esc(app_url('/docs/ai-providers')) ?>">
       <div class="prov-icon" style="background:#10A37F1A;color:#10A37F"><?= icon('bot', 22) ?></div>
       <span><?= esc($t['prov_2']) ?></span>
       <span class="prov-sub"><?= esc($t['prov_2_sub']) ?></span>
-    </div>
-    <div class="prov-card sr d3">
+    </a>
+    <a class="prov-card sr d3" href="<?= esc(app_url('/docs/ai-providers')) ?>">
       <div class="prov-icon" style="background:#4285F41A;color:#4285F4"><?= icon('brain', 22) ?></div>
       <span><?= esc($t['prov_3']) ?></span>
       <span class="prov-sub"><?= esc($t['prov_3_sub']) ?></span>
-    </div>
-    <div class="prov-card sr d4">
+    </a>
+    <a class="prov-card sr d4" href="<?= esc(app_url('/docs/ai-providers')) ?>">
       <div class="prov-icon" style="background:#1F6FEB1A;color:#1F6FEB"><?= icon('rocket', 22) ?></div>
       <span><?= esc($t['prov_4']) ?></span>
       <span class="prov-sub"><?= esc($t['prov_4_sub']) ?></span>
-    </div>
+    </a>
   </div>
 </section>
 
@@ -819,10 +918,13 @@ footer a:hover{opacity:.75}
   </div>
 </footer>
 
-<?php $calcJsVer = (int) (@filemtime(__DIR__ . '/js/calc.js') ?: time()); ?>
+<?php
+$calcJsVer = (int) (@filemtime(__DIR__ . '/js/calc.js') ?: time());
+$landJsVer = (int) (@filemtime(__DIR__ . '/js/landing.js') ?: time());
+?>
 <script src="/js/ui.js" defer></script>
 <script src="/js/calc.js?v=<?= $calcJsVer ?>" defer></script>
-<script src="/js/landing.js" defer></script>
+<script src="/js/landing.js?v=<?= $landJsVer ?>" defer></script>
 <?php require __DIR__ . '/includes/partials/widget_embed.php'; ?>
 </body>
 </html>
