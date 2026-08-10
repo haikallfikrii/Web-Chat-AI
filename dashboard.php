@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/includes/billing.php';
 require_once __DIR__ . '/includes/brand.php';
 require_once __DIR__ . '/includes/i18n_auth.php';
+require_once __DIR__ . '/includes/admin.php';
 $lang = get_lang();
 $ptDash = pricing_strings($lang);
 $lmeta = lang_meta();
@@ -766,6 +767,9 @@ button.sec-head:focus{outline:none;box-shadow:none}
     </div>
 
     <a href="<?= e(app_url('/docs/quick-start')) ?>" class="pub-hd-link" style="font-size:14px;text-decoration:none;color:var(--text-2)"><?= e($dt['nav_help']) ?></a>
+    <?php if (is_platform_admin($user)): ?>
+    <a href="<?= e(app_url('/admin.php')) ?>" class="pub-hd-link" style="font-size:14px;text-decoration:none;color:var(--green);font-weight:600"><?= icon('shield', 14) ?> Admin</a>
+    <?php endif; ?>
     <a href="<?= e(app_url('/pricing.php')) ?>" class="badge <?= $statusBadge ?>" style="text-decoration:none" title="<?= e($ptDash['manage_billing']) ?>">
       <span class="badge-dot"></span> <?= e($statusLabel) ?>
     </a>
