@@ -78,13 +78,14 @@ $langAria   = (string) ($at['lang_aria'] ?? 'Language');
   <div class="pub-hd-lang">
     <span class="pub-hd-lang-label"><?= e($langAria) ?></span>
     <div class="pub-hd-lang-grid">
-      <?php foreach ($lmeta as $code => $info): ?>
+      <?php foreach ($lmeta as $code => $langInfo): ?>
       <a class="pub-hd-lang-opt <?= $code === $lang ? 'cur' : '' ?>"
          href="<?= e(lang_switch_url($code)) ?>">
-        <span><?= $info['flag'] ?></span>
-        <span><?= e($info['label']) ?></span>
+        <span><?= $langInfo['flag'] ?></span>
+        <span><?= e($langInfo['label']) ?></span>
       </a>
       <?php endforeach; ?>
+      <?php unset($langInfo); ?>
     </div>
   </div>
 </nav>
