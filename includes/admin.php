@@ -376,3 +376,343 @@ function admin_notify_new_subscription(
         'Client ID' => (string) $client_id,
     ]);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CLIENT DETAIL & ACTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Ambil detail lengkap klien untuk halaman admin.
+ *
+ * @return array<string, mixed>|null
+ */
+function admin_get_client(PDO $pdo, int $client_id): ?array
+{
+    $stmt = $pdo->prepare("
+        SELECT
+            c.*,
+            u.id AS owner_user_id,
+            u.name AS owner_name,
+            u.email AS owner_email,
+            u.last_login_at,
+            ws.primary_color,
+            ws.bot_name,
+            ws.ai_provider,
+            ws.ai_model,
+            ws.telegram_notify_enabled,
+            (SELECT COUNT(*) FROM chat_messages cm WHERE cm.client_id = c.id AND cm.role = 'user') AS total_messages,
+            (SELECT COUNT(DISTINCT cm.session_id) FROM chat_messages cm WHERE cm.client_id = c.id) AS total_sessions
+        FROM clients c
+        LEFT JOIN users u ON u.client_id = c.id AND u.role = 'owner'
+        LEFT JOIN widget_settings ws ON ws.client_id = c.id
+        WHERE c.id = :id
+        LIMIT 1
+    ");
+    $stmt->execute([':id' => $client_id]);
+    $row = $stmt->fetch();
+
+    return $row ?: null;
+}
+
+/**
+ * Ubah paket langganan klien secara manual (admin action).
+ */
+function admin_change_client_plan(PDO $pdo, int $client_id, string $new_plan_code, string $new_status = 'active'): bool
+{
+    $plan = billing_plan($new_plan_code);
+    if ($plan === null) {
+        return false;
+    }
+
+    $valid_statuses = ['active', 'trial', 'inactive'];
+    if (!in_array($new_status, $valid_statuses, true)) {
+        $new_status = 'active';
+    }
+
+    try {
+        $pdo->prepare("
+            UPDATE clients SET
+                plan_code = :plan,
+                subscription_status = :status,
+                updated_at = NOW()
+            WHERE id = :id
+        ")->execute([
+            ':plan'   => $new_plan_code,
+            ':status' => $new_status,
+            ':id'     => $client_id,
+        ]);
+
+        require_once __DIR__ . '/managed_ai.php';
+        billing_sync_client_plan_columns($pdo, $client_id, $new_plan_code);
+
+        return true;
+    } catch (Throwable $e) {
+        error_log('[admin] change plan error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Perpanjang trial klien (tambah X hari dari sekarang atau dari trial_ends_at).
+ */
+function admin_extend_trial(PDO $pdo, int $client_id, int $days): bool
+{
+    if ($days < 1 || $days > 365) {
+        return false;
+    }
+
+    try {
+        $pdo->prepare("
+            UPDATE clients SET
+                trial_ends_at = DATE_ADD(COALESCE(trial_ends_at, NOW()), INTERVAL :days DAY),
+                subscription_status = 'trial',
+                trial_reminder_sent = 0,
+                updated_at = NOW()
+            WHERE id = :id
+        ")->execute([
+            ':days' => $days,
+            ':id'   => $client_id,
+        ]);
+
+        return true;
+    } catch (Throwable $e) {
+        error_log('[admin] extend trial error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Toggle status aktif/nonaktif klien.
+ */
+function admin_toggle_client_status(PDO $pdo, int $client_id, string $new_status): bool
+{
+    $valid = ['active', 'inactive', 'trial'];
+    if (!in_array($new_status, $valid, true)) {
+        return false;
+    }
+
+    try {
+        $pdo->prepare("
+            UPDATE clients SET
+                subscription_status = :status,
+                updated_at = NOW()
+            WHERE id = :id
+        ")->execute([
+            ':status' => $new_status,
+            ':id'     => $client_id,
+        ]);
+
+        return true;
+    } catch (Throwable $e) {
+        error_log('[admin] toggle status error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Reset password user klien (generate random password dan kirim email).
+ */
+function admin_reset_client_password(PDO $pdo, int $user_id): ?string
+{
+    $new_password = bin2hex(random_bytes(8));
+    $hash = password_hash($new_password, PASSWORD_DEFAULT);
+
+    try {
+        $pdo->prepare("UPDATE users SET password_hash = :hash WHERE id = :id")
+            ->execute([':hash' => $hash, ':id' => $user_id]);
+
+        return $new_password;
+    } catch (Throwable $e) {
+        error_log('[admin] reset password error: ' . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Impersonate: login sebagai klien (untuk debugging).
+ * Returns session data untuk di-set.
+ *
+ * @return array<string, mixed>|null
+ */
+function admin_impersonate_client(PDO $pdo, int $client_id): ?array
+{
+    $stmt = $pdo->prepare("
+        SELECT
+            u.id AS user_id,
+            u.name,
+            u.email,
+            u.role,
+            c.id AS client_id,
+            c.name AS client_name,
+            c.api_key AS client_api_key,
+            c.subscription_status,
+            c.plan_code
+        FROM users u
+        JOIN clients c ON c.id = u.client_id
+        WHERE c.id = :cid AND u.role = 'owner'
+        LIMIT 1
+    ");
+    $stmt->execute([':cid' => $client_id]);
+    $row = $stmt->fetch();
+
+    if (!$row) {
+        return null;
+    }
+
+    return [
+        'id'                  => (int) $row['user_id'],
+        'client_id'           => (int) $row['client_id'],
+        'name'                => (string) $row['name'],
+        'email'               => (string) $row['email'],
+        'role'                => (string) $row['role'],
+        'client_name'         => (string) $row['client_name'],
+        'client_api_key'      => (string) $row['client_api_key'],
+        'subscription_status' => (string) $row['subscription_status'],
+        'plan_code'           => (string) $row['plan_code'],
+    ];
+}
+
+/**
+ * Ambil log aktivitas klien (chat messages terbaru).
+ *
+ * @return list<array<string, mixed>>
+ */
+function admin_client_activity_log(PDO $pdo, int $client_id, int $limit = 50): array
+{
+    $stmt = $pdo->prepare("
+        SELECT session_id, role, content, created_at
+        FROM chat_messages
+        WHERE client_id = :cid
+        ORDER BY created_at DESC
+        LIMIT :lim
+    ");
+    $stmt->bindValue(':cid', $client_id, PDO::PARAM_INT);
+    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll() ?: [];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ANALYTICS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Hitung MRR (Monthly Recurring Revenue) dari langganan aktif.
+ */
+function admin_calculate_mrr(PDO $pdo): float
+{
+    $stmt = $pdo->query("
+        SELECT plan_code FROM clients
+        WHERE subscription_status = 'active' AND plan_code IS NOT NULL AND plan_code != 'free'
+    ");
+    $rows = $stmt->fetchAll() ?: [];
+
+    $mrr = 0.0;
+    foreach ($rows as $row) {
+        $plan = billing_plan($row['plan_code']);
+        if ($plan === null) {
+            continue;
+        }
+
+        $price = (float) ($plan['price_usd'] ?? 0);
+        $interval = $plan['interval'] ?? 'month';
+
+        if ($interval === 'year') {
+            $mrr += $price / 12;
+        } else {
+            $mrr += $price;
+        }
+    }
+
+    return round($mrr, 2);
+}
+
+/**
+ * Hitung conversion rate: trial → paid (30 hari terakhir).
+ */
+function admin_conversion_rate(PDO $pdo): array
+{
+    $trials = (int) $pdo->query("
+        SELECT COUNT(*) FROM clients
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    ")->fetchColumn();
+
+    $converted = (int) $pdo->query("
+        SELECT COUNT(*) FROM clients
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+          AND subscription_status = 'active'
+          AND plan_code != 'free'
+    ")->fetchColumn();
+
+    $rate = $trials > 0 ? round(($converted / $trials) * 100, 1) : 0;
+
+    return [
+        'trials'    => $trials,
+        'converted' => $converted,
+        'rate'      => $rate,
+    ];
+}
+
+/**
+ * Top klien berdasarkan jumlah pesan.
+ *
+ * @return list<array<string, mixed>>
+ */
+function admin_top_clients_by_usage(PDO $pdo, int $limit = 10): array
+{
+    $stmt = $pdo->prepare("
+        SELECT
+            c.id,
+            c.name,
+            c.plan_code,
+            c.subscription_status,
+            COUNT(cm.id) AS message_count
+        FROM clients c
+        LEFT JOIN chat_messages cm ON cm.client_id = c.id AND cm.role = 'user'
+        GROUP BY c.id
+        ORDER BY message_count DESC
+        LIMIT :lim
+    ");
+    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll() ?: [];
+}
+
+/**
+ * Daftar paket untuk dropdown admin.
+ *
+ * @return array<string, string>
+ */
+function admin_plan_options(): array
+{
+    $plans = billing_plan_definitions();
+    $out = [];
+
+    foreach ($plans as $code => $plan) {
+        if (!empty($plan['hidden']) || !empty($plan['legacy_alias'])) {
+            continue;
+        }
+
+        $name = $plan['name'] ?? $code;
+        $track = $plan['track'] ?? '';
+        $interval = $plan['interval'] ?? '';
+        $price = $plan['price_display'] ?? '';
+
+        $label = $name;
+        if ($track !== '') {
+            $label .= ' (' . strtoupper($track) . ')';
+        }
+        if ($interval !== '') {
+            $label .= ' - ' . ($interval === 'year' ? 'Yearly' : 'Monthly');
+        }
+        if ($price !== '') {
+            $label .= ' ' . $price;
+        }
+
+        $out[$code] = $label;
+    }
+
+    return $out;
+}
