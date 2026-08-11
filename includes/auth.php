@@ -286,6 +286,9 @@ function register_user(
         require_once __DIR__ . '/admin.php';
         admin_notify_new_registration($client_id, $business_name, $name, $email);
 
+        require_once __DIR__ . '/mail.php';
+        send_welcome_email($email, $business_name, TRIAL_DAYS, get_lang());
+
         return ['ok' => true, 'error' => null];
 
     } catch (Throwable $e) {

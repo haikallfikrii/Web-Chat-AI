@@ -207,3 +207,77 @@ function send_password_reset_email_html(string $to_email, string $reset_link, st
 
     return send_html_email($to_email, sprintf($mt['subject_reset'], APP_NAME), $html, $plain);
 }
+
+/**
+ * Kirim email selamat datang + info trial gratis setelah registrasi.
+ */
+function send_welcome_email(
+    string $to_email,
+    string $client_name,
+    int $trial_days,
+    string $lang = 'en'
+): bool {
+    $mt   = mail_strings($lang);
+    $dash = app_site_url() . '/dashboard.php';
+    $docs = app_site_url() . '/docs.php';
+
+    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">'
+        . sprintf(htmlspecialchars($mt['greeting'], ENT_QUOTES, 'UTF-8'), '<strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>')
+        . '</p>'
+        . '<p style="margin:0 0 12px;">' . sprintf($mt['welcome_line1'], '<strong style="color:#14B8A6;">' . APP_NAME . '</strong>') . '</p>'
+        . mail_info_box(
+            '<strong style="color:#14B8A6;">' . sprintf(htmlspecialchars($mt['welcome_trial'], ENT_QUOTES, 'UTF-8'), $trial_days) . '</strong>'
+            . '<p style="margin:8px 0 0;color:#cbd5e1;">' . htmlspecialchars($mt['welcome_trial_desc'], ENT_QUOTES, 'UTF-8') . '</p>'
+        )
+        . '<p style="margin:16px 0 8px;color:#e2e8f0;">' . htmlspecialchars($mt['welcome_steps'], ENT_QUOTES, 'UTF-8') . '</p>'
+        . '<ol style="margin:0 0 16px;padding-left:20px;color:#94a3b8;">'
+        . '<li style="margin-bottom:6px;">' . htmlspecialchars($mt['welcome_step1'], ENT_QUOTES, 'UTF-8') . '</li>'
+        . '<li style="margin-bottom:6px;">' . htmlspecialchars($mt['welcome_step2'], ENT_QUOTES, 'UTF-8') . '</li>'
+        . '<li style="margin-bottom:6px;">' . htmlspecialchars($mt['welcome_step3'], ENT_QUOTES, 'UTF-8') . '</li>'
+        . '</ol>'
+        . mail_button($dash, $mt['btn_start'])
+        . '<p style="margin:16px 0 0;font-size:13px;color:#64748b;">'
+        . sprintf($mt['welcome_docs'], '<a href="' . htmlspecialchars($docs, ENT_QUOTES, 'UTF-8') . '" style="color:#14B8A6;text-decoration:none;">' . htmlspecialchars($mt['welcome_docs_link'], ENT_QUOTES, 'UTF-8') . '</a>')
+        . '</p>';
+
+    $html = mail_html_layout($mt['welcome_title'], $body, sprintf($mt['welcome_preheader'], APP_NAME, $trial_days), $lang);
+    $plain = sprintf($mt['plain_welcome'], $client_name, APP_NAME, $trial_days, $dash);
+
+    return send_html_email($to_email, sprintf($mt['subject_welcome'], APP_NAME), $html, $plain);
+}
+
+/**
+ * Kirim email reminder 3 hari sebelum trial habis.
+ */
+function send_trial_expiring_email(
+    string $to_email,
+    string $client_name,
+    int $days_left,
+    string $lang = 'en'
+): bool {
+    $mt      = mail_strings($lang);
+    $pricing = app_site_url() . '/pricing.php';
+    $dash    = app_site_url() . '/dashboard.php';
+
+    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">'
+        . sprintf(htmlspecialchars($mt['greeting'], ENT_QUOTES, 'UTF-8'), '<strong style="color:#f8fafc;">' . htmlspecialchars($client_name, ENT_QUOTES, 'UTF-8') . '</strong>')
+        . '</p>'
+        . '<p style="margin:0 0 12px;">' . sprintf($mt['trial_exp_line1'], '<strong style="color:#fbbf24;">' . $days_left . '</strong>') . '</p>'
+        . mail_info_box(
+            '<strong style="color:#fbbf24;">' . htmlspecialchars($mt['trial_exp_warn'], ENT_QUOTES, 'UTF-8') . '</strong>'
+            . '<ul style="margin:8px 0 0;padding-left:18px;color:#cbd5e1;">'
+            . '<li>' . htmlspecialchars($mt['trial_exp_item1'], ENT_QUOTES, 'UTF-8') . '</li>'
+            . '<li>' . htmlspecialchars($mt['trial_exp_item2'], ENT_QUOTES, 'UTF-8') . '</li>'
+            . '</ul>'
+        )
+        . '<p style="margin:16px 0 0;color:#e2e8f0;">' . htmlspecialchars($mt['trial_exp_cta'], ENT_QUOTES, 'UTF-8') . '</p>'
+        . mail_button($pricing, $mt['btn_upgrade'])
+        . '<p style="margin:16px 0 0;font-size:13px;color:#64748b;">'
+        . sprintf($mt['trial_exp_note'], '<a href="' . htmlspecialchars($dash, ENT_QUOTES, 'UTF-8') . '" style="color:#14B8A6;text-decoration:none;">' . htmlspecialchars($mt['trial_exp_dash'], ENT_QUOTES, 'UTF-8') . '</a>')
+        . '</p>';
+
+    $html = mail_html_layout($mt['trial_exp_title'], $body, sprintf($mt['trial_exp_preheader'], $days_left), $lang);
+    $plain = sprintf($mt['plain_trial_exp'], $client_name, $days_left, $pricing);
+
+    return send_html_email($to_email, sprintf($mt['subject_trial_exp'], APP_NAME, $days_left), $html, $plain);
+}

@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS clients (
     stripe_customer_id VARCHAR(255)    NULL DEFAULT NULL,
     stripe_subscription_id VARCHAR(255) NULL DEFAULT NULL,
     trial_ends_at      DATETIME        NULL DEFAULT NULL,
+    trial_reminder_sent TINYINT(1)     NOT NULL DEFAULT 0,
     subscription_ends_at DATETIME      NULL DEFAULT NULL,
     billing_email      VARCHAR(255)    NULL DEFAULT NULL,
     created_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
