@@ -1,10 +1,6 @@
 <?php
 declare(strict_types=1);
 
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
-
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/brand.php';
@@ -260,10 +256,11 @@ input.adm-input{width:100%;padding:10px 12px;border:1px solid var(--border);bord
             <p style="color:var(--text-2);margin:0">Belum ada aktivitas chat.</p>
           <?php else: ?>
             <?php foreach ($activity as $log): ?>
+              <?php $body = (string) ($log['content'] ?? ''); ?>
               <div class="adm-log-item">
-                <div class="role <?= e($log['role']) ?>"><?= e($log['role']) ?></div>
-                <div class="content"><?= e(mb_substr($log['content'], 0, 200)) ?><?= mb_strlen($log['content']) > 200 ? '...' : '' ?></div>
-                <div class="time"><?= fmt_dt($log['created_at']) ?></div>
+                <div class="role <?= e((string) ($log['role'] ?? '')) ?>"><?= e((string) ($log['role'] ?? '')) ?></div>
+                <div class="content"><?= e(mb_substr($body, 0, 200)) ?><?= mb_strlen($body) > 200 ? '...' : '' ?></div>
+                <div class="time"><?= fmt_dt($log['created_at'] ?? null) ?></div>
               </div>
             <?php endforeach; ?>
           <?php endif; ?>
