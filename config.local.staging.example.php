@@ -33,9 +33,18 @@ return [
     'STRIPE_PRICE_STARTER_YEARLY' => 'price_test_...',
     'STRIPE_PRICE_PRO_YEARLY' => 'price_test_...',
 
-    'MAIL_FROM_ADDRESS' => 'staging@chatlm.tech',
+    // Harus alamat mailbox yang benar-benar ada, kalau tidak SMTP menolaknya.
+    'MAIL_FROM_ADDRESS' => 'team@chatlm.tech',
     'MAIL_FROM_NAME' => 'ChatLM Staging',
     'MAIL_SUPPORT' => 'support@chatlm.tech',
+
+    // SMTP Hostinger — kalau kosong, sistem memakai mail() PHP yang di shared
+    // hosting sering gagal tanpa pemberitahuan.
+    'MAIL_SMTP_HOST' => 'smtp.hostinger.com',
+    'MAIL_SMTP_PORT' => '465',
+    'MAIL_SMTP_USER' => 'team@chatlm.tech',
+    'MAIL_SMTP_PASS' => 'password-mailbox-hostinger',
+    'MAIL_SMTP_SECURE' => 'ssl',
 
     'TRIAL_DAYS' => '14',
 

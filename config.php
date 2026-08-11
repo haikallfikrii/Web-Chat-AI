@@ -166,6 +166,18 @@ define('MAIL_FROM_NAME', config_env('MAIL_FROM_NAME', APP_NAME));
 define('MAIL_SUPPORT', config_env('MAIL_SUPPORT', ''));
 define('TRIAL_DAYS', (int) config_env('TRIAL_DAYS', '14'));
 
+/**
+ * SMTP untuk email transaksional. Jika MAIL_SMTP_HOST kosong, sistem jatuh
+ * kembali ke mail() bawaan PHP — yang di shared hosting sering gagal diam-diam.
+ * MAIL_SMTP_SECURE: 'ssl' (port 465), 'tls' (port 587), atau 'none'.
+ */
+define('MAIL_SMTP_HOST', config_env('MAIL_SMTP_HOST', ''));
+define('MAIL_SMTP_PORT', (int) config_env('MAIL_SMTP_PORT', '465'));
+define('MAIL_SMTP_USER', config_env('MAIL_SMTP_USER', ''));
+define('MAIL_SMTP_PASS', config_env('MAIL_SMTP_PASS', ''));
+define('MAIL_SMTP_SECURE', config_env('MAIL_SMTP_SECURE', 'ssl'));
+define('MAIL_SMTP_TIMEOUT', (int) config_env('MAIL_SMTP_TIMEOUT', '20'));
+
 /** Email yang boleh akses /admin.php (pisahkan dengan koma). */
 define('PLATFORM_ADMIN_EMAILS', config_env('PLATFORM_ADMIN_EMAILS', 'team@chatlm.tech'));
 /** Inbox notifikasi registrasi & langganan baru. */

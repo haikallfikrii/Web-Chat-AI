@@ -415,6 +415,46 @@ function admin_get_client(PDO $pdo, int $client_id): ?array
 }
 
 /**
+ * Kabari klien lewat email setelah admin mengubah paket / status / trial.
+ * Dipanggil setelah perubahan tersimpan agar isi email selalu memakai data terbaru.
+ */
+function admin_notify_client_account_update(PDO $pdo, int $client_id, ?string &$error = null): bool
+{
+    $client = admin_get_client($pdo, $client_id);
+    if ($client === null) {
+        $error = 'Klien tidak ditemukan.';
+        return false;
+    }
+
+    $to = trim((string) ($client['owner_email'] ?? $client['email'] ?? ''));
+    if ($to === '') {
+        $error = 'Klien tidak punya alamat email.';
+        return false;
+    }
+
+    $planCode = (string) ($client['plan_code'] ?? 'free');
+    $plan     = billing_plan($planCode);
+    $planName = (string) ($plan['name'] ?? admin_plan_label($planCode));
+
+    $status = (string) ($client['subscription_status'] ?? 'active');
+
+    $trialEnd = null;
+    if ($status === 'trial' && !empty($client['trial_ends_at'])) {
+        try {
+            $trialEnd = (new DateTime((string) $client['trial_ends_at']))->format('d M Y');
+        } catch (Throwable) {
+            $trialEnd = (string) $client['trial_ends_at'];
+        }
+    }
+
+    $name = (string) ($client['owner_name'] ?? $client['name'] ?? '');
+
+    require_once __DIR__ . '/mail.php';
+
+    return send_account_update_email($to, $name, $planName, $status, $trialEnd, 'id', $error);
+}
+
+/**
  * Ubah paket langganan klien secara manual (admin action).
  */
 function admin_change_client_plan(PDO $pdo, int $client_id, string $new_plan_code, string $new_status = 'active'): bool

@@ -27,18 +27,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = create_password_reset_token($prefill);
         if (!$result['ok']) {
             $error = $result['error'] ?? 'Gagal membuat token reset.';
-        } else {
-            $info = $at['forgot_sent'];
-            $emailSent = true;
+        } elseif ($result['exists'] && $result['token']) {
+            $link = dashboard_base_url() . '/reset-password.php?token=' . $result['token'];
+            $sent = send_password_reset_email((string) $result['user_email'], $link, $mailError);
 
-            if ($result['exists'] && $result['token']) {
-                $link = dashboard_base_url() . '/reset-password.php?token=' . $result['token'];
-                $sent = send_password_reset_email((string) $result['user_email'], $link);
+            if ($sent) {
+                $info = $at['forgot_sent'];
+                $emailSent = true;
+            } else {
+                // Jangan klaim "terkirim" kalau nyatanya gagal — user akan
+                // menunggu email yang tidak pernah datang.
+                $error = $at['forgot_send_failed'] ?? 'Email gagal dikirim. Silakan coba lagi atau hubungi support.';
+                error_log('[pwreset:send] ' . (string) $mailError);
 
-                if (!$sent && APP_ENV === 'development') {
+                if (APP_ENV === 'development') {
                     $devLink = $link;
                 }
             }
+        } else {
+            // Email tidak terdaftar: tetap tampilkan pesan sukses yang sama
+            // agar tidak bisa dipakai menebak alamat mana yang terdaftar.
+            $info = $at['forgot_sent'];
+            $emailSent = true;
         }
     }
 }

@@ -29,13 +29,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_or_die($_POST['csrf_token'] ?? '');
     $action = (string) ($_POST['action'] ?? '');
 
+    // Setiap perubahan akun dikabari ke klien; hasil kirimnya ikut ditampilkan
+    // agar admin tahu kalau email gagal, bukan mengira sudah sampai.
+    $notify = static function (PDO $pdo, int $client_id): string {
+        if (admin_notify_client_account_update($pdo, $client_id, $mailError)) {
+            return ' Email pemberitahuan terkirim ke klien.';
+        }
+        error_log('[admin] notify client failed: ' . (string) $mailError);
+        return ' Namun email pemberitahuan GAGAL terkirim: ' . (string) $mailError;
+    };
+
     switch ($action) {
         case 'change_plan':
             $new_plan = (string) ($_POST['plan_code'] ?? '');
             $new_status = (string) ($_POST['status'] ?? 'active');
             if (admin_change_client_plan($pdo, $client_id, $new_plan, $new_status)) {
-                $flash = ['type' => 'success', 'message' => 'Paket berhasil diubah ke ' . admin_plan_label($new_plan)];
                 $client = admin_get_client($pdo, $client_id);
+                $flash = [
+                    'type'    => 'success',
+                    'message' => 'Paket berhasil diubah ke ' . admin_plan_label($new_plan) . '.' . $notify($pdo, $client_id),
+                ];
             } else {
                 $flash = ['type' => 'error', 'message' => 'Gagal mengubah paket.'];
             }
@@ -44,8 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'extend_trial':
             $days = (int) ($_POST['days'] ?? 7);
             if (admin_extend_trial($pdo, $client_id, $days)) {
-                $flash = ['type' => 'success', 'message' => "Trial diperpanjang {$days} hari."];
                 $client = admin_get_client($pdo, $client_id);
+                $flash = [
+                    'type'    => 'success',
+                    'message' => "Trial diperpanjang {$days} hari." . $notify($pdo, $client_id),
+                ];
             } else {
                 $flash = ['type' => 'error', 'message' => 'Gagal memperpanjang trial.'];
             }
@@ -54,8 +70,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'toggle_status':
             $new_status = (string) ($_POST['status'] ?? '');
             if (admin_toggle_client_status($pdo, $client_id, $new_status)) {
-                $flash = ['type' => 'success', 'message' => 'Status diubah ke ' . $new_status];
                 $client = admin_get_client($pdo, $client_id);
+                $flash = [
+                    'type'    => 'success',
+                    'message' => 'Status diubah ke ' . $new_status . '.' . $notify($pdo, $client_id),
+                ];
             } else {
                 $flash = ['type' => 'error', 'message' => 'Gagal mengubah status.'];
             }
