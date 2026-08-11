@@ -583,18 +583,23 @@ function admin_impersonate_client(PDO $pdo, int $client_id): ?array
  */
 function admin_client_activity_log(PDO $pdo, int $client_id, int $limit = 50): array
 {
-    $stmt = $pdo->prepare("
-        SELECT session_id, role, content, created_at
-        FROM chat_messages
-        WHERE client_id = :cid
-        ORDER BY created_at DESC
-        LIMIT :lim
-    ");
-    $stmt->bindValue(':cid', $client_id, PDO::PARAM_INT);
-    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
-    $stmt->execute();
+    try {
+        $stmt = $pdo->prepare("
+            SELECT session_id, role, body AS content, created_at
+            FROM chat_messages
+            WHERE client_id = :cid
+            ORDER BY created_at DESC
+            LIMIT :lim
+        ");
+        $stmt->bindValue(':cid', $client_id, PDO::PARAM_INT);
+        $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $stmt->execute();
 
-    return $stmt->fetchAll() ?: [];
+        return $stmt->fetchAll() ?: [];
+    } catch (Throwable $e) {
+        error_log('[admin] activity log error: ' . $e->getMessage());
+        return [];
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
