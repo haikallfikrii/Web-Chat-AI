@@ -84,18 +84,30 @@ function mail_info_box(string $html): string
 
 /**
  * Kirim email HTML multipart (fallback plain).
+ *
+ * Memakai SMTP berautentikasi bila dikonfigurasi; jika tidak, jatuh kembali
+ * ke mail() bawaan PHP. $error diisi alasan kegagalan agar pemanggil bisa
+ * menampilkan atau mencatatnya.
  */
-function send_html_email(string $to, string $subject, string $html, ?string $plain = null): bool
-{
+function send_html_email(
+    string $to,
+    string $subject,
+    string $html,
+    ?string $plain = null,
+    ?string &$error = null
+): bool {
+    $error = null;
+
     $plain = $plain ?? strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $html));
     $from  = mail_from_address();
     $name  = MAIL_FROM_NAME;
     $boundary = 'cp_' . bin2hex(random_bytes(12));
 
     $encoded_subject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    $encoded_name    = '=?UTF-8?B?' . base64_encode($name) . '?=';
 
     $headers = [
-        'From: ' . $name . ' <' . $from . '>',
+        'From: ' . $encoded_name . ' <' . $from . '>',
         'Reply-To: ' . mail_support_address(),
         'MIME-Version: 1.0',
         'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
@@ -112,8 +124,36 @@ function send_html_email(string $to, string $subject, string $html, ?string $pla
         . chunk_split(base64_encode($html)) . "\r\n"
         . "--{$boundary}--\r\n";
 
+    require_once __DIR__ . '/smtp.php';
+
+    if (smtp_configured()) {
+        $host = parse_url(app_site_url(), PHP_URL_HOST) ?: 'localhost';
+
+        // Lewat SMTP, To/Subject/Date harus ikut di dalam pesan.
+        $smtpHeaders = array_merge(
+            [
+                'Date: ' . date('r'),
+                'To: ' . $to,
+                'Subject: ' . $encoded_subject,
+                'Message-ID: <' . bin2hex(random_bytes(16)) . '@' . $host . '>',
+            ],
+            $headers
+        );
+
+        $message = implode("\r\n", $smtpHeaders) . "\r\n\r\n" . $body;
+
+        if (smtp_send_message($from, [$to], $message, $smtpError)) {
+            return true;
+        }
+
+        $error = $smtpError;
+        error_log('[mail] SMTP gagal ke ' . $to . ' subj=' . $subject . ' — ' . (string) $smtpError);
+        return false;
+    }
+
     $ok = @mail($to, $encoded_subject, $body, implode("\r\n", $headers));
     if (!$ok) {
+        $error = 'Fungsi mail() PHP menolak pesan (SMTP belum dikonfigurasi).';
         error_log('[mail] gagal kirim ke ' . $to . ' subj=' . $subject);
     }
     return (bool) $ok;
@@ -194,8 +234,12 @@ function send_checkout_receipt_email(
     return send_html_email($to_email, sprintf($mt['subject_receipt'], APP_NAME), $html, $plain);
 }
 
-function send_password_reset_email_html(string $to_email, string $reset_link, string $lang = 'en'): bool
-{
+function send_password_reset_email_html(
+    string $to_email,
+    string $reset_link,
+    string $lang = 'en',
+    ?string &$error = null
+): bool {
     $mt = mail_strings($lang);
     $body = '<p style="margin:0 0 12px;color:#cbd5e1;">' . htmlspecialchars($mt['reset_line1'], ENT_QUOTES, 'UTF-8') . '</p>'
         . '<p style="margin:0 0 12px;color:#94a3b8;font-size:14px;">' . $mt['reset_line2'] . '</p>'
@@ -205,7 +249,7 @@ function send_password_reset_email_html(string $to_email, string $reset_link, st
     $html = mail_html_layout($mt['reset_title'], $body, sprintf($mt['reset_preheader'], APP_NAME), $lang);
     $plain = sprintf($mt['plain_reset'], $reset_link, APP_NAME);
 
-    return send_html_email($to_email, sprintf($mt['subject_reset'], APP_NAME), $html, $plain);
+    return send_html_email($to_email, sprintf($mt['subject_reset'], APP_NAME), $html, $plain, $error);
 }
 
 /**
@@ -280,4 +324,52 @@ function send_trial_expiring_email(
     $plain = sprintf($mt['plain_trial_exp'], $client_name, $days_left, $pricing);
 
     return send_html_email($to_email, sprintf($mt['subject_trial_exp'], APP_NAME, $days_left), $html, $plain);
+}
+
+/**
+ * Beri tahu klien bahwa admin mengubah paket / status / masa trial akunnya.
+ *
+ * @param string      $status    active | trial | inactive
+ * @param string|null $trial_end Tanggal siap-tampil, atau null bila tidak relevan.
+ */
+function send_account_update_email(
+    string $to_email,
+    string $client_name,
+    string $plan_name,
+    string $status,
+    ?string $trial_end = null,
+    string $lang = 'en',
+    ?string &$error = null
+): bool {
+    $mt   = mail_strings($lang);
+    $dash = app_site_url() . '/dashboard.php';
+
+    $statusKey = in_array($status, ['active', 'trial', 'inactive'], true) ? $status : 'active';
+    $statusLabel = $mt['acct_status_' . $statusKey];
+    $statusColor = $statusKey === 'inactive' ? '#f87171' : ($statusKey === 'trial' ? '#fbbf24' : '#14B8A6');
+
+    $esc = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+
+    $rows = '<tr><td style="padding:4px 0;color:#94a3b8;">' . $esc($mt['acct_label_plan']) . '</td>'
+        . '<td style="padding:4px 0;text-align:right;color:#f8fafc;font-weight:700;">' . $esc($plan_name) . '</td></tr>'
+        . '<tr><td style="padding:4px 0;color:#94a3b8;">' . $esc($mt['acct_label_status']) . '</td>'
+        . '<td style="padding:4px 0;text-align:right;font-weight:700;color:' . $statusColor . ';">' . $esc($statusLabel) . '</td></tr>';
+
+    if ($trial_end !== null && $trial_end !== '') {
+        $rows .= '<tr><td style="padding:4px 0;color:#94a3b8;">' . $esc($mt['acct_label_trial']) . '</td>'
+            . '<td style="padding:4px 0;text-align:right;color:#f8fafc;font-weight:700;">' . $esc($trial_end) . '</td></tr>';
+    }
+
+    $body = '<p style="margin:0 0 12px;color:#cbd5e1;">'
+        . sprintf($esc($mt['greeting']), '<strong style="color:#f8fafc;">' . $esc($client_name) . '</strong>')
+        . '</p>'
+        . '<p style="margin:0 0 12px;">' . $esc($mt['acct_intro']) . '</p>'
+        . mail_info_box('<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-size:14px;">' . $rows . '</table>')
+        . '<p style="margin:16px 0 0;color:#e2e8f0;">' . $esc($mt['acct_note_' . $statusKey]) . '</p>'
+        . mail_button($dash, $mt['btn_dashboard']);
+
+    $html  = mail_html_layout($mt['acct_title'], $body, sprintf($mt['acct_preheader'], APP_NAME), $lang);
+    $plain = sprintf($mt['plain_account'], $client_name, $plan_name, $statusLabel, $dash, APP_NAME);
+
+    return send_html_email($to_email, sprintf($mt['subject_account'], APP_NAME), $html, $plain, $error);
 }

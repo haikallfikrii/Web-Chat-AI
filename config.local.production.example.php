@@ -52,9 +52,18 @@ return [
     'SYSTEM_AI_DEFAULT_MODEL' => 'openai/gpt-4o-mini',
     'SYSTEM_AI_FALLBACK_MODELS' => 'deepseek/deepseek-chat,google/gemini-2.0-flash',
 
-    'MAIL_FROM_ADDRESS' => 'billing@chatlm.tech',
+    'MAIL_FROM_ADDRESS' => 'team@chatlm.tech',
     'MAIL_FROM_NAME' => 'ChatLM',
     'MAIL_SUPPORT' => 'support@chatlm.tech',
+
+    // SMTP Hostinger — WAJIB diisi, kalau kosong sistem memakai mail() PHP
+    // yang di shared hosting sering gagal tanpa pemberitahuan.
+    // MAIL_SMTP_USER harus sama dengan alamat mailbox yang benar-benar ada.
+    'MAIL_SMTP_HOST' => 'smtp.hostinger.com',
+    'MAIL_SMTP_PORT' => '465',
+    'MAIL_SMTP_USER' => 'team@chatlm.tech',
+    'MAIL_SMTP_PASS' => 'password-mailbox-hostinger',
+    'MAIL_SMTP_SECURE' => 'ssl',
 
     'TRIAL_DAYS' => '14',
 
