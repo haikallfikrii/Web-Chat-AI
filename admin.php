@@ -29,6 +29,10 @@ $notifications = admin_fetch_notifications($pdo);
 $unread        = admin_unread_notification_count($pdo);
 $flash         = get_flash();
 
+$mrr           = admin_calculate_mrr($pdo);
+$conversion    = admin_conversion_rate($pdo);
+$topClients    = admin_top_clients_by_usage($pdo, 5);
+
 $chartMax = 1;
 foreach ($chart as $row) {
     $chartMax = max($chartMax, (int) $row['cnt']);
@@ -153,14 +157,37 @@ table.adm-table td.mono{font-family:'JetBrains Mono',monospace;font-size:12px;co
       <small><?= (int) $stats['clients_trial'] ?> trial · <?= (int) $stats['clients_inactive'] ?> nonaktif</small>
     </div>
     <div class="adm-stat">
-      <label>Pesan pengunjung</label>
-      <strong><?= (int) $stats['messages_today'] ?></strong>
-      <small>Hari ini · <?= (int) $stats['messages_7d'] ?> / 7 hari</small>
+      <label>MRR (Monthly)</label>
+      <strong>$<?= number_format($mrr, 0) ?></strong>
+      <small>Dari <?= (int) $stats['clients_active'] ?> langganan aktif</small>
     </div>
     <div class="adm-stat">
-      <label>Analitik 30 hari</label>
-      <strong><?= (int) $stats['messages_30d'] ?></strong>
+      <label>Konversi Trial</label>
+      <strong><?= $conversion['rate'] ?>%</strong>
+      <small><?= $conversion['converted'] ?> / <?= $conversion['trials'] ?> (60 hari)</small>
+    </div>
+  </section>
+
+  <section class="adm-grid" style="margin-bottom:22px">
+    <div class="adm-stat">
+      <label>Pesan hari ini</label>
+      <strong><?= (int) $stats['messages_today'] ?></strong>
+      <small><?= (int) $stats['messages_7d'] ?> dalam 7 hari</small>
+    </div>
+    <div class="adm-stat">
+      <label>Pesan 30 hari</label>
+      <strong><?= number_format((int) $stats['messages_30d']) ?></strong>
       <small><?= (int) $stats['sessions_30d'] ?> sesi chat</small>
+    </div>
+    <div class="adm-stat" style="grid-column:span 2">
+      <label>Top Klien by Usage</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+        <?php foreach ($topClients as $tc): ?>
+          <a href="<?= e(app_url('/admin_client.php', ['id' => $tc['id']])) ?>" class="badge badge-green" style="text-decoration:none" title="<?= (int) $tc['message_count'] ?> pesan">
+            <?= e(mb_substr($tc['name'], 0, 15)) ?><?= mb_strlen($tc['name']) > 15 ? '…' : '' ?>
+          </a>
+        <?php endforeach; ?>
+      </div>
     </div>
   </section>
 
@@ -198,16 +225,17 @@ table.adm-table td.mono{font-family:'JetBrains Mono',monospace;font-size:12px;co
                 <th>Status</th>
                 <th>Pesan</th>
                 <th>Daftar</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
               <?php if ($clients === []): ?>
-                <tr><td colspan="6">Belum ada klien.</td></tr>
+                <tr><td colspan="7">Belum ada klien.</td></tr>
               <?php else: ?>
                 <?php foreach ($clients as $c): ?>
                   <tr>
                     <td>
-                      <strong><?= e((string) $c['name']) ?></strong><br>
+                      <a href="<?= e(app_url('/admin_client.php', ['id' => $c['id']])) ?>" style="color:var(--text);text-decoration:none"><strong><?= e((string) $c['name']) ?></strong></a><br>
                       <span class="mono">#<?= (int) $c['id'] ?></span>
                     </td>
                     <td>
@@ -218,6 +246,9 @@ table.adm-table td.mono{font-family:'JetBrains Mono',monospace;font-size:12px;co
                     <td><span class="badge <?= admin_status_badge((string) $c['subscription_status']) ?>"><?= e((string) $c['subscription_status']) ?></span></td>
                     <td><?= (int) ($c['user_messages'] ?? 0) ?> msg<br><span class="mono"><?= (int) ($c['sessions'] ?? 0) ?> sesi</span></td>
                     <td class="mono"><?= e(admin_fmt_dt((string) $c['created_at'])) ?></td>
+                    <td>
+                      <a href="<?= e(app_url('/admin_client.php', ['id' => $c['id']])) ?>" class="btn btn-ghost btn-sm" style="padding:6px 10px;font-size:11px">Detail →</a>
+                    </td>
                   </tr>
                 <?php endforeach; ?>
               <?php endif; ?>

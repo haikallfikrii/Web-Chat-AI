@@ -730,6 +730,14 @@ button.sec-head:focus{outline:none;box-shadow:none}
 </head>
 <body>
 
+<?php if (!empty($_SESSION['admin_impersonating'])): ?>
+<div style="background:linear-gradient(90deg,#f59e0b,#d97706);color:#000;padding:10px 20px;text-align:center;font-size:14px;font-weight:600;position:fixed;top:0;left:0;right:0;z-index:9999">
+  ⚠️ Anda sedang login sebagai <strong><?= e($user['client_name'] ?? $user['name']) ?></strong> (Impersonate Mode)
+  <a href="<?= e(app_url('/admin_stop_impersonate.php')) ?>" style="margin-left:16px;color:#000;text-decoration:underline">Kembali ke Admin →</a>
+</div>
+<style>.dash-nav{margin-top:44px}</style>
+<?php endif; ?>
+
 <div class="bg-grid"></div>
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
