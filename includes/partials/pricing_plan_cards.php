@@ -9,12 +9,13 @@ if (!isset($plans, $plan_codes, $pt, $lang)) {
 
 foreach ($plan_codes as $code):
     $p = $plans[$code] ?? null;
-    if ($p === null) {
+    if ($p === null || !empty($p['hidden'])) {
         continue;
     }
     $is_current = !empty($user) && $current_plan === $code && ($status ?? '') === 'active';
     $featured   = !empty($p['highlight']);
     $interval   = $p['interval'] ?? null;
+    $isYearly   = $interval === 'year';
     ?>
 <article class="plan-card <?= $featured ? 'featured' : '' ?>" data-track="<?= e((string) ($p['track'] ?? '')) ?>">
   <?php if ($featured): ?><span class="plan-badge"><?= e($pt['popular']) ?></span><?php endif; ?>
@@ -27,10 +28,10 @@ foreach ($plan_codes as $code):
   <p class="plan-tag"><?= e($p['tagline']) ?></p>
   <div class="plan-price">
     <?= e($p['price_display']) ?>
-    <span><?= $interval === 'year' ? e($pt['yearly_label']) : e(billing_interval_label($interval, $lang)) ?></span>
+    <span><?= e(billing_interval_label('month', $lang)) ?></span>
   </div>
-  <?php if ($interval === 'year' && !empty($pt['annual_note'])): ?>
-  <p class="plan-annual-note"><?= e($pt['annual_note']) ?></p>
+  <?php if ($isYearly): ?>
+  <p class="plan-annual-note"><?= e($pt['billed_annually'] ?? 'billed annually') ?> · $<?= e((string) ($p['price_total_annual'] ?? $p['price_usd'])) ?>/<?= e($pt['year_abbr'] ?? 'yr') ?></p>
   <?php endif; ?>
   <ul class="plan-features">
     <?php foreach ($p['features'] as $feat): ?>
