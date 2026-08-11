@@ -34,26 +34,38 @@ $results = [
     'errors' => [],
 ];
 
-$stmt = $pdo->prepare("
-    SELECT c.id, c.name, c.email, c.trial_ends_at, c.trial_reminder_sent,
-           u.name AS owner_name
-    FROM clients c
-    LEFT JOIN users u ON u.client_id = c.id AND u.role = 'owner'
-    WHERE c.subscription_status = 'trial'
-      AND c.trial_ends_at IS NOT NULL
-      AND c.trial_reminder_sent = 0
-      AND c.trial_ends_at BETWEEN :now AND :limit
-    ORDER BY c.trial_ends_at ASC
-    LIMIT 100
-");
+// Check if trial_reminder_sent column exists
+$hasReminderCol = false;
+try {
+    $pdo->query("SELECT trial_reminder_sent FROM clients LIMIT 1");
+    $hasReminderCol = true;
+} catch (Throwable) {
+    $results['errors'][] = 'Column trial_reminder_sent not found. Run migration schema_migration_v8_trial_reminder.sql';
+}
 
-$limit_date = (clone $now)->modify('+4 days')->format('Y-m-d 23:59:59');
-$stmt->execute([
-    ':now'   => $now->format('Y-m-d H:i:s'),
-    ':limit' => $limit_date,
-]);
+$clients = [];
+if ($hasReminderCol) {
+    $stmt = $pdo->prepare("
+        SELECT c.id, c.name, c.email, c.trial_ends_at, c.trial_reminder_sent,
+               u.name AS owner_name
+        FROM clients c
+        LEFT JOIN users u ON u.client_id = c.id AND u.role = 'owner'
+        WHERE c.subscription_status = 'trial'
+          AND c.trial_ends_at IS NOT NULL
+          AND c.trial_reminder_sent = 0
+          AND c.trial_ends_at BETWEEN :now AND :limit
+        ORDER BY c.trial_ends_at ASC
+        LIMIT 100
+    ");
 
-$clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $limit_date = (clone $now)->modify('+4 days')->format('Y-m-d 23:59:59');
+    $stmt->execute([
+        ':now'   => $now->format('Y-m-d H:i:s'),
+        ':limit' => $limit_date,
+    ]);
+
+    $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 foreach ($clients as $client) {
     try {

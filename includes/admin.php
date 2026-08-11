@@ -433,8 +433,7 @@ function admin_change_client_plan(PDO $pdo, int $client_id, string $new_plan_cod
         $pdo->prepare("
             UPDATE clients SET
                 plan_code = :plan,
-                subscription_status = :status,
-                updated_at = NOW()
+                subscription_status = :status
             WHERE id = :id
         ")->execute([
             ':plan'   => $new_plan_code,
@@ -465,14 +464,20 @@ function admin_extend_trial(PDO $pdo, int $client_id, int $days): bool
         $pdo->prepare("
             UPDATE clients SET
                 trial_ends_at = DATE_ADD(COALESCE(trial_ends_at, NOW()), INTERVAL :days DAY),
-                subscription_status = 'trial',
-                trial_reminder_sent = 0,
-                updated_at = NOW()
+                subscription_status = 'trial'
             WHERE id = :id
         ")->execute([
             ':days' => $days,
             ':id'   => $client_id,
         ]);
+
+        // Reset trial_reminder_sent if column exists
+        try {
+            $pdo->prepare("UPDATE clients SET trial_reminder_sent = 0 WHERE id = :id")
+                ->execute([':id' => $client_id]);
+        } catch (Throwable) {
+            // Column doesn't exist yet, ignore
+        }
 
         return true;
     } catch (Throwable $e) {
@@ -494,8 +499,7 @@ function admin_toggle_client_status(PDO $pdo, int $client_id, string $new_status
     try {
         $pdo->prepare("
             UPDATE clients SET
-                subscription_status = :status,
-                updated_at = NOW()
+                subscription_status = :status
             WHERE id = :id
         ")->execute([
             ':status' => $new_status,
