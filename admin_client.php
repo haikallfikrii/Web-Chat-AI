@@ -273,7 +273,7 @@ input.adm-input{width:100%;padding:10px 12px;border:1px solid var(--border);bord
       <div class="adm-action-card">
         <h3>📦 Ubah Paket</h3>
         <p>Set paket langganan klien secara manual.</p>
-        <form method="post">
+        <form method="post" action="<?= e(app_url('/admin_client.php', ['id' => $client_id])) ?>">
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="hidden" name="action" value="change_plan">
           <select name="plan_code">
@@ -294,7 +294,7 @@ input.adm-input{width:100%;padding:10px 12px;border:1px solid var(--border);bord
       <div class="adm-action-card">
         <h3>⏰ Perpanjang Trial</h3>
         <p>Tambah hari trial dari tanggal saat ini.</p>
-        <form method="post">
+        <form method="post" action="<?= e(app_url('/admin_client.php', ['id' => $client_id])) ?>">
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="hidden" name="action" value="extend_trial">
           <input type="number" name="days" value="7" min="1" max="365" style="width:80px"> hari
@@ -306,7 +306,7 @@ input.adm-input{width:100%;padding:10px 12px;border:1px solid var(--border);bord
       <div class="adm-action-card">
         <h3>🔄 Ubah Status</h3>
         <p>Toggle status langganan klien.</p>
-        <form method="post">
+        <form method="post" action="<?= e(app_url('/admin_client.php', ['id' => $client_id])) ?>">
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="hidden" name="action" value="toggle_status">
           <select name="status">
@@ -322,7 +322,7 @@ input.adm-input{width:100%;padding:10px 12px;border:1px solid var(--border);bord
       <div class="adm-action-card">
         <h3>👤 Login sebagai Klien</h3>
         <p>Masuk ke dashboard klien untuk debugging.</p>
-        <form method="post">
+        <form method="post" action="<?= e(app_url('/admin_client.php', ['id' => $client_id])) ?>">
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="hidden" name="action" value="impersonate">
           <button type="submit" class="btn btn-ghost">Impersonate →</button>
@@ -333,7 +333,7 @@ input.adm-input{width:100%;padding:10px 12px;border:1px solid var(--border);bord
       <div class="adm-action-card">
         <h3>🔑 Reset Password</h3>
         <p>Generate password baru untuk user owner.</p>
-        <form method="post" onsubmit="return confirm('Reset password user ini?')">
+        <form method="post" action="<?= e(app_url('/admin_client.php', ['id' => $client_id])) ?>" onsubmit="return confirm('Reset password user ini?')">
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="hidden" name="action" value="reset_password">
           <button type="submit" class="btn btn-ghost">Reset Password</button>
@@ -344,7 +344,7 @@ input.adm-input{width:100%;padding:10px 12px;border:1px solid var(--border);bord
       <div class="adm-action-card">
         <h3>✉️ Kirim Email</h3>
         <p>Kirim email manual ke klien.</p>
-        <form method="post">
+        <form method="post" action="<?= e(app_url('/admin_client.php', ['id' => $client_id])) ?>">
           <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="hidden" name="action" value="send_email">
           <input type="text" name="email_subject" placeholder="Subject email" class="adm-input" style="margin-bottom:8px" required>
