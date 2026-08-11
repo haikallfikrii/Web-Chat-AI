@@ -45,4 +45,7 @@ return [
 
     // Kosongkan jika tidak ingin widget di beranda staging
     'LANDING_WIDGET_API_KEY' => '',
+
+    // Secret key untuk akses cron.php via URL (opsional)
+    'CRON_SECRET' => 'change-this-to-random-string',
 ];
