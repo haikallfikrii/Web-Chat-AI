@@ -83,22 +83,77 @@ function mail_info_box(string $html): string
 }
 
 /**
+ * Ubah email HTML jadi teks biasa yang tetap terbaca.
+ *
+ * Penting untuk penilaian spam: tautan harus ikut terbawa sebagai URL, karena
+ * pesan yang bagian HTML-nya penuh tombol tapi bagian teksnya kosong adalah
+ * pola yang dinilai buruk oleh filter.
+ */
+function mail_html_to_plain(string $html): string
+{
+    $text = preg_replace('#<(head|style|script|title)\b[^>]*>.*?</\1>#is', '', $html) ?? $html;
+
+    // Preheader sengaja disembunyikan di HTML; tidak perlu diulang di teks.
+    $text = preg_replace('#<div[^>]*display:none[^>]*>.*?</div>#is', '', $text) ?? $text;
+
+    $text = preg_replace_callback(
+        '#<a\b[^>]*href=(["\'])(.*?)\1[^>]*>(.*?)</a>#is',
+        static function (array $m): string {
+            $url   = trim(html_entity_decode($m[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            $label = trim(html_entity_decode(strip_tags($m[3]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+            if ($url === '' || $label === $url) {
+                return $url !== '' ? $url : $label;
+            }
+            if (str_starts_with($url, 'mailto:')) {
+                return $label !== '' ? $label : substr($url, 7);
+            }
+
+            return $label !== '' ? $label . ' (' . $url . ')' : $url;
+        },
+        $text
+    ) ?? $text;
+
+    $text = preg_replace('#<li\b[^>]*>#i', "\n- ", $text) ?? $text;
+    $text = preg_replace('#<br\s*/?>#i', "\n", $text) ?? $text;
+    $text = preg_replace('#</(p|div|tr|h[1-6]|ol|ul|table)>#i', "\n", $text) ?? $text;
+
+    $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = str_replace("\xC2\xA0", ' ', $text);
+
+    $lines = [];
+    foreach (explode("\n", $text) as $line) {
+        $line = trim(preg_replace('/[ \t]+/', ' ', $line) ?? $line);
+        if ($line === '' && ($lines === [] || end($lines) === '')) {
+            continue;
+        }
+        $lines[] = $line;
+    }
+
+    return trim(implode("\n", $lines));
+}
+
+/**
  * Kirim email HTML multipart (fallback plain).
  *
  * Memakai SMTP berautentikasi bila dikonfigurasi; jika tidak, jatuh kembali
  * ke mail() bawaan PHP. $error diisi alasan kegagalan agar pemanggil bisa
  * menampilkan atau mencatatnya.
+ *
+ * $unsubscribe hanya untuk email siklus hidup (welcome, reminder trial), bukan
+ * untuk email transaksional seperti reset password atau struk pembayaran.
  */
 function send_html_email(
     string $to,
     string $subject,
     string $html,
     ?string $plain = null,
-    ?string &$error = null
+    ?string &$error = null,
+    bool $unsubscribe = false
 ): bool {
     $error = null;
 
-    $plain = $plain ?? strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $html));
+    $plain = $plain ?? mail_html_to_plain($html);
     $from  = mail_from_address();
     $name  = MAIL_FROM_NAME;
     $boundary = 'cp_' . bin2hex(random_bytes(12));
@@ -114,6 +169,11 @@ function send_html_email(
         'X-Mailer: ' . APP_NAME,
     ];
 
+    if ($unsubscribe) {
+        $headers[] = 'List-Unsubscribe: <mailto:' . mail_support_address()
+            . '?subject=' . rawurlencode('Unsubscribe ' . $to) . '>';
+    }
+
     $body = "--{$boundary}\r\n"
         . "Content-Type: text/plain; charset=UTF-8\r\n"
         . "Content-Transfer-Encoding: base64\r\n\r\n"
@@ -127,7 +187,11 @@ function send_html_email(
     require_once __DIR__ . '/smtp.php';
 
     if (smtp_configured()) {
-        $host = parse_url(app_site_url(), PHP_URL_HOST) ?: 'localhost';
+        // Domain Message-ID harus sama dengan domain pengirim; kalau memakai
+        // host situs, email dari staging akan memakai subdomain yang tidak
+        // punya DKIM dan itu menurunkan nilai di filter spam.
+        $host = substr((string) strrchr($from, '@'), 1)
+            ?: (parse_url(app_site_url(), PHP_URL_HOST) ?: 'localhost');
 
         // Lewat SMTP, To/Subject/Date harus ikut di dalam pesan.
         $smtpHeaders = array_merge(
@@ -287,7 +351,9 @@ function send_welcome_email(
     $html = mail_html_layout($mt['welcome_title'], $body, sprintf($mt['welcome_preheader'], APP_NAME, $trial_days), $lang);
     $plain = sprintf($mt['plain_welcome'], $client_name, APP_NAME, $trial_days, $dash);
 
-    return send_html_email($to_email, sprintf($mt['subject_welcome'], APP_NAME), $html, $plain);
+    $error = null;
+
+    return send_html_email($to_email, sprintf($mt['subject_welcome'], APP_NAME), $html, $plain, $error, true);
 }
 
 /**
@@ -323,7 +389,9 @@ function send_trial_expiring_email(
     $html = mail_html_layout($mt['trial_exp_title'], $body, sprintf($mt['trial_exp_preheader'], $days_left), $lang);
     $plain = sprintf($mt['plain_trial_exp'], $client_name, $days_left, $pricing);
 
-    return send_html_email($to_email, sprintf($mt['subject_trial_exp'], APP_NAME, $days_left), $html, $plain);
+    $error = null;
+
+    return send_html_email($to_email, sprintf($mt['subject_trial_exp'], APP_NAME, $days_left), $html, $plain, $error, true);
 }
 
 /**
