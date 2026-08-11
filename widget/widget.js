@@ -55,6 +55,9 @@
   // Sesi pengunjung: localStorage, tetap 3 hari (refresh tab / tutup browser singkat)
   const SESSION_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 
+  // Jeda sebelum sapaan pertama muncul, supaya tidak menabrak load halaman.
+  const GREETING_DELAY_MS = 1500;
+
   function sessionStorageKey() {
     return "cw_session_" + API_KEY.substring(0, 8);
   }
@@ -170,16 +173,81 @@
       #cw-badge {
         position: absolute;
         top: -4px; right: -4px;
-        width: 20px; height: 20px;
-        border-radius: 50%;
+        min-width: 20px; height: 20px;
+        padding: 0 5px;
+        border-radius: 999px;
         background: #EF4444;
         color: #fff;
         font-size: 11px;
         font-weight: 700;
+        line-height: 1;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;
+        display: none;
+      }
+      #cw-badge.show {
+        display: flex;
+        animation: cwBadgePop .35s cubic-bezier(.18,.89,.32,1.28);
+      }
+      @keyframes cwBadgePop {
+        0%   { transform: scale(0); opacity: 0; }
+        70%  { transform: scale(1.25); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      /* Teaser sapaan pertama di samping tombol */
+      #cw-teaser {
+        position: fixed;
+        bottom: 92px;
+        right: 24px;
+        max-width: 260px;
+        display: none;
+        gap: 8px;
+        align-items: flex-start;
+        padding: 12px 32px 12px 14px;
+        background: #fff;
+        color: #111827;
+        border-radius: 14px;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 8px 28px rgba(0,0,0,.16);
+        cursor: pointer;
+        z-index: 2147483646;
+        pointer-events: auto;
+        text-align: left;
+        border: none;
+        font-family: inherit;
+      }
+      #cw-teaser.show {
+        display: flex;
+        animation: cwTeaserIn .35s ease;
+      }
+      @keyframes cwTeaserIn {
+        from { opacity: 0; transform: translateY(10px) scale(.96); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      #cw-teaser-text { font-size: 13px; line-height: 1.5; }
+      #cw-teaser-name { font-weight: 700; font-size: 12px; margin-bottom: 2px; color: ${primaryColor}; }
+      #cw-teaser-close {
+        position: absolute;
+        top: 6px; right: 6px;
+        width: 20px; height: 20px;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: #9CA3AF;
+        cursor: pointer;
+        font-size: 15px;
+        line-height: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        display: none;
+        padding: 0;
+      }
+      #cw-teaser-close:hover { background: #F3F4F6; color: #4B5563; }
+
+      @media (max-width: 420px) {
+        #cw-teaser { max-width: calc(100vw - 100px); }
       }
 
       /* ─ Jendela Chat ─ */
@@ -236,6 +304,28 @@
       #cw-status      { font-size: 12px; opacity: .85; }
       #cw-status-dot  { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; margin-right: 4px; }
 
+      /* Tombol suara on/off */
+      #cw-sound {
+        width: 32px; height: 32px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,.15);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background .15s;
+        outline: none;
+      }
+      #cw-sound:hover { background: rgba(255,255,255,.28); }
+      #cw-sound:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+      #cw-sound svg { width: 17px; height: 17px; fill: #fff; }
+      #cw-sound .icon-sound-off { display: none; }
+      #cw-sound.muted .icon-sound-on  { display: none; }
+      #cw-sound.muted .icon-sound-off { display: block; }
+      #cw-sound.muted { opacity: .7; }
+
       /* ─ Area Pesan ─ */
       #cw-messages {
         flex: 1;
@@ -285,6 +375,52 @@
         background: #FEE2E2;
         color: #991B1B;
         border-bottom-left-radius: 4px;
+      }
+
+      /* Konten hasil render markdown */
+      .cw-bubble.cw-md { white-space: normal; }
+      .cw-bubble.cw-md > *:first-child { margin-top: 0; }
+      .cw-bubble.cw-md > *:last-child  { margin-bottom: 0; }
+      .cw-bubble.cw-md p       { margin: 0 0 8px; }
+      .cw-bubble.cw-md strong  { font-weight: 700; }
+      .cw-bubble.cw-md em      { font-style: italic; }
+      .cw-bubble.cw-md u       { text-decoration: underline; }
+      .cw-bubble.cw-md s       { text-decoration: line-through; opacity: .7; }
+      .cw-bubble.cw-md h4      { font-size: 14px; font-weight: 700; margin: 10px 0 4px; }
+      .cw-bubble.cw-md a {
+        color: ${primaryColor};
+        text-decoration: underline;
+        word-break: break-word;
+      }
+      .cw-bubble.cw-md ul,
+      .cw-bubble.cw-md ol { margin: 6px 0 8px; padding-left: 20px; }
+      .cw-bubble.cw-md li { margin: 2px 0; }
+      .cw-bubble.cw-md code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12.5px;
+        background: rgba(0,0,0,.07);
+        padding: 1px 5px;
+        border-radius: 5px;
+      }
+      .cw-bubble.cw-md pre {
+        background: #1E293B;
+        color: #E2E8F0;
+        padding: 10px 12px;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 6px 0 8px;
+      }
+      .cw-bubble.cw-md pre code {
+        background: none;
+        padding: 0;
+        color: inherit;
+        font-size: 12.5px;
+      }
+      .cw-bubble.cw-md blockquote {
+        border-left: 3px solid rgba(0,0,0,.15);
+        padding-left: 10px;
+        margin: 6px 0 8px;
+        opacity: .85;
       }
 
       /* Typing indicator */
@@ -426,6 +562,16 @@
       <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
     </svg>`;
 
+  const ICON_SOUND_ON = `
+    <svg class="icon-sound-on" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.47 4.47 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/>
+    </svg>`;
+
+  const ICON_SOUND_OFF = `
+    <svg class="icon-sound-off" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zM19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.9 8.9 0 0 0 21 12a9 9 0 0 0-7-8.77v2.06A7 7 0 0 1 19 12zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+    </svg>`;
+
   // ── Bangun HTML widget ─────────────────────────────────────
   function buildWatermarkFooter(settings) {
     // Default: tampilkan watermark jika API tidak mengirim field (trial / free)
@@ -453,12 +599,24 @@
 
     const footerHtml = buildWatermarkFooter(settings);
 
+    const teaserHtml = settings.welcome_message
+      ? `
+      <div id="cw-teaser" role="button" tabindex="0" aria-label="Buka chat">
+        <div id="cw-teaser-text">
+          <div id="cw-teaser-name">${escapeHtml(settings.bot_name)}</div>
+          <div id="cw-teaser-body">${escapeHtml(previewText(settings.welcome_message))}</div>
+        </div>
+        <button id="cw-teaser-close" type="button" aria-label="Tutup pesan">&times;</button>
+      </div>`
+      : "";
+
     return `
       <button id="cw-toggle" aria-label="Buka chat" aria-expanded="false">
         ${ICON_CHAT}
         ${ICON_CLOSE}
         <span id="cw-badge" aria-hidden="true"></span>
       </button>
+      ${teaserHtml}
 
       <div id="cw-window" role="dialog" aria-label="Chat dengan ${escapeHtml(settings.bot_name)}" aria-modal="true">
         <div id="cw-header">
@@ -467,6 +625,10 @@
             <div id="cw-bot-name">${escapeHtml(settings.bot_name)}</div>
             <div id="cw-status"><span id="cw-status-dot"></span>Online</div>
           </div>
+          <button id="cw-sound" type="button" aria-label="Matikan suara notifikasi" aria-pressed="false">
+            ${ICON_SOUND_ON}
+            ${ICON_SOUND_OFF}
+          </button>
         </div>
 
         <div id="cw-messages" role="log" aria-live="polite" aria-atomic="false"></div>
@@ -506,13 +668,269 @@
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
 
+  // ── Render markdown ────────────────────────────────────────
+  // Teks di-escape lebih dulu, baru token markdown diubah menjadi HTML.
+  // Urutan ini yang membuat HTML mentah dari jawaban AI tidak pernah aktif.
+  const MD_MARK = "\u0000cwmd";
+
+  function isSafeUrl(url) {
+    return /^(https?:\/\/|mailto:)/i.test(String(url).trim());
+  }
+
+  function renderMarkdown(raw) {
+    let text = escapeHtml(String(raw == null ? "" : raw))
+      .replace(/\u0000/g, "")
+      .replace(/\r\n?/g, "\n");
+
+    // Potongan yang sudah jadi HTML disimpan dulu agar tidak diproses ulang.
+    const stashed = [];
+    const stashedIsBlock = [];
+    function stash(html, isBlock) {
+      stashed.push(html);
+      stashedIsBlock.push(Boolean(isBlock));
+      return MD_MARK + (stashed.length - 1) + "\u0000";
+    }
+
+    function link(url, label) {
+      if (!isSafeUrl(url)) return label;
+      return stash(
+        '<a href="' + escapeAttr(url) + '" target="_blank" rel="noopener noreferrer nofollow">' + label + "</a>"
+      );
+    }
+
+    text = text.replace(/```[a-z0-9+#-]*\n?([\s\S]*?)```/gi, function (_m, code) {
+      return stash("<pre><code>" + code.replace(/\n+$/, "") + "</code></pre>", true);
+    });
+    text = text.replace(/`([^`\n]+)`/g, function (_m, code) {
+      return stash("<code>" + code + "</code>");
+    });
+
+    text = text.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, function (_m, label, url) {
+      return link(url, label);
+    });
+    text = text.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, function (_m, before, url) {
+      return before + link(url, url);
+    });
+
+    // Token terpanjang diproses lebih dulu supaya *** dan ** tidak saling rebut.
+    text = text.replace(/\*\*\*([^\n*]+?)\*\*\*/g, "<strong><em>$1</em></strong>");
+    text = text.replace(/\*\*([^\n*]+?)\*\*/g, "<strong>$1</strong>");
+    text = text.replace(/__([^\n_]+?)__/g, "<u>$1</u>");
+    text = text.replace(/~~([^\n~]+?)~~/g, "<s>$1</s>");
+    text = text.replace(/(^|[^\w*])\*([^\n*]+?)\*/g, "$1<em>$2</em>");
+    text = text.replace(/(^|[^\w_])_([^\n_]+?)_(?![\w_])/g, "$1<em>$2</em>");
+
+    let html = "";
+    let listTag = null;
+    let paragraph = [];
+
+    function flushParagraph() {
+      if (paragraph.length) {
+        html += "<p>" + paragraph.join("<br>") + "</p>";
+        paragraph = [];
+      }
+    }
+    function closeList() {
+      if (listTag) {
+        html += "</" + listTag + ">";
+        listTag = null;
+      }
+    }
+    function openList(tag) {
+      if (listTag !== tag) {
+        closeList();
+        html += "<" + tag + ">";
+        listTag = tag;
+      }
+    }
+
+    const lines = text.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      if (line === "") {
+        flushParagraph();
+        closeList();
+        continue;
+      }
+
+      // Blok utuh (misal ```kode```) tidak boleh dibungkus <p> — HTML-nya invalid.
+      const soloBlock = line.match(/^\u0000cwmd(\d+)\u0000$/);
+      if (soloBlock && stashedIsBlock[Number(soloBlock[1])]) {
+        flushParagraph();
+        closeList();
+        html += line;
+        continue;
+      }
+
+      const heading = line.match(/^#{1,6}\s+(.+)$/);
+      if (heading) {
+        flushParagraph();
+        closeList();
+        html += "<h4>" + heading[1] + "</h4>";
+        continue;
+      }
+
+      const bullet = line.match(/^[-*•]\s+(.+)$/);
+      if (bullet) {
+        flushParagraph();
+        openList("ul");
+        html += "<li>" + bullet[1] + "</li>";
+        continue;
+      }
+
+      const numbered = line.match(/^\d{1,3}[.)]\s+(.+)$/);
+      if (numbered) {
+        flushParagraph();
+        openList("ol");
+        html += "<li>" + numbered[1] + "</li>";
+        continue;
+      }
+
+      const quote = line.match(/^&gt;\s?(.*)$/);
+      if (quote) {
+        flushParagraph();
+        closeList();
+        html += "<blockquote>" + quote[1] + "</blockquote>";
+        continue;
+      }
+
+      closeList();
+      paragraph.push(line);
+    }
+    flushParagraph();
+    closeList();
+
+    return html.replace(new RegExp(MD_MARK + "(\\d+)\\u0000", "g"), function (_m, idx) {
+      return stashed[Number(idx)] || "";
+    });
+  }
+
+  // Versi teks polos untuk teaser: markdown dibuang, lalu dipotong.
+  function previewText(raw, maxLen) {
+    const limit = maxLen || 110;
+    const plain = String(raw == null ? "" : raw)
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/[*_~`#>]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return plain.length > limit ? plain.slice(0, limit - 1).replace(/\s+\S*$/, "") + "…" : plain;
+  }
+
+  // ── Suara notifikasi (Web Audio, tanpa file eksternal) ─────
+  const SOUND_KEY = "cw_sound_" + API_KEY.substring(0, 8);
+
+  let soundMuted = storageGet(SOUND_KEY) === "off";
+  let audioCtx = null;
+  let chimePending = false;
+
+  function isSoundMuted() {
+    return soundMuted;
+  }
+
+  function setSoundMuted(muted) {
+    soundMuted = muted;
+    storageSet(SOUND_KEY, muted ? "off" : "on");
+  }
+
+  function getAudioContext() {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!audioCtx) {
+      try {
+        audioCtx = new Ctx();
+      } catch (_) {
+        return null;
+      }
+    }
+    return audioCtx;
+  }
+
+  function emitChime(ctx) {
+    const start = ctx.currentTime;
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.16, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+
+    [880, 1174.66].forEach(function (freq, i) {
+      const osc = ctx.createOscillator();
+      const at = start + i * 0.1;
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, at);
+      osc.connect(gain);
+      osc.start(at);
+      osc.stop(at + 0.4);
+    });
+  }
+
+  /** @returns {boolean} true jika suara benar-benar dibunyikan. */
+  function playChime() {
+    if (soundMuted) return false;
+    const ctx = getAudioContext();
+    if (!ctx) return false;
+
+    // Browser memblokir audio sebelum ada interaksi; tandai agar dicoba lagi nanti.
+    if (ctx.state === "suspended") {
+      ctx.resume().catch(function () {});
+      return false;
+    }
+
+    try {
+      emitChime(ctx);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Begitu pengunjung berinteraksi, buka kunci audio dan bunyikan sapaan tertunda.
+  function unlockAudioOnFirstGesture() {
+    const events = ["pointerdown", "keydown", "touchstart", "scroll"];
+
+    function unlock() {
+      events.forEach(function (ev) {
+        document.removeEventListener(ev, unlock, true);
+      });
+
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      function flush() {
+        if (chimePending) {
+          chimePending = false;
+          playChime();
+        }
+      }
+
+      if (ctx.state === "suspended") {
+        ctx.resume().then(flush).catch(function () {});
+      } else {
+        flush();
+      }
+    }
+
+    events.forEach(function (ev) {
+      document.addEventListener(ev, unlock, true);
+    });
+  }
+
   // ── Tambah bubble pesan ────────────────────────────────────
-  function appendBubble(messagesEl, role, text) {
+  function appendBubble(messagesEl, role, text, useMarkdown) {
     const wrapper = document.createElement("div");
 
     const bubble = document.createElement("div");
     bubble.className = "cw-bubble " + role;
-    bubble.textContent = text;
+
+    if (useMarkdown) {
+      bubble.classList.add("cw-md");
+      bubble.innerHTML = renderMarkdown(text);
+    } else {
+      bubble.textContent = text;
+    }
 
     const time = document.createElement("div");
     time.className = "cw-time";
@@ -628,14 +1046,6 @@
     shadow.appendChild(box);
   }
 
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
   function showLoadingToggle(shadow) {
     shadow.innerHTML = "";
     const styleEl = document.createElement("style");
@@ -700,18 +1110,66 @@
     shadow.appendChild(container);
 
     // ── Referensi elemen ───────────────────────────────────
-    const toggleBtn  = shadow.getElementById("cw-toggle");
-    const chatWindow = shadow.getElementById("cw-window");
-    const messagesEl = shadow.getElementById("cw-messages");
-    const inputEl    = shadow.getElementById("cw-input");
-    const sendBtn    = shadow.getElementById("cw-send");
-    const badge      = shadow.getElementById("cw-badge");
+    const toggleBtn   = shadow.getElementById("cw-toggle");
+    const chatWindow  = shadow.getElementById("cw-window");
+    const messagesEl  = shadow.getElementById("cw-messages");
+    const inputEl     = shadow.getElementById("cw-input");
+    const sendBtn     = shadow.getElementById("cw-send");
+    const badge       = shadow.getElementById("cw-badge");
+    const soundBtn    = shadow.getElementById("cw-sound");
+    const teaserEl    = shadow.getElementById("cw-teaser");
+    const teaserClose = shadow.getElementById("cw-teaser-close");
 
     let unreadCount = 0;
 
+    // ── Badge jumlah pesan belum dibaca ────────────────────
+    function bumpUnread() {
+      unreadCount++;
+      badge.textContent = unreadCount > 9 ? "9+" : String(unreadCount);
+      badge.classList.add("show");
+    }
+
+    function clearUnread() {
+      unreadCount = 0;
+      badge.textContent = "";
+      badge.classList.remove("show");
+    }
+
+    // ── Teaser sapaan di samping tombol ────────────────────
+    function showTeaser() {
+      if (teaserEl && !STATE.isOpen) teaserEl.classList.add("show");
+    }
+
+    function hideTeaser() {
+      if (teaserEl) teaserEl.classList.remove("show");
+    }
+
+    // ── Tombol suara ───────────────────────────────────────
+    function syncSoundBtn() {
+      if (!soundBtn) return;
+      const muted = isSoundMuted();
+      soundBtn.classList.toggle("muted", muted);
+      soundBtn.setAttribute("aria-pressed", muted ? "true" : "false");
+      soundBtn.setAttribute(
+        "aria-label",
+        muted ? "Nyalakan suara notifikasi" : "Matikan suara notifikasi"
+      );
+    }
+
+    syncSoundBtn();
+
+    if (soundBtn) {
+      soundBtn.addEventListener("click", () => {
+        setSoundMuted(!isSoundMuted());
+        syncSoundBtn();
+        // Bunyikan sekali sebagai konfirmasi saat suara dinyalakan kembali.
+        if (!isSoundMuted()) playChime();
+      });
+    }
+
     // ── Tampilkan welcome message ──────────────────────────
     if (settings.welcome_message) {
-      appendBubble(messagesEl, "bot", settings.welcome_message);
+      appendBubble(messagesEl, "bot", settings.welcome_message, true);
     }
 
     // ── Toggle buka/tutup jendela chat ────────────────────
@@ -720,8 +1178,8 @@
       chatWindow.classList.add("open");
       toggleBtn.classList.add("open");
       toggleBtn.setAttribute("aria-expanded", "true");
-      badge.style.display = "none";
-      unreadCount = 0;
+      clearUnread();
+      hideTeaser();
       setTimeout(() => inputEl.focus(), 250);
     }
 
@@ -733,8 +1191,47 @@
     }
 
     toggleBtn.addEventListener("click", () => {
+      hideTeaser();
       STATE.isOpen ? closeWidget() : openWidget();
     });
+
+    if (teaserEl) {
+      teaserEl.addEventListener("click", (e) => {
+        if (teaserClose && teaserClose.contains(e.target)) return;
+        hideTeaser();
+        openWidget();
+      });
+      teaserEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          hideTeaser();
+          openWidget();
+        }
+      });
+    }
+
+    if (teaserClose) {
+      teaserClose.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hideTeaser();
+      });
+    }
+
+    // ── Sapaan pertama: badge + teaser + suara ─────────────
+    // Ditandai per sesi pengunjung agar tidak berulang di tiap halaman.
+    const greetKey = "cw_greeted_" + API_KEY.substring(0, 8);
+
+    if (settings.welcome_message && storageGet(greetKey) !== STATE.sessionId) {
+      unlockAudioOnFirstGesture();
+
+      setTimeout(() => {
+        if (STATE.isOpen) return;
+        storageSet(greetKey, STATE.sessionId);
+        bumpUnread();
+        showTeaser();
+        if (!playChime()) chimePending = true;
+      }, GREETING_DELAY_MS);
+    }
 
     // Tutup jika klik di luar jendela
     document.addEventListener("click", (e) => {
@@ -786,13 +1283,10 @@
       try {
         const reply = await sendMessage(message);
         hideTyping(messagesEl);
-        appendBubble(messagesEl, "bot", reply);
+        appendBubble(messagesEl, "bot", reply, true);
 
-        if (!STATE.isOpen) {
-          unreadCount++;
-          badge.textContent = unreadCount;
-          badge.style.display = "flex";
-        }
+        playChime();
+        if (!STATE.isOpen) bumpUnread();
       } catch (err) {
         hideTyping(messagesEl);
         const raw = err.message || "";
