@@ -555,7 +555,7 @@ footer a:hover{opacity:.75}
 <div id="sp"></div>
 <div class="bg-grid"></div>
 <div class="bg-noise"></div>
-<canvas id="pcv" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5"></canvas>
+<canvas id="pcv" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.92"></canvas>
 <div class="orb orb-1" data-plx="0.1"></div>
 <div class="orb orb-2" data-plx="-0.07"></div>
 <div class="orb orb-3" data-plx="0.14"></div>

@@ -137,65 +137,402 @@
   window.addEventListener('scroll', updateSP, { passive: true });
 
   /* ─────────────────────────────────────────────
-     2. PARTICLE CANVAS
+     2. CONSTELLATION FIELD
+        Glowing dots + brand nodes (platforms ChatLM
+        installs on, and the AI models it can run).
+        Nodes drift, link up, magnetise toward the
+        cursor, reveal their name up close, and burst
+        outward on click.
   ───────────────────────────────────────────── */
   var cv = document.getElementById('pcv');
   if (cv) {
     var cx = cv.getContext('2d');
-    var W = 0, H = 0;
-    var pts = [];
+    var TAU = Math.PI * 2;
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* Monogram + brand colour. `glyph` draws a custom mark instead of letters. */
+    var BRANDS = [
+      { m: 'WP',   l: 'WordPress',  c: '#4C86FF' },
+      { m: 'S',    l: 'Shopify',    c: '#95BF47', glyph: 'bag' },
+      { m: '',     l: 'React',      c: '#61DAFB', glyph: 'atom' },
+      { m: 'WF',   l: 'Webflow',    c: '#4A7DFF' },
+      { m: 'Wix',  l: 'Wix',        c: '#F5D74B' },
+      { m: 'N',    l: 'Next.js',    c: '#E8EDF5' },
+      { m: 'SQ',   l: 'Squarespace',c: '#B8C4D4' },
+      { m: '</>',  l: 'Any HTML',   c: '#F0803C' },
+      { m: 'GPT',  l: 'OpenAI',     c: '#10A37F' },
+      { m: '',     l: 'Gemini',     c: '#7BA7FF', glyph: 'spark' },
+      { m: 'DS',   l: 'DeepSeek',   c: '#6C8CFF' },
+      { m: 'OR',   l: 'OpenRouter', c: '#9B8CFF' },
+      { m: 'OL',   l: 'Ollama',     c: '#E2E8F0' },
+      { m: 'CL',   l: 'Claude',     c: '#E0885F' },
+      { m: 'MS',   l: 'Mistral',    c: '#FF8A3D' },
+      { m: 'LM',   l: 'Llama',      c: '#4C9BFF' }
+    ];
+
+    var W = 0, H = 0, DPR = 1, dim = 1;
+    var nodes = [], chips = [], ripples = [];
+    var glowCache = {};
     var mx = -9999, my = -9999;
 
-    function resizeCV() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
-    resizeCV();
-    window.addEventListener('resize', resizeCV, { passive: true });
-    window.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; }, { passive: true });
+    function rnd(min, max) { return min + Math.random() * (max - min); }
 
-    function mkPt() {
-      return {
-        x: Math.random() * W, y: Math.random() * H,
-        r: Math.random() * 1.7 + 0.3,
-        vx: (Math.random() - .5) * .32, vy: (Math.random() - .5) * .32,
-        a: Math.random() * .45 + .12,
-        g: Math.random() > .65 ? '34,211,238' : '0,229,154'
-      };
+    function rgba(hex, a) {
+      var n = parseInt(hex.slice(1), 16);
+      return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
     }
-    for (var i = 0; i < 85; i++) pts.push(mkPt());
 
-    var alive = true;
-    function frame() {
-      if (!alive) return;
-      cx.clearRect(0, 0, W, H);
-      for (var p = 0; p < pts.length; p++) {
-        var pt = pts[p];
-        pt.x += pt.vx; pt.y += pt.vy;
-        if (pt.x < -8) pt.x = W + 8; else if (pt.x > W + 8) pt.x = -8;
-        if (pt.y < -8) pt.y = H + 8; else if (pt.y > H + 8) pt.y = -8;
-        // mouse repel
-        var dx = pt.x - mx, dy = pt.y - my, d2 = dx * dx + dy * dy;
-        if (d2 < 14400) { var f = (120 - Math.sqrt(d2)) / 120 * 2.4; pt.x += dx / Math.sqrt(d2) * f; pt.y += dy / Math.sqrt(d2) * f; }
-        // draw dot
-        cx.beginPath(); cx.arc(pt.x, pt.y, pt.r, 0, 6.2832);
-        cx.fillStyle = 'rgba(' + pt.g + ',' + pt.a + ')'; cx.fill();
+    function resizeCV() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      cv.width = Math.round(W * DPR);
+      cv.height = Math.round(H * DPR);
+      cv.style.width = W + 'px';
+      cv.style.height = H + 'px';
+      cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      glowCache = {};
+    }
+
+    /* Pre-rendered halo — far cheaper than a gradient per dot per frame. */
+    function glowSprite(color, rad) {
+      var key = color + '|' + rad;
+      if (glowCache[key]) return glowCache[key];
+      var px = Math.max(4, Math.ceil(rad * 2 * DPR));
+      var oc = document.createElement('canvas');
+      oc.width = oc.height = px;
+      var octx = oc.getContext('2d');
+      var grd = octx.createRadialGradient(px / 2, px / 2, 0, px / 2, px / 2, px / 2);
+      grd.addColorStop(0, rgba(color, .55));
+      grd.addColorStop(1, rgba(color, 0));
+      octx.fillStyle = grd;
+      octx.fillRect(0, 0, px, px);
+      glowCache[key] = oc;
+      return oc;
+    }
+
+    function build() {
+      var small = W < 760;
+      dim = small ? .62 : 1;
+      var dotCount = small ? 26 : 58;
+      var chipCount = small ? 6 : BRANDS.length;
+
+      nodes = [];
+      chips = [];
+
+      for (var i = 0; i < dotCount; i++) {
+        var dvx = rnd(-.22, .22), dvy = rnd(-.22, .22);
+        nodes.push({
+          kind: 'dot',
+          x: Math.random() * W, y: Math.random() * H,
+          vx: dvx, vy: dvy, bvx: dvx, bvy: dvy,
+          r: rnd(1.1, 2.6),
+          a: rnd(.35, .8),
+          c: Math.random() > .62 ? '#22D3EE' : '#14F0A8',
+          tw: Math.random() * TAU
+        });
       }
-      // draw connections
-      cx.lineWidth = .45;
-      for (var a = 0; a < pts.length; a++) {
-        for (var b = a + 1; b < pts.length; b++) {
-          var ddx = pts[a].x - pts[b].x, ddy = pts[a].y - pts[b].y;
-          var dd = Math.sqrt(ddx * ddx + ddy * ddy);
-          if (dd < 95) {
-            cx.strokeStyle = 'rgba(0,229,154,' + (1 - dd / 95) * .16 + ')';
-            cx.beginPath(); cx.moveTo(pts[a].x, pts[a].y); cx.lineTo(pts[b].x, pts[b].y); cx.stroke();
+
+      for (var j = 0; j < chipCount; j++) {
+        var cvx = rnd(-.16, .16), cvy = rnd(-.16, .16);
+        var chip = {
+          kind: 'chip',
+          brand: BRANDS[j % BRANDS.length],
+          x: Math.random() * W, y: Math.random() * H,
+          vx: cvx, vy: cvy, bvx: cvx, bvy: cvy,
+          r: small ? rnd(12, 15) : rnd(15, 20),
+          s: 1, glow: 0, spin: Math.random() * TAU
+        };
+        chips.push(chip);
+        nodes.push(chip);
+      }
+    }
+
+    function roundRect(x, y, w, h, r) {
+      if (cx.roundRect) { cx.beginPath(); cx.roundRect(x, y, w, h, r); return; }
+      cx.beginPath();
+      cx.moveTo(x + r, y);
+      cx.arcTo(x + w, y, x + w, y + h, r);
+      cx.arcTo(x + w, y + h, x, y + h, r);
+      cx.arcTo(x, y + h, x, y, r);
+      cx.arcTo(x, y, x + w, y, r);
+      cx.closePath();
+    }
+
+    /* React-style atom: three tilted orbits around a nucleus. */
+    function drawAtom(r, color, spin) {
+      cx.save();
+      cx.rotate(spin);
+      cx.strokeStyle = color;
+      cx.lineWidth = Math.max(.9, r * .075);
+      for (var i = 0; i < 3; i++) {
+        cx.save();
+        cx.rotate((Math.PI / 3) * i);
+        cx.beginPath();
+        cx.ellipse(0, 0, r * .62, r * .24, 0, 0, TAU);
+        cx.stroke();
+        cx.restore();
+      }
+      cx.restore();
+      cx.beginPath();
+      cx.arc(0, 0, r * .15, 0, TAU);
+      cx.fillStyle = color;
+      cx.fill();
+    }
+
+    /* Gemini-style four-point spark. */
+    function drawSpark(r, color) {
+      var o = r * .62, w = r * .2;
+      cx.beginPath();
+      cx.moveTo(0, -o);
+      cx.quadraticCurveTo(w, -w, o, 0);
+      cx.quadraticCurveTo(w, w, 0, o);
+      cx.quadraticCurveTo(-w, w, -o, 0);
+      cx.quadraticCurveTo(-w, -w, 0, -o);
+      cx.closePath();
+      cx.fillStyle = color;
+      cx.fill();
+    }
+
+    /* Shopify-style shopping bag. */
+    function drawBag(r, color) {
+      var w = r * .82, h = r * .78;
+      cx.lineWidth = Math.max(1, r * .1);
+      cx.strokeStyle = color;
+      roundRect(-w / 2, -h / 2 + r * .12, w, h, r * .18);
+      cx.stroke();
+      cx.beginPath();
+      cx.arc(0, -h / 2 + r * .14, r * .24, Math.PI, 0);
+      cx.stroke();
+    }
+
+    function drawChip(n) {
+      var r = n.r * n.s;
+      var b = n.brand;
+
+      cx.save();
+      cx.translate(n.x, n.y);
+
+      if (n.glow > .01) {
+        cx.beginPath();
+        cx.arc(0, 0, r * 2.1, 0, TAU);
+        cx.fillStyle = rgba(b.c, .13 * n.glow);
+        cx.fill();
+      }
+
+      cx.beginPath();
+      cx.arc(0, 0, r, 0, TAU);
+      cx.fillStyle = 'rgba(7,12,22,' + (.7 + .22 * n.glow) + ')';
+      cx.fill();
+      cx.lineWidth = 1.2 + n.glow * 1.1;
+      cx.strokeStyle = rgba(b.c, (.42 + .5 * n.glow) * dim);
+      cx.stroke();
+
+      var ink = rgba(b.c, (.78 + .22 * n.glow) * dim);
+      if (b.glyph === 'atom') drawAtom(r, ink, n.spin);
+      else if (b.glyph === 'spark') drawSpark(r, ink);
+      else if (b.glyph === 'bag') drawBag(r, ink);
+      else {
+        cx.font = '800 ' + (r * (b.m.length > 2 ? .58 : .72)).toFixed(1) + 'px Inter,system-ui,sans-serif';
+        cx.textAlign = 'center';
+        cx.textBaseline = 'middle';
+        cx.fillStyle = ink;
+        cx.fillText(b.m, 0, r * .04);
+      }
+      cx.restore();
+
+      /* Name tag once the cursor gets close */
+      if (n.glow > .3) {
+        var la = Math.min(1, (n.glow - .3) / .35);
+        cx.save();
+        cx.font = '700 11px Inter,system-ui,sans-serif';
+        cx.textAlign = 'center';
+        cx.textBaseline = 'middle';
+        var tw = cx.measureText(b.l).width;
+        var ly = n.y + r + 14;
+        roundRect(n.x - tw / 2 - 8, ly - 9.5, tw + 16, 19, 9.5);
+        cx.fillStyle = 'rgba(3,7,18,' + (.88 * la) + ')';
+        cx.fill();
+        cx.lineWidth = 1;
+        cx.strokeStyle = rgba(b.c, .4 * la);
+        cx.stroke();
+        cx.fillStyle = rgba(b.c, .95 * la);
+        cx.fillText(b.l, n.x, ly);
+        cx.restore();
+      }
+    }
+
+    function step() {
+      var i, n;
+
+      for (i = 0; i < ripples.length; i++) {
+        ripples[i].r += 9;
+        ripples[i].a -= .022;
+      }
+      ripples = ripples.filter(function (rp) { return rp.a > 0; });
+
+      for (i = 0; i < nodes.length; i++) {
+        n = nodes[i];
+        n.x += n.vx;
+        n.y += n.vy;
+
+        var pad = n.kind === 'chip' ? n.r + 26 : 10;
+        if (n.x < -pad) n.x = W + pad; else if (n.x > W + pad) n.x = -pad;
+        if (n.y < -pad) n.y = H + pad; else if (n.y > H + pad) n.y = -pad;
+
+        var dx = n.x - mx, dy = n.y - my;
+        var d = Math.sqrt(dx * dx + dy * dy) || 1;
+
+        if (n.kind === 'dot') {
+          /* dots scatter away from the pointer */
+          if (d < 130) {
+            var push = (130 - d) / 130 * 2.6;
+            n.x += dx / d * push;
+            n.y += dy / d * push;
+          }
+          n.tw += .028;
+        } else {
+          /* brand chips are drawn in and light up instead */
+          var near = d < 190 ? 1 - d / 190 : 0;
+          n.glow += (near - n.glow) * .12;
+          n.s += ((1 + near * .55) - n.s) * .12;
+          n.spin += .006 + near * .02;
+          if (near > 0 && d > 46) {
+            var pull = near * .55;
+            n.x -= dx / d * pull;
+            n.y -= dy / d * pull;
           }
         }
       }
-      requestAnimationFrame(frame);
+
+      /* keep gathered chips from stacking on top of each other */
+      for (i = 0; i < chips.length; i++) {
+        for (var j = i + 1; j < chips.length; j++) {
+          var ca = chips[i], cb = chips[j];
+          var sx = ca.x - cb.x, sy = ca.y - cb.y;
+          var sd = Math.sqrt(sx * sx + sy * sy) || 1;
+          var minD = (ca.r * ca.s + cb.r * cb.s) + 14;
+          if (sd >= minD) continue;
+          var sep = (minD - sd) / minD * .9;
+          ca.x += sx / sd * sep;
+          ca.y += sy / sd * sep;
+          cb.x -= sx / sd * sep;
+          cb.y -= sy / sd * sep;
+        }
+      }
     }
-    frame();
-    document.addEventListener('visibilitychange', function () {
-      alive = !document.hidden; if (alive) frame();
-    });
+
+    function render() {
+      cx.clearRect(0, 0, W, H);
+
+      /* links */
+      for (var a = 0; a < nodes.length; a++) {
+        var na = nodes[a];
+        for (var b = a + 1; b < nodes.length; b++) {
+          var nb = nodes[b];
+          var dx = na.x - nb.x, dy = na.y - nb.y;
+          var d2 = dx * dx + dy * dy;
+          var reach = (na.kind === 'chip' || nb.kind === 'chip') ? 150 : 108;
+          if (d2 >= reach * reach) continue;
+
+          var strength = 1 - Math.sqrt(d2) / reach;
+          var boost = Math.max(na.glow || 0, nb.glow || 0);
+          var tint = na.kind === 'chip' ? na.brand.c : (nb.kind === 'chip' ? nb.brand.c : '#14F0A8');
+          cx.strokeStyle = rgba(tint, strength * (.16 + boost * .5) * dim);
+          cx.lineWidth = .5 + boost * 1.1;
+          cx.beginPath();
+          cx.moveTo(na.x, na.y);
+          cx.lineTo(nb.x, nb.y);
+          cx.stroke();
+        }
+      }
+
+      /* click ripples */
+      for (var k = 0; k < ripples.length; k++) {
+        var rp = ripples[k];
+        cx.beginPath();
+        cx.arc(rp.x, rp.y, rp.r, 0, TAU);
+        cx.strokeStyle = rgba('#14F0A8', rp.a * .5);
+        cx.lineWidth = 2;
+        cx.stroke();
+      }
+
+      /* dots — cached halo sprite + crisp core */
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        if (n.kind !== 'dot') continue;
+        var pulse = .78 + Math.sin(n.tw) * .22;
+        var rr = n.r * pulse;
+        var halo = Math.round(rr * 4);
+        cx.globalAlpha = Math.min(1, n.a * pulse) * dim;
+        cx.drawImage(glowSprite(n.c, halo), n.x - halo, n.y - halo, halo * 2, halo * 2);
+        cx.globalAlpha = 1;
+        cx.beginPath();
+        cx.arc(n.x, n.y, rr, 0, TAU);
+        cx.fillStyle = rgba(n.c, Math.min(1, n.a * pulse + .12) * dim);
+        cx.fill();
+      }
+
+      /* brand chips on top */
+      for (var c = 0; c < chips.length; c++) drawChip(chips[c]);
+    }
+
+    resizeCV();
+    build();
+
+    window.addEventListener('resize', function () {
+      var wasSmall = W < 760;
+      resizeCV();
+      if ((W < 760) !== wasSmall) build();
+    }, { passive: true });
+
+    window.addEventListener('mousemove', function (e) {
+      mx = e.clientX; my = e.clientY;
+    }, { passive: true });
+
+    window.addEventListener('mouseout', function (e) {
+      if (!e.relatedTarget) { mx = -9999; my = -9999; }
+    }, { passive: true });
+
+    if (!reduceMotion) {
+      window.addEventListener('pointerdown', function (e) {
+        ripples.push({ x: e.clientX, y: e.clientY, r: 4, a: 1 });
+        for (var i = 0; i < nodes.length; i++) {
+          var n = nodes[i];
+          var dx = n.x - e.clientX, dy = n.y - e.clientY;
+          var d = Math.sqrt(dx * dx + dy * dy) || 1;
+          if (d > 260) continue;
+          var f = (260 - d) / 260 * (n.kind === 'chip' ? 3.4 : 6.5);
+          n.vx += dx / d * f;
+          n.vy += dy / d * f;
+        }
+      }, { passive: true });
+    }
+
+    if (reduceMotion) {
+      render();
+    } else {
+      var running = false;
+      var frame = function () {
+        if (document.hidden) { running = false; return; }
+        step();
+        /* ease the click impulse back to each node's natural drift */
+        for (var i = 0; i < nodes.length; i++) {
+          var n = nodes[i];
+          n.vx += (n.bvx - n.vx) * .035;
+          n.vy += (n.bvy - n.vy) * .035;
+        }
+        render();
+        requestAnimationFrame(frame);
+      };
+      var start = function () {
+        if (running || document.hidden) return;
+        running = true;
+        requestAnimationFrame(frame);
+      };
+      start();
+      document.addEventListener('visibilitychange', start);
+    }
   }
 
   /* ─────────────────────────────────────────────
