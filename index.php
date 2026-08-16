@@ -254,8 +254,8 @@ seo_render_head([
   z-index:20;white-space:nowrap;
 }
 .float-card svg{width:15px;height:15px;color:var(--green)}
-.fc1{top:-18px;left:-18px;animation:floatA 5s ease-in-out infinite}
-.fc2{bottom:-18px;right:-18px;animation:floatB 6s ease-in-out infinite}
+.fc1{top:-18px;left:-18px;animation:floatA 5s ease-in-out infinite,lgCaustic 14s ease-in-out infinite}
+.fc2{bottom:-18px;right:-18px;animation:floatB 6s ease-in-out infinite,lgCaustic 16s ease-in-out infinite}
 @keyframes floatA{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 @keyframes floatB{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
 
@@ -490,9 +490,10 @@ seo_render_head([
 /* Magnetic button js-handled */
 .btn-mag{transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s}
 
-/* ── Liquid glass surface pass ── */
-/* Make foreground surfaces more readable over the animated particles,
-   while keeping the Apple-like glass depth. */
+/* ── Apple-like Liquid Glass ──
+   Layered optical glass: frost + saturate, specular rim, inner refraction,
+   slow caustic sweep, and film grain. Isolation keeps backdrop-filter local. */
+.lg,
 .stats-grid,
 .feat-card,
 .step-card,
@@ -502,31 +503,79 @@ seo_render_head([
 .cta-box,
 .mock,
 .mock-panel,
+.float-card,
+.hero-badge,
+.ticker-outer,
+.calc-result-cell:not(.calc-result-cell--vs),
+.calc-savings,
 footer{
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.018) 42%,rgba(0,229,154,.045)),
-    radial-gradient(circle at 18% 0%,rgba(255,255,255,.09),transparent 32%),
-    rgba(8,13,26,.84);
-  backdrop-filter:blur(28px) saturate(175%);
-  -webkit-backdrop-filter:blur(28px) saturate(175%);
-  border-color:rgba(255,255,255,.14);
+  isolation:isolate;
+  position:relative;
+  background-color:rgba(10,16,28,.55);
+  background-image:
+    linear-gradient(118deg,
+      rgba(255,255,255,.34) 0%,
+      rgba(255,255,255,.10) 9%,
+      rgba(255,255,255,0) 22%,
+      rgba(255,255,255,0) 58%,
+      rgba(120,220,255,.06) 76%,
+      rgba(255,255,255,.08) 100%),
+    radial-gradient(120% 90% at 8% -10%,rgba(255,255,255,.22),transparent 42%),
+    radial-gradient(90% 70% at 110% 110%,rgba(34,211,238,.10),transparent 46%),
+    radial-gradient(70% 50% at 50% 120%,rgba(0,229,154,.07),transparent 50%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size:220% 220%, 100% 100%, 100% 100%, 100% 100%, 140px 140px;
+  background-position:0% 0%, 0 0, 0 0, 0 0, 0 0;
+  background-blend-mode:soft-light,normal,normal,normal,overlay;
+  backdrop-filter:blur(42px) saturate(190%) brightness(1.08);
+  -webkit-backdrop-filter:blur(42px) saturate(190%) brightness(1.08);
+  border:1px solid rgba(255,255,255,.16);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.14),
-    inset 0 -1px 0 rgba(255,255,255,.035),
-    0 18px 60px rgba(0,0,0,.34);
+    inset 0 1px 0 rgba(255,255,255,.48),
+    inset 1px 0 0 rgba(255,255,255,.12),
+    inset 0 -1px 0 rgba(255,255,255,.06),
+    inset -1px 0 0 rgba(255,255,255,.05),
+    inset 0 -28px 40px rgba(255,255,255,.035),
+    0 0 0 1px rgba(255,255,255,.05),
+    0 18px 50px rgba(0,0,0,.42);
+  animation:lgCaustic 14s ease-in-out infinite;
+}
+@keyframes lgCaustic{
+  0%,100%{background-position:0% 0%,0 0,0 0,0 0,0 0}
+  50%{background-position:100% 40%,0 0,0 0,0 0,0 0}
 }
 .prov-card.rec{
-  background:
-    linear-gradient(135deg,rgba(0,229,154,.13),rgba(255,255,255,.028) 45%,rgba(34,211,238,.055)),
-    rgba(8,13,26,.86);
-  border-color:rgba(0,229,154,.28);
+  background-color:rgba(8,22,20,.62);
+  border-color:rgba(0,229,154,.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 0 0 1px rgba(0,229,154,.12),
+    0 18px 50px rgba(0,0,0,.4),
+    0 0 40px rgba(0,229,154,.08);
 }
 .cta-box{
-  background:
-    radial-gradient(ellipse at 30% 0%,rgba(0,229,154,.13),transparent 58%),
-    radial-gradient(ellipse at 80% 100%,rgba(59,130,246,.11),transparent 60%),
-    linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.018)),
-    rgba(8,13,26,.9);
+  background-color:rgba(8,14,26,.62);
+  background-image:
+    linear-gradient(118deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,0) 22%,rgba(255,255,255,.07) 100%),
+    radial-gradient(ellipse at 30% 0%,rgba(0,229,154,.16),transparent 58%),
+    radial-gradient(ellipse at 80% 100%,rgba(59,130,246,.12),transparent 60%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  border-color:rgba(0,229,154,.28);
+}
+.hero-badge{
+  background-color:rgba(0,40,32,.45);
+  animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both, lgCaustic 14s ease-in-out infinite;
+}
+.float-card{animation:floatA 5s ease-in-out infinite, lgCaustic 14s ease-in-out infinite}
+.fc2{animation:floatB 6s ease-in-out infinite, lgCaustic 16s ease-in-out infinite}
+footer{
+  overflow:hidden;
+  border-top:1px solid rgba(255,255,255,.12);
+}
+@media (prefers-reduced-motion:reduce){
+  .lg,.stats-grid,.feat-card,.step-card,.prov-card,.testi-card,.calc-card,.cta-box,.mock,.mock-panel,.float-card,.hero-badge,.ticker-outer,footer{
+    animation:none!important;
+  }
 }
 
 /* ── Footer ── */
