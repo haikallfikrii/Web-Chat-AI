@@ -16,7 +16,7 @@ $languages = ['en', 'id', 'es', 'fr', 'pt', 'ja'];
 $paths = [
     ['loc' => '/', 'file' => __DIR__ . '/index.php', 'priority' => '1.0', 'changefreq' => 'weekly'],
     ['loc' => '/pricing.php', 'file' => __DIR__ . '/pricing.php', 'priority' => '0.9', 'changefreq' => 'weekly'],
-    ['loc' => '/blog/', 'file' => __DIR__ . '/blog/index.php', 'priority' => '0.8', 'changefreq' => 'weekly'],
+    ['loc' => '/blog/', 'file' => __DIR__ . '/includes/blog/posts.php', 'priority' => '0.8', 'changefreq' => 'weekly'],
     ['loc' => '/docs/', 'file' => __DIR__ . '/docs/index.php', 'priority' => '0.85', 'changefreq' => 'weekly'],
 ];
 
