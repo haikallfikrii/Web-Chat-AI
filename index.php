@@ -293,140 +293,100 @@ seo_render_head([
 .fc1{
   top:-18px;left:-18px;
   z-index:25;
-  animation:orbitCW 12s ease-in-out infinite;
+  animation:orbitCW 10s linear infinite;
 }
 
 /* fc2: "Secure & Encrypted" — starts bottom-right, orbits counter-clockwise */
 .fc2{
   bottom:-18px;right:-18px;
   z-index:20;
-  animation:orbitCCW 12s ease-in-out infinite;
+  animation:orbitCCW 10s linear infinite;
 }
 
 /* 
-  orbitCW: fc1 orbits CLOCKWISE around the mock browser
-  Path: top-left → right side (FRONT) → bottom-right → left side (BEHIND) → top-left
-  
-  Pauses at: top-left (0%, 100%) and bottom-right (50%)
+  orbitCW: fc1 orbits CLOCKWISE continuously around the mock browser
+  Smooth motion, no pauses - just continuous orbit
+  Passes in FRONT on the right side, BEHIND on the left side
 */
 @keyframes orbitCW{
-  /* START: Top-left corner - PAUSE */
-  0%,2%{
-    transform:translate(0,0) rotate(0deg) scale(1);
+  0%{
+    transform:translate(0,0) rotate(0deg);
     z-index:25;
   }
-  /* Moving right along the top edge */
-  12%{
-    transform:translate(200px,-25px) rotate(3deg) scale(1.02);
-    z-index:26;
-  }
-  /* Rounding the top-right corner */
-  20%{
-    transform:translate(420px,20px) rotate(5deg) scale(1.04);
+  12.5%{
+    transform:translate(220px,-20px) rotate(4deg);
     z-index:28;
   }
-  /* Going down the RIGHT side - passing in FRONT */
-  30%{
-    transform:translate(460px,150px) rotate(3deg) scale(1.06);
+  25%{
+    transform:translate(450px,100px) rotate(6deg);
+    z-index:32;
+  }
+  37.5%{
+    transform:translate(440px,280px) rotate(2deg);
     z-index:30;
   }
-  /* Continuing down the right side */
-  40%{
-    transform:translate(440px,300px) rotate(-2deg) scale(1.04);
-    z-index:28;
-  }
-  /* PAUSE: Bottom-right corner */
-  48%,52%{
-    transform:translate(400px,380px) rotate(0deg) scale(1);
+  50%{
+    transform:translate(400px,380px) rotate(0deg);
     z-index:25;
   }
-  /* Moving left along the bottom edge */
-  62%{
-    transform:translate(200px,420px) rotate(-3deg) scale(1.02);
-    z-index:22;
-  }
-  /* Rounding the bottom-left corner */
-  70%{
-    transform:translate(-20px,360px) rotate(-5deg) scale(1.04);
+  62.5%{
+    transform:translate(180px,400px) rotate(-4deg);
     z-index:18;
   }
-  /* Going up the LEFT side - passing BEHIND */
-  80%{
-    transform:translate(-50px,200px) rotate(-3deg) scale(1.03);
+  75%{
+    transform:translate(-40px,280px) rotate(-6deg);
+    z-index:12;
+  }
+  87.5%{
+    transform:translate(-30px,100px) rotate(-2deg);
     z-index:15;
   }
-  /* Continuing up the left side */
-  90%{
-    transform:translate(-30px,60px) rotate(2deg) scale(1.02);
-    z-index:18;
-  }
-  /* PAUSE: Back to top-left */
-  98%,100%{
-    transform:translate(0,0) rotate(0deg) scale(1);
+  100%{
+    transform:translate(0,0) rotate(0deg);
     z-index:25;
   }
 }
 
 /* 
-  orbitCCW: fc2 orbits COUNTER-CLOCKWISE around the mock browser
-  Path: bottom-right → left side (BEHIND) → top-left → right side (FRONT) → bottom-right
-  
-  Pauses at: bottom-right (0%, 100%) and top-left (50%)
+  orbitCCW: fc2 orbits COUNTER-CLOCKWISE continuously
+  Smooth motion, no pauses - just continuous orbit
+  Passes BEHIND on the left side, in FRONT on the right side
 */
 @keyframes orbitCCW{
-  /* START: Bottom-right corner - PAUSE */
-  0%,2%{
-    transform:translate(0,0) rotate(0deg) scale(1);
+  0%{
+    transform:translate(0,0) rotate(0deg);
     z-index:20;
   }
-  /* Moving left along the bottom edge */
-  12%{
-    transform:translate(-200px,25px) rotate(-3deg) scale(1.02);
-    z-index:18;
+  12.5%{
+    transform:translate(-220px,20px) rotate(-4deg);
+    z-index:15;
   }
-  /* Rounding the bottom-left corner */
-  20%{
-    transform:translate(-420px,-20px) rotate(-5deg) scale(1.04);
-    z-index:16;
+  25%{
+    transform:translate(-450px,-100px) rotate(-6deg);
+    z-index:12;
   }
-  /* Going up the LEFT side - passing BEHIND */
-  30%{
-    transform:translate(-460px,-150px) rotate(-3deg) scale(1.03);
-    z-index:14;
+  37.5%{
+    transform:translate(-440px,-280px) rotate(-2deg);
+    z-index:15;
   }
-  /* Continuing up the left side */
-  40%{
-    transform:translate(-440px,-300px) rotate(2deg) scale(1.02);
-    z-index:16;
-  }
-  /* PAUSE: Top-left corner */
-  48%,52%{
-    transform:translate(-400px,-380px) rotate(0deg) scale(1);
+  50%{
+    transform:translate(-400px,-380px) rotate(0deg);
     z-index:20;
   }
-  /* Moving right along the top edge */
-  62%{
-    transform:translate(-200px,-420px) rotate(3deg) scale(1.02);
-    z-index:24;
-  }
-  /* Rounding the top-right corner */
-  70%{
-    transform:translate(20px,-360px) rotate(5deg) scale(1.04);
+  62.5%{
+    transform:translate(-180px,-400px) rotate(4deg);
     z-index:28;
   }
-  /* Going down the RIGHT side - passing in FRONT */
-  80%{
-    transform:translate(50px,-200px) rotate(3deg) scale(1.06);
+  75%{
+    transform:translate(40px,-280px) rotate(6deg);
+    z-index:32;
+  }
+  87.5%{
+    transform:translate(30px,-100px) rotate(2deg);
     z-index:30;
   }
-  /* Continuing down the right side */
-  90%{
-    transform:translate(30px,-60px) rotate(-2deg) scale(1.04);
-    z-index:26;
-  }
-  /* PAUSE: Back to bottom-right */
-  98%,100%{
-    transform:translate(0,0) rotate(0deg) scale(1);
+  100%{
+    transform:translate(0,0) rotate(0deg);
     z-index:20;
   }
 }
