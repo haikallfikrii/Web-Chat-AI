@@ -185,10 +185,10 @@ seo_render_head([
   position:relative;padding:22px 20px;min-height:330px;
   background:
     linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
-    rgba(8,13,26,.35);
-  backdrop-filter:blur(12px) saturate(150%);
-  -webkit-backdrop-filter:blur(12px) saturate(150%);
-  border-top:1px solid rgba(255,255,255,.08);
+    rgba(8,13,26,.08);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
 }
 .mock-skel{display:flex;flex-direction:column;gap:9px;opacity:.32}
 .mock-skel .ln{height:9px;border-radius:5px;background:rgba(255,255,255,.15)}
@@ -291,99 +291,98 @@ seo_render_head([
 }
 
 /* 
-  Elliptical orbit like a planet's ring
+  Elliptical orbit tightly around the prototype screen
   Both cards orbit COUNTER-CLOCKWISE
   They are 180° apart - when one is in FRONT, the other is BEHIND
 */
 
-/* fc1: starts at FRONT of the ellipse (bottom, closer to viewer) */
+/* fc1: starts at BOTTOM of the ellipse (front/closer) */
 .fc1{
   top:50%;left:50%;
-  margin-top:160px;margin-left:-60px;
+  margin-top:180px;margin-left:-60px;
   animation:ringOrbit 8s linear infinite;
 }
 
-/* fc2: starts at BACK of the ellipse (top, farther from viewer) - 180° offset */
+/* fc2: starts at TOP of the ellipse (back/farther) - 180° offset */
 .fc2{
   top:50%;left:50%;
-  margin-top:-200px;margin-left:-60px;
+  margin-top:-220px;margin-left:-60px;
   animation:ringOrbit 8s linear infinite;
   animation-delay:-4s;
 }
 
 /* 
-  Elliptical ring orbit - COUNTER-CLOCKWISE
-  Oval shape: wider horizontally, narrower vertically
-  Cards scale up when in front, scale down when behind
-  Z-index changes create the depth illusion
+  Tight elliptical orbit around the prototype screen
+  Oval: ~240px horizontal radius, ~200px vertical radius
+  Cards scale and z-index change for 3D depth effect
 */
 @keyframes ringOrbit{
   0%{
-    transform:translate(0,0) scale(1.1) rotate(3deg);
+    transform:translate(0,0) scale(1.08) rotate(2deg);
     z-index:35;
   }
   6.25%{
-    transform:translate(120px,-30px) scale(1.08) rotate(4deg);
+    transform:translate(100px,-25px) scale(1.06) rotate(3deg);
     z-index:32;
   }
   12.5%{
-    transform:translate(220px,-70px) scale(1.04) rotate(5deg);
-    z-index:28;
+    transform:translate(180px,-70px) scale(1.02) rotate(4deg);
+    z-index:26;
   }
   18.75%{
-    transform:translate(280px,-120px) scale(.98) rotate(4deg);
-    z-index:22;
+    transform:translate(220px,-120px) scale(.96) rotate(3deg);
+    z-index:20;
   }
   25%{
-    transform:translate(300px,-180px) scale(.92) rotate(2deg);
-    z-index:15;
+    transform:translate(240px,-170px) scale(.9) rotate(2deg);
+    z-index:14;
   }
   31.25%{
-    transform:translate(270px,-240px) scale(.88) rotate(0deg);
+    transform:translate(220px,-220px) scale(.86) rotate(0deg);
     z-index:10;
   }
   37.5%{
-    transform:translate(200px,-290px) scale(.85) rotate(-2deg);
-    z-index:8;
+    transform:translate(160px,-260px) scale(.84) rotate(-2deg);
+    z-index:7;
   }
   43.75%{
-    transform:translate(100px,-320px) scale(.84) rotate(-3deg);
-    z-index:6;
-  }
-  50%{
-    transform:translate(0,-340px) scale(.85) rotate(-2deg);
+    transform:translate(80px,-280px) scale(.82) rotate(-3deg);
     z-index:5;
   }
+  50%{
+    transform:translate(0,-290px) scale(.82) rotate(-2deg);
+    z-index:4;
+  }
   56.25%{
-    transform:translate(-100px,-320px) scale(.86) rotate(-1deg);
-    z-index:6;
+    transform:translate(-80px,-280px) scale(.83) rotate(-1deg);
+    z-index:5;
   }
   62.5%{
-    transform:translate(-200px,-290px) scale(.9) rotate(0deg);
-    z-index:10;
+    transform:translate(-160px,-260px) scale(.86) rotate(0deg);
+    z-index:8;
   }
   68.75%{
-    transform:translate(-270px,-240px) scale(.95) rotate(1deg);
-    z-index:18;
+    transform:translate(-220px,-220px) scale(.92) rotate(1deg);
+    z-index:14;
   }
   75%{
-    transform:translate(-300px,-180px) scale(1) rotate(2deg);
-    z-index:25;
+    transform:translate(-240px,-170px) scale(.98) rotate(2deg);
+    z-index:22;
   }
   81.25%{
-    transform:translate(-280px,-120px) scale(1.04) rotate(3deg);
-    z-index:30;
+    transform:translate(-220px,-120px) scale(1.02) rotate(3deg);
+    z-index:28;
   }
   87.5%{
-    transform:translate(-220px,-70px) scale(1.08) rotate(4deg);
-    z-index:33;
+    transform:translate(-180px,-70px) scale(1.06) rotate(3deg);
+    z-index:32;
   }
   93.75%{
-    transform:translate(-120px,-30px) scale(1.1) rotate(3deg);
+    transform:translate(-100px,-25px) scale(1.08) rotate(2deg);
     z-index:35;
   }
   100%{
-    transform:translate(0,0) scale(1.1) rotate(3deg);
+    transform:translate(0,0) scale(1.08) rotate(2deg);
     z-index:35;
   }
 }
