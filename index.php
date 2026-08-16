@@ -166,37 +166,21 @@ seo_render_head([
 .hero-trust svg{color:var(--green);width:14px;height:14px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── Mock browser ──
-   Do NOT put transform / preserve-3d / will-change:transform on .mock
-   or any ancestor — that kills backdrop-filter so frost never shows. */
-.mock-wrap{position:relative;animation:mockFade 1s .28s cubic-bezier(.22,1,.36,1) both;overflow:visible!important}
-@keyframes mockFade{from{opacity:0}to{opacity:1}}
+/* Prototype chrome uses the same .glass recipe as the navbar
+   (theme.css): --glass fill + blur(24px). Do not wrap this in
+   opacity animations — that disables backdrop-filter. */
+.mock-wrap{position:relative;overflow:visible!important}
 .mock-tilt{transition:none}
 .mock-orbit{position:relative;width:100%}
-.mock{
-  position:relative;
+.hero .mock.glass{
   z-index:10;
-  border-radius:var(--r-lg);
-  overflow:visible;
-  border:1px solid rgba(255,255,255,.16);
+  overflow:hidden;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.18),
     0 32px 80px rgba(0,0,0,.45),
     0 0 60px rgba(0,229,154,.06);
 }
-/* Frost layer — same recipe as .stats-grid / .prov-card.
-   Kept as its own layer (no overflow:hidden, no transform) so blur samples the page. */
-.mock-frost{
-  position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
-    rgba(8,13,26,.08);
-  backdrop-filter:blur(10px) saturate(140%);
-  -webkit-backdrop-filter:blur(10px) saturate(140%);
-}
-.mock-inner{
-  position:relative;z-index:1;overflow:hidden;border-radius:inherit;
-}
+.mock-inner{position:relative;z-index:1}
 .mock-bar{
   position:relative;z-index:1;
   padding:11px 14px;
@@ -220,15 +204,7 @@ seo_render_head([
 /* Interactive demo panel */
 .mock-panel{
   width:100%;max-width:270px;
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
-    rgba(8,13,26,.08);
-  backdrop-filter:blur(10px) saturate(140%);
-  -webkit-backdrop-filter:blur(10px) saturate(140%);
-  border:1px solid rgba(255,255,255,.16);border-radius:16px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.18),
-    0 18px 48px rgba(0,0,0,.4);
+  border-radius:16px;
   overflow:hidden;display:flex;flex-direction:column;
   opacity:0;transform:translateY(14px) scale(.94);transform-origin:bottom right;
   transition:opacity .32s cubic-bezier(.22,1,.36,1),transform .32s cubic-bezier(.22,1,.36,1);
@@ -568,9 +544,6 @@ seo_render_head([
 .testi-card,
 .calc-card,
 .cta-box,
-.mock-frost,
-.mock-panel,
-.float-card,
 .hero-badge,
 .ticker-outer,
 footer{
@@ -810,8 +783,7 @@ footer a:hover{opacity:.75}
       <div class="mock-orbit">
         <div class="float-card fc1"><?= icon('zap', 15) ?> <?= esc($t['float_1']) ?></div>
         <div class="float-card fc2"><?= icon('shield', 15) ?> <?= esc($t['float_2']) ?></div>
-        <div class="mock">
-          <div class="mock-frost" aria-hidden="true"></div>
+        <div class="mock glass">
           <div class="mock-inner">
         <div class="mock-bar">
           <div class="d r"></div><div class="d y"></div><div class="d g"></div>
@@ -836,7 +808,7 @@ footer a:hover{opacity:.75}
                        ['q' => $t['demo_q3'] ?? 'Is my data secure?',     'a' => $t['demo_a3'] ?? ''],
                    ],
                ], JSON_UNESCAPED_UNICODE)) ?>'>
-            <div class="mock-panel" id="mockPanel">
+            <div class="mock-panel glass-strong" id="mockPanel">
               <div class="mock-panel-head">
                 <span class="mp-avatar"><?= icon('bot', 14) ?></span>
                 <span class="mp-title">ChatLM<em><?= esc($t['demo_status'] ?? 'Online') ?></em></span>
