@@ -535,24 +535,8 @@
     }
   }
 
-  /* ─────────────────────────────────────────────
-     3. 3D TILT (mock browser) — paused while demo chat is open
-  ───────────────────────────────────────────── */
-  var tilt = document.getElementById('mockTilt');
-  var mockChatEl = document.getElementById('mockChat');
-  if (tilt && window.matchMedia('(hover:hover)').matches) {
-    var wrap = tilt.parentElement;
-    if (wrap) {
-      wrap.addEventListener('mousemove', function (e) {
-        if (mockChatEl && mockChatEl.classList.contains('open')) return;
-        var r = wrap.getBoundingClientRect();
-        var rx = -((e.clientY - r.top)  / r.height - .5) * 9;
-        var ry =  ((e.clientX - r.left) / r.width  - .5) * 13;
-        tilt.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) scale3d(1.02,1.02,1.02)';
-      });
-      wrap.addEventListener('mouseleave', function () { tilt.style.transform = ''; });
-    }
-  }
+  /* 3D tilt disabled: CSS transform on the mock ancestor
+     prevents backdrop-filter frost from sampling the page background. */
 
   /* ─────────────────────────────────────────────
      4. TYPEWRITER

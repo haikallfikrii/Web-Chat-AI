@@ -166,44 +166,47 @@ seo_render_head([
 .hero-trust svg{color:var(--green);width:14px;height:14px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── Mock browser ── */
-.mock-wrap{position:relative;animation:fadeUp 1s .28s cubic-bezier(.22,1,.36,1) both;overflow:visible!important}
-.mock-tilt{transform-style:preserve-3d;transition:transform .14s ease-out;will-change:transform}
+/* ── Mock browser ──
+   Do NOT put transform / preserve-3d / will-change:transform on .mock
+   or any ancestor — that kills backdrop-filter so frost never shows. */
+.mock-wrap{position:relative;animation:mockFade 1s .28s cubic-bezier(.22,1,.36,1) both;overflow:visible!important}
+@keyframes mockFade{from{opacity:0}to{opacity:1}}
+.mock-tilt{transition:none}
 .mock{
-  border-radius:var(--r-lg);overflow:hidden;
-  border:1px solid rgba(255,255,255,.16);
+  position:relative;
+  isolation:isolate;
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.22);
   background:
-    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
-    rgba(8,13,26,.08);
-  backdrop-filter:blur(10px) saturate(140%);
-  -webkit-backdrop-filter:blur(10px) saturate(140%);
+    linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 45%,rgba(0,229,154,.08)),
+    rgba(10,16,28,.55);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 1px 0 rgba(255,255,255,.28),
     0 32px 80px rgba(0,0,0,.5),
     0 0 60px rgba(0,229,154,.06);
-  animation:floatY 7s ease-in-out infinite;
 }
-@keyframes floatY{0%,100%{transform:translateY(0) rotate(-.35deg)}50%{transform:translateY(-14px) rotate(.35deg)}}
-/* Freeze float while visitor interacts with the live demo */
-.mock.chat-open{animation-play-state:paused}
+.mock::before{
+  content:'';
+  position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 42%);
+}
 .mock-bar{
+  position:relative;z-index:1;
   padding:11px 14px;
-  border-bottom:1px solid rgba(255,255,255,.1);
+  border-bottom:1px solid rgba(255,255,255,.12);
   display:flex;align-items:center;gap:6px;
-  background:rgba(255,255,255,.02);
+  background:rgba(255,255,255,.04);
 }
 .mock-bar .d{width:11px;height:11px;border-radius:50%}
 .mock-bar .d.r{background:#FF5F57}.mock-bar .d.y{background:#FFBD2E}.mock-bar .d.g{background:#28C840}
 .mock-bar .url{margin-left:8px;background:rgba(255,255,255,.05);border-radius:6px;padding:4px 12px;
   font-size:11px;color:var(--muted);font-family:'SF Mono',monospace;}
 .mock-body{
-  position:relative;padding:22px 20px;min-height:330px;
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
-    rgba(8,13,26,.08);
-  backdrop-filter:blur(10px) saturate(140%);
-  -webkit-backdrop-filter:blur(10px) saturate(140%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+  position:relative;z-index:1;padding:22px 20px;min-height:330px;
+  background:transparent;
 }
 .mock-skel{display:flex;flex-direction:column;gap:9px;opacity:.32}
 .mock-skel .ln{height:9px;border-radius:5px;background:rgba(255,255,255,.15)}
@@ -214,13 +217,13 @@ seo_render_head([
 .mock-panel{
   width:100%;max-width:270px;
   background:
-    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
-    rgba(8,13,26,.12);
-  backdrop-filter:blur(12px) saturate(150%);
-  -webkit-backdrop-filter:blur(12px) saturate(150%);
-  border:1px solid rgba(255,255,255,.16);border-radius:16px;
+    linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 45%,rgba(0,229,154,.08)),
+    rgba(10,16,28,.62);
+  backdrop-filter:blur(24px) saturate(170%);
+  -webkit-backdrop-filter:blur(24px) saturate(170%);
+  border:1px solid rgba(255,255,255,.20);border-radius:16px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 1px 0 rgba(255,255,255,.24),
     0 18px 48px rgba(0,0,0,.5),
     0 0 0 1px rgba(0,229,154,.08);
   overflow:hidden;display:flex;flex-direction:column;
@@ -305,13 +308,6 @@ seo_render_head([
   will-change:transform,z-index;
 }
 .float-card svg{width:15px;height:15px;color:var(--green)}
-
-/* Orbit container */
-.mock-wrap{
-  position:relative;
-  animation:fadeUp 1s .28s cubic-bezier(.22,1,.36,1) both;
-  overflow:visible!important;
-}
 
 /* 
   Elliptical orbit tightly around the prototype screen
@@ -662,8 +658,6 @@ seo_render_head([
 .testi-card,
 .calc-card,
 .cta-box,
-.mock,
-.mock-panel,
 .float-card,
 .hero-badge,
 .ticker-outer,
@@ -899,7 +893,7 @@ footer a:hover{opacity:.75}
     </div>
   </div>
 
-  <div class="mock-wrap" data-plx="-0.06">
+  <div class="mock-wrap">
     <div class="float-card fc1" data-plx="-0.12"><?= icon('zap', 15) ?> <?= esc($t['float_1']) ?></div>
     <div class="float-card fc2" data-plx="0.1"><?= icon('shield', 15) ?> <?= esc($t['float_2']) ?></div>
     <div class="mock-tilt" id="mockTilt">
