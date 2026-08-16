@@ -289,135 +289,143 @@ seo_render_head([
   overflow:visible!important;
 }
 
-/* fc1: "Instant Reply" — starts top-left, uses transform to swap positions */
+/* fc1: "Instant Reply" — starts top-left, orbits clockwise around the screen */
 .fc1{
   top:-18px;left:-18px;
   z-index:25;
-  animation:swapA 10s cubic-bezier(.45,.05,.55,.95) infinite;
+  animation:orbitCW 12s ease-in-out infinite;
 }
 
-/* fc2: "Secure & Encrypted" — starts bottom-right, uses transform to swap positions */
+/* fc2: "Secure & Encrypted" — starts bottom-right, orbits counter-clockwise */
 .fc2{
   bottom:-18px;right:-18px;
   z-index:20;
-  animation:swapB 10s cubic-bezier(.45,.05,.55,.95) infinite;
+  animation:orbitCCW 12s ease-in-out infinite;
 }
 
 /* 
-  swapA: fc1 travels from top-left → bottom-right → top-left
-  Uses translateX/Y to move diagonally across the mock browser
-  Passes in FRONT (higher z-index) when crossing
+  orbitCW: fc1 orbits CLOCKWISE around the mock browser
+  Path: top-left → right side (FRONT) → bottom-right → left side (BEHIND) → top-left
   
-  Mock browser is ~420px wide, ~380px tall
-  fc1 starts at top:-18px, left:-18px
-  Needs to move to bottom-right: translate(~400px, ~380px)
+  Pauses at: top-left (0%, 100%) and bottom-right (50%)
 */
-@keyframes swapA{
-  0%{
+@keyframes orbitCW{
+  /* START: Top-left corner - PAUSE */
+  0%,2%{
     transform:translate(0,0) rotate(0deg) scale(1);
     z-index:25;
   }
-  /* Moving diagonally, curving outward (front path) */
-  10%{
-    transform:translate(80px,60px) rotate(5deg) scale(1.04);
+  /* Moving right along the top edge */
+  12%{
+    transform:translate(200px,-25px) rotate(3deg) scale(1.02);
+    z-index:26;
+  }
+  /* Rounding the top-right corner */
+  20%{
+    transform:translate(420px,20px) rotate(5deg) scale(1.04);
     z-index:28;
   }
-  20%{
-    transform:translate(180px,120px) rotate(3deg) scale(1.06);
+  /* Going down the RIGHT side - passing in FRONT */
+  30%{
+    transform:translate(460px,150px) rotate(3deg) scale(1.06);
     z-index:30;
   }
-  /* Crossing center - in FRONT */
-  30%{
-    transform:translate(240px,180px) rotate(0deg) scale(1.08);
-    z-index:32;
-  }
+  /* Continuing down the right side */
   40%{
-    transform:translate(320px,280px) rotate(-4deg) scale(1.04);
+    transform:translate(440px,300px) rotate(-2deg) scale(1.04);
     z-index:28;
   }
-  /* Arrived at bottom-right position */
-  50%{
-    transform:translate(380px,360px) rotate(0deg) scale(1);
+  /* PAUSE: Bottom-right corner */
+  48%,52%{
+    transform:translate(400px,380px) rotate(0deg) scale(1);
     z-index:25;
   }
-  /* Return journey - curving the other way */
-  60%{
-    transform:translate(300px,300px) rotate(-5deg) scale(1.04);
-    z-index:28;
+  /* Moving left along the bottom edge */
+  62%{
+    transform:translate(200px,420px) rotate(-3deg) scale(1.02);
+    z-index:22;
   }
+  /* Rounding the bottom-left corner */
   70%{
-    transform:translate(200px,200px) rotate(-2deg) scale(1.06);
-    z-index:30;
+    transform:translate(-20px,360px) rotate(-5deg) scale(1.04);
+    z-index:18;
   }
-  /* Crossing center again - in FRONT */
+  /* Going up the LEFT side - passing BEHIND */
   80%{
-    transform:translate(120px,100px) rotate(0deg) scale(1.08);
-    z-index:32;
+    transform:translate(-50px,200px) rotate(-3deg) scale(1.03);
+    z-index:15;
   }
+  /* Continuing up the left side */
   90%{
-    transform:translate(40px,30px) rotate(4deg) scale(1.04);
-    z-index:28;
+    transform:translate(-30px,60px) rotate(2deg) scale(1.02);
+    z-index:18;
   }
-  100%{
+  /* PAUSE: Back to top-left */
+  98%,100%{
     transform:translate(0,0) rotate(0deg) scale(1);
     z-index:25;
   }
 }
 
 /* 
-  swapB: fc2 travels from bottom-right → top-left → bottom-right
-  Passes BEHIND (lower z-index) when crossing
+  orbitCCW: fc2 orbits COUNTER-CLOCKWISE around the mock browser
+  Path: bottom-right → left side (BEHIND) → top-left → right side (FRONT) → bottom-right
   
-  fc2 starts at bottom:-18px, right:-18px
-  Needs to move to top-left: translate(~-400px, ~-380px)
+  Pauses at: bottom-right (0%, 100%) and top-left (50%)
 */
-@keyframes swapB{
-  0%{
+@keyframes orbitCCW{
+  /* START: Bottom-right corner - PAUSE */
+  0%,2%{
     transform:translate(0,0) rotate(0deg) scale(1);
     z-index:20;
   }
-  /* Moving diagonally, curving outward (back path) */
-  10%{
-    transform:translate(-80px,-60px) rotate(-5deg) scale(1.02);
+  /* Moving left along the bottom edge */
+  12%{
+    transform:translate(-200px,25px) rotate(-3deg) scale(1.02);
     z-index:18;
   }
+  /* Rounding the bottom-left corner */
   20%{
-    transform:translate(-180px,-120px) rotate(-3deg) scale(1.03);
-    z-index:15;
+    transform:translate(-420px,-20px) rotate(-5deg) scale(1.04);
+    z-index:16;
   }
-  /* Crossing center - BEHIND */
+  /* Going up the LEFT side - passing BEHIND */
   30%{
-    transform:translate(-240px,-180px) rotate(0deg) scale(1.04);
-    z-index:12;
+    transform:translate(-460px,-150px) rotate(-3deg) scale(1.03);
+    z-index:14;
   }
+  /* Continuing up the left side */
   40%{
-    transform:translate(-320px,-280px) rotate(4deg) scale(1.02);
-    z-index:15;
+    transform:translate(-440px,-300px) rotate(2deg) scale(1.02);
+    z-index:16;
   }
-  /* Arrived at top-left position */
-  50%{
-    transform:translate(-380px,-360px) rotate(0deg) scale(1);
+  /* PAUSE: Top-left corner */
+  48%,52%{
+    transform:translate(-400px,-380px) rotate(0deg) scale(1);
     z-index:20;
   }
-  /* Return journey - curving back */
-  60%{
-    transform:translate(-300px,-300px) rotate(5deg) scale(1.02);
-    z-index:18;
+  /* Moving right along the top edge */
+  62%{
+    transform:translate(-200px,-420px) rotate(3deg) scale(1.02);
+    z-index:24;
   }
+  /* Rounding the top-right corner */
   70%{
-    transform:translate(-200px,-200px) rotate(2deg) scale(1.03);
-    z-index:15;
+    transform:translate(20px,-360px) rotate(5deg) scale(1.04);
+    z-index:28;
   }
-  /* Crossing center again - BEHIND */
+  /* Going down the RIGHT side - passing in FRONT */
   80%{
-    transform:translate(-120px,-100px) rotate(0deg) scale(1.04);
-    z-index:12;
+    transform:translate(50px,-200px) rotate(3deg) scale(1.06);
+    z-index:30;
   }
+  /* Continuing down the right side */
   90%{
-    transform:translate(-40px,-30px) rotate(-4deg) scale(1.02);
-    z-index:18;
+    transform:translate(30px,-60px) rotate(-2deg) scale(1.04);
+    z-index:26;
   }
-  100%{
+  /* PAUSE: Back to bottom-right */
+  98%,100%{
     transform:translate(0,0) rotate(0deg) scale(1);
     z-index:20;
   }
