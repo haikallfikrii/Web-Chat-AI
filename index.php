@@ -490,6 +490,45 @@ seo_render_head([
 /* Magnetic button js-handled */
 .btn-mag{transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s}
 
+/* ── Liquid glass surface pass ── */
+/* Make foreground surfaces more readable over the animated particles,
+   while keeping the Apple-like glass depth. */
+.stats-grid,
+.feat-card,
+.step-card,
+.prov-card,
+.testi-card,
+.calc-card,
+.cta-box,
+.mock,
+.mock-panel,
+footer{
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.018) 42%,rgba(0,229,154,.045)),
+    radial-gradient(circle at 18% 0%,rgba(255,255,255,.09),transparent 32%),
+    rgba(8,13,26,.84);
+  backdrop-filter:blur(28px) saturate(175%);
+  -webkit-backdrop-filter:blur(28px) saturate(175%);
+  border-color:rgba(255,255,255,.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -1px 0 rgba(255,255,255,.035),
+    0 18px 60px rgba(0,0,0,.34);
+}
+.prov-card.rec{
+  background:
+    linear-gradient(135deg,rgba(0,229,154,.13),rgba(255,255,255,.028) 45%,rgba(34,211,238,.055)),
+    rgba(8,13,26,.86);
+  border-color:rgba(0,229,154,.28);
+}
+.cta-box{
+  background:
+    radial-gradient(ellipse at 30% 0%,rgba(0,229,154,.13),transparent 58%),
+    radial-gradient(ellipse at 80% 100%,rgba(59,130,246,.11),transparent 60%),
+    linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.018)),
+    rgba(8,13,26,.9);
+}
+
 /* ── Footer ── */
 footer{
   position:relative;z-index:1;border-top:1px solid var(--border);
@@ -917,9 +956,9 @@ footer a:hover{opacity:.75}
     <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?>. All rights reserved.</span>
     <span class="footer-dev">
       Developed by
-      <a href="https://www.linkedin.com/in/muhamadfikrih29" target="_blank" rel="noopener"><strong>KalFikri</strong></a>
+      <a href="https://dev-khalfikri.pantheonsite.io/" target="_blank" rel="noopener noreferrer"><strong>KalFikri</strong></a>
       <span class="footer-dot">·</span>
-      <a href="https://www.linkedin.com/in/muhamadfikrih29" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.linkedin.com/in/muhamad-fikri-haikal-fullstack-web-developer/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       <span class="footer-dot">·</span>
       <a href="mailto:muhamadfikrih29@gmail.com">muhamadfikrih29@gmail.com</a>
     </span>
