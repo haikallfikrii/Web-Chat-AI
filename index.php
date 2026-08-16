@@ -169,14 +169,29 @@ seo_render_head([
 /* ── Mock browser ── */
 .mock-wrap{position:relative;animation:fadeUp 1s .28s cubic-bezier(.22,1,.36,1) both;overflow:visible!important}
 .mock-tilt{transform-style:preserve-3d;transition:transform .14s ease-out;will-change:transform}
-.mock{background:var(--bg-3);border-radius:var(--r-lg);overflow:hidden;
-  border:1px solid var(--border-2);
-  box-shadow:0 32px 80px rgba(0,0,0,.65),0 0 80px rgba(0,229,154,.08);
-  animation:floatY 7s ease-in-out infinite;}
+.mock{
+  border-radius:var(--r-lg);overflow:hidden;
+  border:1px solid rgba(255,255,255,.16);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
+    rgba(8,13,26,.08);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 32px 80px rgba(0,0,0,.5),
+    0 0 60px rgba(0,229,154,.06);
+  animation:floatY 7s ease-in-out infinite;
+}
 @keyframes floatY{0%,100%{transform:translateY(0) rotate(-.35deg)}50%{transform:translateY(-14px) rotate(.35deg)}}
 /* Freeze float while visitor interacts with the live demo */
 .mock.chat-open{animation-play-state:paused}
-.mock-bar{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.mock-bar{
+  padding:11px 14px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.02);
+}
 .mock-bar .d{width:11px;height:11px;border-radius:50%}
 .mock-bar .d.r{background:#FF5F57}.mock-bar .d.y{background:#FFBD2E}.mock-bar .d.g{background:#28C840}
 .mock-bar .url{margin-left:8px;background:rgba(255,255,255,.05);border-radius:6px;padding:4px 12px;
@@ -198,8 +213,16 @@ seo_render_head([
 /* Interactive demo panel */
 .mock-panel{
   width:100%;max-width:270px;
-  background:rgba(8,13,24,.97);border:1px solid var(--border-2);border-radius:16px;
-  box-shadow:0 18px 48px rgba(0,0,0,.6),0 0 0 1px rgba(0,229,154,.08);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
+    rgba(8,13,26,.12);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  border:1px solid rgba(255,255,255,.16);border-radius:16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 18px 48px rgba(0,0,0,.5),
+    0 0 0 1px rgba(0,229,154,.08);
   overflow:hidden;display:flex;flex-direction:column;
   opacity:0;transform:translateY(14px) scale(.94);transform-origin:bottom right;
   transition:opacity .32s cubic-bezier(.22,1,.36,1),transform .32s cubic-bezier(.22,1,.36,1);
