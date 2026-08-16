@@ -494,11 +494,16 @@ seo_render_head([
 footer{
   position:relative;z-index:1;border-top:1px solid var(--border);
   padding:32px 24px;display:flex;flex-wrap:wrap;align-items:center;
-  justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;
+  justify-content:space-between;gap:18px;color:var(--muted);font-size:13px;
 }
 footer a{color:var(--green)}
 footer a:hover{opacity:.75}
 .footer-links{display:flex;gap:18px}
+.footer-meta{display:flex;flex-direction:column;gap:6px;line-height:1.45}
+.footer-dev{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--text-2)}
+.footer-dev strong{color:var(--text);font-weight:700}
+.footer-dev a{font-weight:600}
+.footer-dot{color:var(--muted)}
 
 /* ── Scroll-reveal ── */
 .sr{opacity:0;transform:translateY(34px);
@@ -908,7 +913,17 @@ footer a:hover{opacity:.75}
 
 <!-- ═══ FOOTER ═══ -->
 <footer>
-  <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?> &nbsp;·&nbsp; <?= esc($t['footer_built']) ?></span>
+  <div class="footer-meta">
+    <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?>. All rights reserved.</span>
+    <span class="footer-dev">
+      Developed by
+      <a href="https://www.linkedin.com/in/muhamadfikrih29" target="_blank" rel="noopener"><strong>KalFikri</strong></a>
+      <span class="footer-dot">·</span>
+      <a href="https://www.linkedin.com/in/muhamadfikrih29" target="_blank" rel="noopener">LinkedIn</a>
+      <span class="footer-dot">·</span>
+      <a href="mailto:muhamadfikrih29@gmail.com">muhamadfikrih29@gmail.com</a>
+    </span>
+  </div>
   <div class="footer-links">
     <a href="<?= esc(app_url('/docs/')) ?>"><?= esc($t['footer_docs']) ?></a>
     <a href="<?= esc(app_url('/blog/')) ?>"><?= esc($t['footer_blog']) ?></a>
