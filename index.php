@@ -124,11 +124,23 @@ seo_render_head([
 }
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;
-  padding:6px 15px;border-radius:999px;
-  background:var(--green-dim);color:var(--green);
-  border:1px solid var(--green-line);
+  padding:8px 18px;border-radius:999px;
+  background:
+    linear-gradient(135deg,rgba(0,229,154,.12),rgba(255,255,255,.03)),
+    rgba(8,13,26,.08);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  color:var(--green);
+  border:1px solid rgba(0,229,154,.25);
   font-size:12.5px;font-weight:700;letter-spacing:.15px;margin-bottom:22px;
-  animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both;
+  animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both,badgeGlow 4s ease-in-out infinite 1s;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.15),
+    0 8px 24px rgba(0,229,154,.15);
+}
+@keyframes badgeGlow{
+  0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 8px 24px rgba(0,229,154,.15)}
+  50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 32px rgba(0,229,154,.25),0 0 20px rgba(0,229,154,.1)}
 }
 .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulseDot 2s infinite}
 .hero h1{
@@ -246,18 +258,127 @@ seo_render_head([
 .fab-badge{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:999px;
   background:#ef4444;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;
   padding:0 4px;box-shadow:0 2px 8px rgba(239,68,68,.5);animation:msgIn .3s both}
+/* ── Orbiting Floating Cards ── */
 .float-card{
-  position:absolute;backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);
-  background:var(--glass-2);border:1px solid var(--border-2);border-radius:12px;
-  padding:9px 14px;box-shadow:0 12px 28px rgba(0,0,0,.5);
+  position:absolute;backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02) 45%,rgba(0,229,154,.05)),
+    rgba(8,13,26,.12);
+  border:1px solid rgba(255,255,255,.18);border-radius:12px;
+  padding:9px 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 12px 28px rgba(0,0,0,.4);
   font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px;
   z-index:20;white-space:nowrap;
+  transform-origin:center center;
 }
 .float-card svg{width:15px;height:15px;color:var(--green)}
-.fc1{top:-18px;left:-18px;animation:floatA 5s ease-in-out infinite}
-.fc2{bottom:-18px;right:-18px;animation:floatB 6s ease-in-out infinite}
-@keyframes floatA{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-@keyframes floatB{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+
+/* Orbit container — we use .mock-wrap as the reference */
+.mock-wrap{
+  position:relative;
+  animation:fadeUp 1s .28s cubic-bezier(.22,1,.36,1) both;
+  overflow:visible!important;
+}
+
+/* Orbital animation for fc1 — top-left start, orbits clockwise */
+.fc1{
+  top:50%;left:50%;
+  margin-top:-190px;margin-left:-180px;
+  animation:orbitA 12s cubic-bezier(.45,.05,.55,.95) infinite;
+}
+
+/* Orbital animation for fc2 — bottom-right start, orbits counter-clockwise */
+.fc2{
+  top:50%;left:50%;
+  margin-top:150px;margin-left:100px;
+  animation:orbitB 12s cubic-bezier(.45,.05,.55,.95) infinite;
+}
+
+/* Complex orbit keyframes with position swapping and subtle 3D tilt */
+@keyframes orbitA{
+  0%{
+    transform:translate(0,0) rotate(0deg) scale(1);
+    opacity:1;
+  }
+  12.5%{
+    transform:translate(80px,-60px) rotate(5deg) scale(1.02);
+  }
+  25%{
+    transform:translate(260px,-20px) rotate(3deg) scale(1.04);
+    opacity:.95;
+  }
+  37.5%{
+    transform:translate(300px,100px) rotate(-2deg) scale(1);
+  }
+  50%{
+    transform:translate(260px,180px) rotate(-5deg) scale(.98);
+    opacity:.9;
+  }
+  62.5%{
+    transform:translate(100px,220px) rotate(-3deg) scale(1);
+  }
+  75%{
+    transform:translate(-20px,140px) rotate(2deg) scale(1.02);
+    opacity:.95;
+  }
+  87.5%{
+    transform:translate(-40px,40px) rotate(4deg) scale(1);
+  }
+  100%{
+    transform:translate(0,0) rotate(0deg) scale(1);
+    opacity:1;
+  }
+}
+
+@keyframes orbitB{
+  0%{
+    transform:translate(0,0) rotate(0deg) scale(1);
+    opacity:1;
+  }
+  12.5%{
+    transform:translate(-80px,40px) rotate(-4deg) scale(1.02);
+  }
+  25%{
+    transform:translate(-260px,20px) rotate(-2deg) scale(1.04);
+    opacity:.95;
+  }
+  37.5%{
+    transform:translate(-300px,-100px) rotate(3deg) scale(1);
+  }
+  50%{
+    transform:translate(-260px,-200px) rotate(5deg) scale(.98);
+    opacity:.9;
+  }
+  62.5%{
+    transform:translate(-100px,-240px) rotate(3deg) scale(1);
+  }
+  75%{
+    transform:translate(20px,-160px) rotate(-3deg) scale(1.02);
+    opacity:.95;
+  }
+  87.5%{
+    transform:translate(40px,-60px) rotate(-4deg) scale(1);
+  }
+  100%{
+    transform:translate(0,0) rotate(0deg) scale(1);
+    opacity:1;
+  }
+}
+
+/* Add subtle glow pulse to floating cards */
+.fc1::before,.fc2::before{
+  content:'';position:absolute;inset:-2px;border-radius:inherit;
+  background:linear-gradient(135deg,rgba(0,229,154,.15),transparent 60%);
+  z-index:-1;opacity:0;
+  animation:floatGlow 3s ease-in-out infinite;
+}
+.fc2::before{animation-delay:1.5s}
+@keyframes floatGlow{
+  0%,100%{opacity:0;transform:scale(.95)}
+  50%{opacity:1;transform:scale(1.02)}
+}
 
 /* ── Ticker ── */
 .ticker-outer{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
@@ -513,6 +634,43 @@ footer{
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.18),
     0 12px 40px rgba(0,0,0,.22);
+}
+
+/* ── Hero Section Glass Elements ── */
+.hero-trust{
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01) 50%,rgba(0,229,154,.02)),
+    rgba(8,13,26,.06);
+  backdrop-filter:blur(8px) saturate(130%);
+  -webkit-backdrop-filter:blur(8px) saturate(130%);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;
+  padding:14px 20px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 8px 24px rgba(0,0,0,.15);
+}
+
+/* Glass effect for hero CTA buttons */
+.hero-cta .btn-outline{
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02)),
+    rgba(8,13,26,.1);
+  backdrop-filter:blur(8px) saturate(130%);
+  -webkit-backdrop-filter:blur(8px) saturate(130%);
+  border-color:rgba(255,255,255,.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.15),
+    0 6px 20px rgba(0,0,0,.18);
+}
+.hero-cta .btn-outline:hover{
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.1),rgba(0,229,154,.05)),
+    rgba(8,13,26,.15);
+  border-color:var(--green-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 10px 30px rgba(0,229,154,.15);
 }
 .prov-card.rec{
   background:
