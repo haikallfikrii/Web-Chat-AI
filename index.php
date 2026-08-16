@@ -181,9 +181,16 @@ seo_render_head([
 .mock-bar .d.r{background:#FF5F57}.mock-bar .d.y{background:#FFBD2E}.mock-bar .d.g{background:#28C840}
 .mock-bar .url{margin-left:8px;background:rgba(255,255,255,.05);border-radius:6px;padding:4px 12px;
   font-size:11px;color:var(--muted);font-family:'SF Mono',monospace;}
-.mock-body{position:relative;padding:22px 20px;min-height:330px}
-.mock-skel{display:flex;flex-direction:column;gap:9px;opacity:.28}
-.mock-skel .ln{height:9px;border-radius:5px;background:rgba(255,255,255,.18)}
+.mock-body{
+  position:relative;padding:22px 20px;min-height:330px;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01) 50%,rgba(0,229,154,.02)),
+    rgba(8,13,26,.06);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+}
+.mock-skel{display:flex;flex-direction:column;gap:9px;opacity:.32}
+.mock-skel .ln{height:9px;border-radius:5px;background:rgba(255,255,255,.15)}
 .ln-80{width:80%}.ln-55{width:55%}.ln-70{width:70%}.ln-40{width:40%}.ln-90{width:90%}
 .mock-chat{position:absolute;bottom:16px;right:16px;left:16px;display:flex;flex-direction:column;align-items:flex-end;gap:9px;z-index:10}
 
@@ -258,7 +265,7 @@ seo_render_head([
 .fab-badge{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:999px;
   background:#ef4444;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;
   padding:0 4px;box-shadow:0 2px 8px rgba(239,68,68,.5);animation:msgIn .3s both}
-/* ── Orbiting Floating Cards ── */
+/* ── Orbiting Floating Cards with Position Swap ── */
 .float-card{
   position:absolute;backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);
   background:
@@ -270,100 +277,149 @@ seo_render_head([
     inset 0 1px 0 rgba(255,255,255,.2),
     0 12px 28px rgba(0,0,0,.4);
   font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px;
-  z-index:20;white-space:nowrap;
-  transform-origin:center center;
+  white-space:nowrap;
+  will-change:transform,z-index;
 }
 .float-card svg{width:15px;height:15px;color:var(--green)}
 
-/* Orbit container — we use .mock-wrap as the reference */
+/* Orbit container */
 .mock-wrap{
   position:relative;
   animation:fadeUp 1s .28s cubic-bezier(.22,1,.36,1) both;
   overflow:visible!important;
 }
 
-/* Orbital animation for fc1 — top-left start, orbits clockwise */
+/* fc1: "Instant Reply" — starts top-left, uses transform to swap positions */
 .fc1{
-  top:50%;left:50%;
-  margin-top:-190px;margin-left:-180px;
-  animation:orbitA 12s cubic-bezier(.45,.05,.55,.95) infinite;
+  top:-18px;left:-18px;
+  z-index:25;
+  animation:swapA 10s cubic-bezier(.45,.05,.55,.95) infinite;
 }
 
-/* Orbital animation for fc2 — bottom-right start, orbits counter-clockwise */
+/* fc2: "Secure & Encrypted" — starts bottom-right, uses transform to swap positions */
 .fc2{
-  top:50%;left:50%;
-  margin-top:150px;margin-left:100px;
-  animation:orbitB 12s cubic-bezier(.45,.05,.55,.95) infinite;
+  bottom:-18px;right:-18px;
+  z-index:20;
+  animation:swapB 10s cubic-bezier(.45,.05,.55,.95) infinite;
 }
 
-/* Complex orbit keyframes with position swapping and subtle 3D tilt */
-@keyframes orbitA{
+/* 
+  swapA: fc1 travels from top-left → bottom-right → top-left
+  Uses translateX/Y to move diagonally across the mock browser
+  Passes in FRONT (higher z-index) when crossing
+  
+  Mock browser is ~420px wide, ~380px tall
+  fc1 starts at top:-18px, left:-18px
+  Needs to move to bottom-right: translate(~400px, ~380px)
+*/
+@keyframes swapA{
   0%{
     transform:translate(0,0) rotate(0deg) scale(1);
-    opacity:1;
+    z-index:25;
   }
-  12.5%{
-    transform:translate(80px,-60px) rotate(5deg) scale(1.02);
+  /* Moving diagonally, curving outward (front path) */
+  10%{
+    transform:translate(80px,60px) rotate(5deg) scale(1.04);
+    z-index:28;
   }
-  25%{
-    transform:translate(260px,-20px) rotate(3deg) scale(1.04);
-    opacity:.95;
+  20%{
+    transform:translate(180px,120px) rotate(3deg) scale(1.06);
+    z-index:30;
   }
-  37.5%{
-    transform:translate(300px,100px) rotate(-2deg) scale(1);
+  /* Crossing center - in FRONT */
+  30%{
+    transform:translate(240px,180px) rotate(0deg) scale(1.08);
+    z-index:32;
   }
+  40%{
+    transform:translate(320px,280px) rotate(-4deg) scale(1.04);
+    z-index:28;
+  }
+  /* Arrived at bottom-right position */
   50%{
-    transform:translate(260px,180px) rotate(-5deg) scale(.98);
-    opacity:.9;
+    transform:translate(380px,360px) rotate(0deg) scale(1);
+    z-index:25;
   }
-  62.5%{
-    transform:translate(100px,220px) rotate(-3deg) scale(1);
+  /* Return journey - curving the other way */
+  60%{
+    transform:translate(300px,300px) rotate(-5deg) scale(1.04);
+    z-index:28;
   }
-  75%{
-    transform:translate(-20px,140px) rotate(2deg) scale(1.02);
-    opacity:.95;
+  70%{
+    transform:translate(200px,200px) rotate(-2deg) scale(1.06);
+    z-index:30;
   }
-  87.5%{
-    transform:translate(-40px,40px) rotate(4deg) scale(1);
+  /* Crossing center again - in FRONT */
+  80%{
+    transform:translate(120px,100px) rotate(0deg) scale(1.08);
+    z-index:32;
+  }
+  90%{
+    transform:translate(40px,30px) rotate(4deg) scale(1.04);
+    z-index:28;
   }
   100%{
     transform:translate(0,0) rotate(0deg) scale(1);
-    opacity:1;
+    z-index:25;
   }
 }
 
-@keyframes orbitB{
+/* 
+  swapB: fc2 travels from bottom-right → top-left → bottom-right
+  Passes BEHIND (lower z-index) when crossing
+  
+  fc2 starts at bottom:-18px, right:-18px
+  Needs to move to top-left: translate(~-400px, ~-380px)
+*/
+@keyframes swapB{
   0%{
     transform:translate(0,0) rotate(0deg) scale(1);
-    opacity:1;
+    z-index:20;
   }
-  12.5%{
-    transform:translate(-80px,40px) rotate(-4deg) scale(1.02);
+  /* Moving diagonally, curving outward (back path) */
+  10%{
+    transform:translate(-80px,-60px) rotate(-5deg) scale(1.02);
+    z-index:18;
   }
-  25%{
-    transform:translate(-260px,20px) rotate(-2deg) scale(1.04);
-    opacity:.95;
+  20%{
+    transform:translate(-180px,-120px) rotate(-3deg) scale(1.03);
+    z-index:15;
   }
-  37.5%{
-    transform:translate(-300px,-100px) rotate(3deg) scale(1);
+  /* Crossing center - BEHIND */
+  30%{
+    transform:translate(-240px,-180px) rotate(0deg) scale(1.04);
+    z-index:12;
   }
+  40%{
+    transform:translate(-320px,-280px) rotate(4deg) scale(1.02);
+    z-index:15;
+  }
+  /* Arrived at top-left position */
   50%{
-    transform:translate(-260px,-200px) rotate(5deg) scale(.98);
-    opacity:.9;
+    transform:translate(-380px,-360px) rotate(0deg) scale(1);
+    z-index:20;
   }
-  62.5%{
-    transform:translate(-100px,-240px) rotate(3deg) scale(1);
+  /* Return journey - curving back */
+  60%{
+    transform:translate(-300px,-300px) rotate(5deg) scale(1.02);
+    z-index:18;
   }
-  75%{
-    transform:translate(20px,-160px) rotate(-3deg) scale(1.02);
-    opacity:.95;
+  70%{
+    transform:translate(-200px,-200px) rotate(2deg) scale(1.03);
+    z-index:15;
   }
-  87.5%{
-    transform:translate(40px,-60px) rotate(-4deg) scale(1);
+  /* Crossing center again - BEHIND */
+  80%{
+    transform:translate(-120px,-100px) rotate(0deg) scale(1.04);
+    z-index:12;
+  }
+  90%{
+    transform:translate(-40px,-30px) rotate(-4deg) scale(1.02);
+    z-index:18;
   }
   100%{
     transform:translate(0,0) rotate(0deg) scale(1);
-    opacity:1;
+    z-index:20;
   }
 }
 
