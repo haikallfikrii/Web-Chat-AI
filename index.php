@@ -184,10 +184,11 @@ seo_render_head([
 .mock-body{
   position:relative;padding:22px 20px;min-height:330px;
   background:
-    linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01) 50%,rgba(0,229,154,.02)),
-    rgba(8,13,26,.06);
-  backdrop-filter:blur(10px) saturate(140%);
-  -webkit-backdrop-filter:blur(10px) saturate(140%);
+    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
+    rgba(8,13,26,.35);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  border-top:1px solid rgba(255,255,255,.08);
 }
 .mock-skel{display:flex;flex-direction:column;gap:9px;opacity:.32}
 .mock-skel .ln{height:9px;border-radius:5px;background:rgba(255,255,255,.15)}
@@ -289,105 +290,101 @@ seo_render_head([
   overflow:visible!important;
 }
 
-/* fc1: "Instant Reply" — starts top-left, orbits clockwise around the screen */
+/* 
+  Elliptical orbit like a planet's ring
+  Both cards orbit COUNTER-CLOCKWISE
+  They are 180° apart - when one is in FRONT, the other is BEHIND
+*/
+
+/* fc1: starts at FRONT of the ellipse (bottom, closer to viewer) */
 .fc1{
-  top:-18px;left:-18px;
-  z-index:25;
-  animation:orbitCW 10s linear infinite;
+  top:50%;left:50%;
+  margin-top:160px;margin-left:-60px;
+  animation:ringOrbit 8s linear infinite;
 }
 
-/* fc2: "Secure & Encrypted" — starts bottom-right, orbits counter-clockwise */
+/* fc2: starts at BACK of the ellipse (top, farther from viewer) - 180° offset */
 .fc2{
-  bottom:-18px;right:-18px;
-  z-index:20;
-  animation:orbitCCW 10s linear infinite;
+  top:50%;left:50%;
+  margin-top:-200px;margin-left:-60px;
+  animation:ringOrbit 8s linear infinite;
+  animation-delay:-4s;
 }
 
 /* 
-  orbitCW: fc1 orbits CLOCKWISE continuously around the mock browser
-  Smooth motion, no pauses - just continuous orbit
-  Passes in FRONT on the right side, BEHIND on the left side
+  Elliptical ring orbit - COUNTER-CLOCKWISE
+  Oval shape: wider horizontally, narrower vertically
+  Cards scale up when in front, scale down when behind
+  Z-index changes create the depth illusion
 */
-@keyframes orbitCW{
+@keyframes ringOrbit{
   0%{
-    transform:translate(0,0) rotate(0deg);
-    z-index:25;
+    transform:translate(0,0) scale(1.1) rotate(3deg);
+    z-index:35;
   }
-  12.5%{
-    transform:translate(220px,-20px) rotate(4deg);
-    z-index:28;
-  }
-  25%{
-    transform:translate(450px,100px) rotate(6deg);
+  6.25%{
+    transform:translate(120px,-30px) scale(1.08) rotate(4deg);
     z-index:32;
   }
+  12.5%{
+    transform:translate(220px,-70px) scale(1.04) rotate(5deg);
+    z-index:28;
+  }
+  18.75%{
+    transform:translate(280px,-120px) scale(.98) rotate(4deg);
+    z-index:22;
+  }
+  25%{
+    transform:translate(300px,-180px) scale(.92) rotate(2deg);
+    z-index:15;
+  }
+  31.25%{
+    transform:translate(270px,-240px) scale(.88) rotate(0deg);
+    z-index:10;
+  }
   37.5%{
-    transform:translate(440px,280px) rotate(2deg);
-    z-index:30;
+    transform:translate(200px,-290px) scale(.85) rotate(-2deg);
+    z-index:8;
+  }
+  43.75%{
+    transform:translate(100px,-320px) scale(.84) rotate(-3deg);
+    z-index:6;
   }
   50%{
-    transform:translate(400px,380px) rotate(0deg);
-    z-index:25;
+    transform:translate(0,-340px) scale(.85) rotate(-2deg);
+    z-index:5;
+  }
+  56.25%{
+    transform:translate(-100px,-320px) scale(.86) rotate(-1deg);
+    z-index:6;
   }
   62.5%{
-    transform:translate(180px,400px) rotate(-4deg);
+    transform:translate(-200px,-290px) scale(.9) rotate(0deg);
+    z-index:10;
+  }
+  68.75%{
+    transform:translate(-270px,-240px) scale(.95) rotate(1deg);
     z-index:18;
   }
   75%{
-    transform:translate(-40px,280px) rotate(-6deg);
-    z-index:12;
-  }
-  87.5%{
-    transform:translate(-30px,100px) rotate(-2deg);
-    z-index:15;
-  }
-  100%{
-    transform:translate(0,0) rotate(0deg);
+    transform:translate(-300px,-180px) scale(1) rotate(2deg);
     z-index:25;
   }
-}
-
-/* 
-  orbitCCW: fc2 orbits COUNTER-CLOCKWISE continuously
-  Smooth motion, no pauses - just continuous orbit
-  Passes BEHIND on the left side, in FRONT on the right side
-*/
-@keyframes orbitCCW{
-  0%{
-    transform:translate(0,0) rotate(0deg);
-    z-index:20;
-  }
-  12.5%{
-    transform:translate(-220px,20px) rotate(-4deg);
-    z-index:15;
-  }
-  25%{
-    transform:translate(-450px,-100px) rotate(-6deg);
-    z-index:12;
-  }
-  37.5%{
-    transform:translate(-440px,-280px) rotate(-2deg);
-    z-index:15;
-  }
-  50%{
-    transform:translate(-400px,-380px) rotate(0deg);
-    z-index:20;
-  }
-  62.5%{
-    transform:translate(-180px,-400px) rotate(4deg);
-    z-index:28;
-  }
-  75%{
-    transform:translate(40px,-280px) rotate(6deg);
-    z-index:32;
-  }
-  87.5%{
-    transform:translate(30px,-100px) rotate(2deg);
+  81.25%{
+    transform:translate(-280px,-120px) scale(1.04) rotate(3deg);
     z-index:30;
   }
+  87.5%{
+    transform:translate(-220px,-70px) scale(1.08) rotate(4deg);
+    z-index:33;
+  }
+  93.75%{
+    transform:translate(-120px,-30px) scale(1.1) rotate(3deg);
+    z-index:35;
+  }
   100%{
-    transform:translate(0,0) rotate(0deg);
-    z-index:20;
+    transform:translate(0,0) scale(1.1) rotate(3deg);
+    z-index:35;
   }
 }
 
