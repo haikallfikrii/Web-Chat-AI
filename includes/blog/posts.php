@@ -13,6 +13,60 @@ function blog_all_posts(): array
 
     $posts = [
         [
+            'slug'        => 'best-ai-chat-widget-small-business-2026',
+            'title'       => 'Best AI Chat Widget for Small Business in 2026 (Honest Comparison)',
+            'description' => 'What to look for in an AI chat widget if you run a small site: setup time, real cost, branding, and when ChatLM beats heavy live-chat suites.',
+            'published'   => '2026-08-17',
+            'updated'     => '2026-08-17',
+            'keywords'    => 'best AI chat widget 2026, small business chatbot, website chat widget',
+            'body'        => blog_body_best_widget_2026(),
+        ],
+        [
+            'slug'        => 'ai-chat-widget-ecommerce-sales',
+            'title'       => 'How an AI Chat Widget Increases Ecommerce Sales (Without Extra Staff)',
+            'description' => 'Use on-site AI chat to answer product questions, reduce cart hesitation, and capture high-intent shoppers 24/7 — with a single embed.',
+            'published'   => '2026-08-17',
+            'updated'     => '2026-08-17',
+            'keywords'    => 'ecommerce chatbot, AI chat widget sales, increase online store conversion',
+            'body'        => blog_body_ecommerce_sales(),
+        ],
+        [
+            'slug'        => '24-7-customer-support-ai-chat',
+            'title'       => '24/7 Customer Support Without Night Shifts: AI Chat That Actually Helps',
+            'description' => 'Cover after-hours FAQs, shipping questions, and lead capture while you sleep. How to set prompts so the bot stays honest and on-brand.',
+            'published'   => '2026-08-17',
+            'updated'     => '2026-08-17',
+            'keywords'    => '24/7 customer support AI, after hours chatbot, automated website support',
+            'body'        => blog_body_247_support(),
+        ],
+        [
+            'slug'        => 'shopify-ai-chat-widget',
+            'title'       => 'Add an AI Chat Widget to Shopify in One Script Tag',
+            'description' => 'Install ChatLM on Shopify without a paid app. Theme footer embed, allowed origins, and how to test checkout-adjacent pages.',
+            'published'   => '2026-08-17',
+            'updated'     => '2026-08-17',
+            'keywords'    => 'Shopify AI chat, Shopify chatbot widget, ChatLM Shopify',
+            'body'        => blog_body_shopify(),
+        ],
+        [
+            'slug'        => 'chatbot-vs-contact-form-leads',
+            'title'       => 'Chatbot vs Contact Form: Which Captures More Leads in 2026?',
+            'description' => 'Forms sit still. Chat asks the next question. See when an AI widget outperforms a contact page — and how to combine both.',
+            'published'   => '2026-08-17',
+            'updated'     => '2026-08-17',
+            'keywords'    => 'chatbot vs contact form, website lead capture, AI chat leads',
+            'body'        => blog_body_chat_vs_form(),
+        ],
+        [
+            'slug'        => 'reduce-support-tickets-ai-widget',
+            'title'       => 'Cut Repeat Support Tickets With an On-Site AI Widget',
+            'description' => 'Deflect “where is my order?”, pricing, and how-to questions before they hit email. A practical playbook for founders and small teams.',
+            'published'   => '2026-08-17',
+            'updated'     => '2026-08-17',
+            'keywords'    => 'reduce support tickets, AI helpdesk widget, customer support automation',
+            'body'        => blog_body_reduce_tickets(),
+        ],
+        [
             'slug'        => 'add-ai-chat-widget-5-minutes',
             'title'       => 'How to Add an AI Chat Widget to Your Website in 5 Minutes',
             'description' => 'Step-by-step guide to embed ChatLM on any site with one script tag. No plugin required. Works on WordPress, Shopify, and custom HTML.',
@@ -268,5 +322,169 @@ function blog_body_conversion_tips(): string
 
 <h2>Put it into practice</h2>
 <p>Most of these changes take under ten minutes combined in the ChatLM dashboard. If you haven't installed the widget yet, see <a href="/blog/add-ai-chat-widget-5-minutes">how to add it in 5 minutes</a>, or <a href="/register.php">start free</a> to test these tips on your own site today.</p>
+HTML;
+}
+
+function blog_body_best_widget_2026(): string
+{
+    return <<<'HTML'
+<p>Searching for the <strong>best AI chat widget for a small business</strong> usually means you do not want another bloated “customer platform.” You want a bubble on the site, answers that sound like your brand, and a bill you can explain to yourself.</p>
+
+<h2>What actually matters in 2026</h2>
+<ol>
+<li><strong>Time to live</strong> — if setup takes a week, you will never A/B test welcome messages.</li>
+<li><strong>Total cost</strong> — platform fee plus AI tokens (or a flat managed quota). See our <a href="/blog/ai-chatbot-cost-2026">2026 cost breakdown</a>.</li>
+<li><strong>Control</strong> — your colors, bot name, system prompt, and which model you use.</li>
+<li><strong>Security</strong> — allowed domains so random sites cannot burn your API key; keys stored encrypted.</li>
+<li><strong>A way to wake a human</strong> — Telegram (or similar) when a real buyer is chatting.</li>
+</ol>
+
+<h2>Heavy suites vs a focused widget</h2>
+<p>Tools like Intercom shine when you need product tours, a shared inbox, and marketing automation in one login. For a brochure site, studio, SaaS landing page, or small shop, you mostly need <strong>one script and a dashboard</strong>. That is the ChatLM bet — compared in depth in <a href="/blog/chatlm-vs-intercom">ChatLM vs Intercom</a>.</p>
+
+<h2>Where ChatLM fits</h2>
+<ul>
+<li>Embed anywhere: HTML, WordPress, Webflow, Shopify theme footer.</li>
+<li>BYOK (OpenAI, Gemini, DeepSeek, OpenRouter) or Managed AI if you do not want a provider account — <a href="/blog/byok-vs-managed-ai">which track to pick</a>.</li>
+<li>Paid plans drop the watermark so the widget looks like <em>your</em> product, not a demo.</li>
+</ul>
+
+<h2>A simple decision rule</h2>
+<p>If you are still answering the same five questions in email every week, an on-site widget pays for itself faster than another helpdesk seat. If you need omnichannel tickets, SLAs, and a 20-person support org, buy a suite — then still consider a lightweight widget on marketing pages.</p>
+
+<p><a href="/register.php">Start free</a> and be live in minutes, or <a href="/pricing.php">compare Starter and Pro</a> when you are ready to remove the watermark.</p>
+HTML;
+}
+
+function blog_body_ecommerce_sales(): string
+{
+    return <<<'HTML'
+<p>Most store traffic does not convert because shoppers are unsure — shipping, sizing, “is this in stock,” “do you ship to my country.” An <strong>AI chat widget on an ecommerce site</strong> answers those questions in the moment, on the product page, not three emails later.</p>
+
+<h2>Where chat moves revenue</h2>
+<ul>
+<li><strong>Product pages</strong> — materials, compatibility, “what’s included.”</li>
+<li><strong>Cart / checkout hesitation</strong> — delivery times, returns, coupon rules (only if your prompt is accurate).</li>
+<li><strong>After hours</strong> — buyers in other time zones still get a reply; you get a Telegram ping for hot threads.</li>
+</ul>
+
+<h2>Write a store-specific system prompt</h2>
+<p>Generic “helpful assistant” copy will invent policies. Put in your prompt: shipping regions, return window, price ranges, and “if you are not sure, say so and offer the contact form.” That honesty converts better than confident fiction. More tactics: <a href="/blog/chat-widget-conversion-tips">7 conversion tips</a>.</p>
+
+<h2>Do not hide the widget on money pages</h2>
+<p>If the script only lives on the homepage, you lose the highest-intent visitors. Embed site-wide (or at least catalog + cart). Add both <code>https://store.com</code> and <code>https://www.store.com</code> to Allowed Origins.</p>
+
+<h2>Shopify, WooCommerce, custom</h2>
+<p>ChatLM is not locked to one CMS. Shopify owners can follow <a href="/blog/shopify-ai-chat-widget">the Shopify install guide</a>. WordPress/WooCommerce: <a href="/blog/chatlm-wordpress-embed">footer embed without a plugin</a>.</p>
+
+<h2>Measure like a merchant</h2>
+<p>Track: chat open rate on product URLs, messages that mention “shipping” or “return,” and whether those sessions reach checkout. Pair the widget with your existing analytics — the bot is a sales associate, not a vanity bubble.</p>
+
+<p>Ready to put a closer on every product page? <a href="/register.php">Create a free ChatLM account</a> · <a href="/pricing.php">See plans</a></p>
+HTML;
+}
+
+function blog_body_247_support(): string
+{
+    return <<<'HTML'
+<p>Customers do not wait until 9am in your timezone. A <strong>24/7 AI chat widget</strong> is how a one-person business still looks awake: FAQs, hours, booking links, and “we’ll email you in the morning” — without a night-shift hire.</p>
+
+<h2>What the bot should own vs what a human should own</h2>
+<p><strong>Let AI handle:</strong> hours, location, pricing ranges you publish, how to get started, docs links, “what’s included.”</p>
+<p><strong>Hand off:</strong> refunds, legal, custom quotes, angry accounts, anything your prompt does not cover. Instruct the model to offer a contact path instead of guessing.</p>
+
+<h2>Make after-hours feel cared for</h2>
+<ul>
+<li>Welcome message: “We’re offline for humans until 9:00 — I can still answer setup and pricing.”</li>
+<li>Turn on <strong>Telegram notifications</strong> so a real lead at 11pm does not sit until you check email.</li>
+<li>Keep the knowledge in the system prompt (and update it when policies change).</li>
+</ul>
+
+<h2>Cost vs a night contractor</h2>
+<p>Even a few evening chats a week add up in contractor hours. Platform pricing is in our <a href="/blog/ai-chatbot-cost-2026">chatbot cost guide</a>. Many teams start on the free watermarked widget, then upgrade when the bot is clearly eating repeat tickets.</p>
+
+<h2>Go live tonight</h2>
+<p>You do not need a new website. One script tag is enough — <a href="/blog/add-ai-chat-widget-5-minutes">5-minute embed</a>.</p>
+<p><a href="/register.php">Start free</a> · <a href="/pricing.php">Pricing</a></p>
+HTML;
+}
+
+function blog_body_shopify(): string
+{
+    return <<<'HTML'
+<p>Shopify’s app store is full of chat tools with monthly app fees stacked on top of your theme. If you only need an <strong>AI chat bubble</strong>, ChatLM installs like analytics: one script in the theme, no extra Shopify app charge from us.</p>
+
+<h2>Install in the theme footer</h2>
+<ol>
+<li>In ChatLM, copy your embed script from the dashboard.</li>
+<li>Shopify admin → <strong>Online Store → Themes → Edit code</strong>.</li>
+<li>Open <code>theme.liquid</code> (or your footer snippet) and paste the script just before <code>&lt;/body&gt;</code>.</li>
+<li>Save, then preview on a product page — not only the theme editor iframe.</li>
+</ol>
+
+<h2>Allowed Origins</h2>
+<p>Add your myshopify.com URL <em>and</em> the custom domain:</p>
+<pre><code>https://your-store.myshopify.com
+https://yourdomain.com
+https://www.yourdomain.com</code></pre>
+<p>Checkout is a separate Shopify-hosted surface; start with storefront pages (home, collections, products, cart) where the theme script actually runs.</p>
+
+<h2>Prompt ideas for stores</h2>
+<p>List top SKUs, shipping countries, and “we don’t price-match” if that’s policy. Point the model at your FAQ page URL in the prompt so it prefers official copy.</p>
+
+<h2>Cache and apps</h2>
+<p>If the bubble is missing for guests, purge Shopify’s cache and any speed app that strips scripts. Test in a private window while logged out.</p>
+
+<p>More platforms: <a href="/blog/chatlm-wordpress-embed">WordPress</a> · generic HTML: <a href="/blog/add-ai-chat-widget-5-minutes">5-minute guide</a>.</p>
+<p><a href="/register.php">Get your embed key</a> · <a href="/pricing.php">Plans</a></p>
+HTML;
+}
+
+function blog_body_chat_vs_form(): string
+{
+    return <<<'HTML'
+<p>A contact form is a wall. The visitor must already know what to type. An <strong>AI chat widget</strong> starts the conversation, asks a follow-up, and can collect email once intent is clear. That is why chat often wins on landing pages — not because forms are “dead,” but because chat reduces friction.</p>
+
+<h2>When the form still wins</h2>
+<ul>
+<li>Legal intake, long attachments, or structured fields you must store in a CRM exactly.</li>
+<li>Visitors who distrust chat and want a paper trail they control.</li>
+</ul>
+
+<h2>When chat captures more leads</h2>
+<ul>
+<li>Pricing and “does this work with X?” — people will chat but won’t fill six fields.</li>
+<li>Mobile: typing a novel into a form is painful; two chat bubbles are not.</li>
+<li>After hours: the bot replies immediately; the form sits until morning.</li>
+</ul>
+
+<h2>Use both (recommended)</h2>
+<p>Keep <code>/contact</code> for official requests. Put ChatLM on high-intent pages so the bot can say “I can take a message — or here’s the form.” Telegram alerts cover the chats that matter.</p>
+
+<h2>Copy that converts</h2>
+<p>Don’t open with “How can I help?” Open with a choice: “Pricing, install, or something else?” Details in <a href="/blog/chat-widget-conversion-tips">conversion best practices</a>.</p>
+
+<p>Add the widget beside your existing form this week: <a href="/register.php">start free</a> · <a href="/pricing.php">compare plans</a>.</p>
+HTML;
+}
+
+function blog_body_reduce_tickets(): string
+{
+    return <<<'HTML'
+<p>If your inbox is the same ten questions on loop, you do not have a “support volume problem” — you have an <strong>unanswered FAQ on the website</strong> problem. An on-site AI widget deflects those tickets before they are written.</p>
+
+<h2>The 80/20 ticket list</h2>
+<p>Export last month’s email. Highlight anything asked more than twice: password reset, shipping, “how do I embed,” billing, hours. Put those answers in the ChatLM <strong>system prompt</strong> in plain language, including what you will <em>not</em> do (e.g. no custom legal advice).</p>
+
+<h2>Deflection is not the same as disappearing</h2>
+<p>When the bot cannot help, it should offer a path: contact form, Calendly, or “we’ll email within one business day.” That still beats a silent form. Founders should keep Telegram on for conversations that smell like a sale or an incident.</p>
+
+<h2>Where to embed first</h2>
+<p>Docs, pricing, and login-adjacent marketing pages. Then the rest of the site. WordPress cache is the usual reason guests don’t see the script — <a href="/blog/chatlm-wordpress-embed">fix that here</a>.</p>
+
+<h2>ROI in one sentence</h2>
+<p>If the widget prevents even a handful of repeat tickets per week, it is cheaper than another contractor hour. Run the numbers with our <a href="/#calculator">homepage calculator</a> and the <a href="/blog/ai-chatbot-cost-2026">cost article</a>.</p>
+
+<p><a href="/register.php">Install ChatLM free</a> · <a href="/pricing.php">Upgrade when the watermark has to go</a></p>
 HTML;
 }
