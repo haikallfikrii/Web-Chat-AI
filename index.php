@@ -506,9 +506,9 @@ seo_render_head([
 footer{
   background:
     linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 45%,rgba(0,229,154,.04)),
-    rgba(8,13,26,.38);
-  backdrop-filter:blur(24px) saturate(160%);
-  -webkit-backdrop-filter:blur(24px) saturate(160%);
+    rgba(8,13,26,.18);
+  backdrop-filter:blur(28px) saturate(170%);
+  -webkit-backdrop-filter:blur(28px) saturate(170%);
   border-color:rgba(255,255,255,.16);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.18),
@@ -517,14 +517,14 @@ footer{
 .prov-card.rec{
   background:
     linear-gradient(135deg,rgba(0,229,154,.12),rgba(255,255,255,.03)),
-    rgba(8,22,20,.42);
+    rgba(8,22,20,.22);
   border-color:rgba(0,229,154,.28);
 }
 .cta-box{
   background:
     radial-gradient(ellipse at 30% 0%,rgba(0,229,154,.12),transparent 58%),
     radial-gradient(ellipse at 80% 100%,rgba(59,130,246,.08),transparent 60%),
-    rgba(8,13,26,.40);
+    rgba(8,13,26,.20);
 }
 
 /* ── Footer ── */
