@@ -172,26 +172,30 @@ seo_render_head([
 .mock-wrap{position:relative;animation:mockFade 1s .28s cubic-bezier(.22,1,.36,1) both;overflow:visible!important}
 @keyframes mockFade{from{opacity:0}to{opacity:1}}
 .mock-tilt{transition:none}
+.mock-orbit{position:relative;width:100%}
 .mock{
   position:relative;
-  isolation:isolate;
+  z-index:10;
   border-radius:var(--r-lg);
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.22);
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 45%,rgba(0,229,154,.08)),
-    rgba(10,16,28,.55);
-  backdrop-filter:blur(28px) saturate(180%);
-  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  overflow:visible;
+  border:1px solid rgba(255,255,255,.16);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.28),
-    0 32px 80px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 32px 80px rgba(0,0,0,.45),
     0 0 60px rgba(0,229,154,.06);
 }
-.mock::before{
-  content:'';
-  position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 42%);
+/* Frost layer — same recipe as .stats-grid / .prov-card.
+   Kept as its own layer (no overflow:hidden, no transform) so blur samples the page. */
+.mock-frost{
+  position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
+    rgba(8,13,26,.08);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+}
+.mock-inner{
+  position:relative;z-index:1;overflow:hidden;border-radius:inherit;
 }
 .mock-bar{
   position:relative;z-index:1;
@@ -217,15 +221,14 @@ seo_render_head([
 .mock-panel{
   width:100%;max-width:270px;
   background:
-    linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 45%,rgba(0,229,154,.08)),
-    rgba(10,16,28,.62);
-  backdrop-filter:blur(24px) saturate(170%);
-  -webkit-backdrop-filter:blur(24px) saturate(170%);
-  border:1px solid rgba(255,255,255,.20);border-radius:16px;
+    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
+    rgba(8,13,26,.08);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  border:1px solid rgba(255,255,255,.16);border-radius:16px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.24),
-    0 18px 48px rgba(0,0,0,.5),
-    0 0 0 1px rgba(0,229,154,.08);
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 18px 48px rgba(0,0,0,.4);
   overflow:hidden;display:flex;flex-direction:column;
   opacity:0;transform:translateY(14px) scale(.94);transform-origin:bottom right;
   transition:opacity .32s cubic-bezier(.22,1,.36,1),transform .32s cubic-bezier(.22,1,.36,1);
@@ -292,131 +295,38 @@ seo_render_head([
 .fab-badge{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:999px;
   background:#ef4444;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;
   padding:0 4px;box-shadow:0 2px 8px rgba(239,68,68,.5);animation:msgIn .3s both}
-/* ── Orbiting Floating Cards with Position Swap ── */
+/* Orbit path is sized to .mock-orbit (= .mock box). ellipse % = of that box. */
 .float-card{
-  position:absolute;backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);
+  position:absolute;left:0;top:0;margin:0;
+  offset-path:ellipse(54% 52% at 50% 50%);
+  offset-rotate:0deg;
+  offset-anchor:center;
+  backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);
   background:
-    linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02) 45%,rgba(0,229,154,.05)),
-    rgba(8,13,26,.12);
-  border:1px solid rgba(255,255,255,.18);border-radius:12px;
+    linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
+    rgba(8,13,26,.08);
+  border:1px solid rgba(255,255,255,.16);border-radius:12px;
   padding:9px 14px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.2),
-    0 12px 28px rgba(0,0,0,.4);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 12px 28px rgba(0,0,0,.22);
   font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px;
   white-space:nowrap;
-  will-change:transform,z-index;
 }
 .float-card svg{width:15px;height:15px;color:var(--green)}
-
-/* 
-  Elliptical orbit tightly around the prototype screen
-  Both cards orbit COUNTER-CLOCKWISE
-  They are 180° apart - when one is in FRONT, the other is BEHIND
-*/
-
-/* fc1: starts at BOTTOM of the ellipse (front/closer) */
-.fc1{
-  top:50%;left:50%;
-  margin-top:180px;margin-left:-60px;
-  animation:ringOrbit 8s linear infinite;
+.fc1,.fc2{
+  animation:
+    orbitRing 8s linear infinite reverse,
+    orbitDepth 8s linear infinite reverse;
 }
-
-/* fc2: starts at TOP of the ellipse (back/farther) - 180° offset */
-.fc2{
-  top:50%;left:50%;
-  margin-top:-220px;margin-left:-60px;
-  animation:ringOrbit 8s linear infinite;
-  animation-delay:-4s;
+.fc2{animation-delay:-4s,-4s}
+@keyframes orbitRing{
+  from{offset-distance:0%}
+  to{offset-distance:100%}
 }
-
-/* 
-  Tight elliptical orbit around the prototype screen
-  Oval: ~240px horizontal radius, ~200px vertical radius
-  Cards scale and z-index change for 3D depth effect
-*/
-@keyframes ringOrbit{
-  0%{
-    transform:translate(0,0) scale(1.08) rotate(2deg);
-    z-index:35;
-  }
-  6.25%{
-    transform:translate(100px,-25px) scale(1.06) rotate(3deg);
-    z-index:32;
-  }
-  12.5%{
-    transform:translate(180px,-70px) scale(1.02) rotate(4deg);
-    z-index:26;
-  }
-  18.75%{
-    transform:translate(220px,-120px) scale(.96) rotate(3deg);
-    z-index:20;
-  }
-  25%{
-    transform:translate(240px,-170px) scale(.9) rotate(2deg);
-    z-index:14;
-  }
-  31.25%{
-    transform:translate(220px,-220px) scale(.86) rotate(0deg);
-    z-index:10;
-  }
-  37.5%{
-    transform:translate(160px,-260px) scale(.84) rotate(-2deg);
-    z-index:7;
-  }
-  43.75%{
-    transform:translate(80px,-280px) scale(.82) rotate(-3deg);
-    z-index:5;
-  }
-  50%{
-    transform:translate(0,-290px) scale(.82) rotate(-2deg);
-    z-index:4;
-  }
-  56.25%{
-    transform:translate(-80px,-280px) scale(.83) rotate(-1deg);
-    z-index:5;
-  }
-  62.5%{
-    transform:translate(-160px,-260px) scale(.86) rotate(0deg);
-    z-index:8;
-  }
-  68.75%{
-    transform:translate(-220px,-220px) scale(.92) rotate(1deg);
-    z-index:14;
-  }
-  75%{
-    transform:translate(-240px,-170px) scale(.98) rotate(2deg);
-    z-index:22;
-  }
-  81.25%{
-    transform:translate(-220px,-120px) scale(1.02) rotate(3deg);
-    z-index:28;
-  }
-  87.5%{
-    transform:translate(-180px,-70px) scale(1.06) rotate(3deg);
-    z-index:32;
-  }
-  93.75%{
-    transform:translate(-100px,-25px) scale(1.08) rotate(2deg);
-    z-index:35;
-  }
-  100%{
-    transform:translate(0,0) scale(1.08) rotate(2deg);
-    z-index:35;
-  }
-}
-
-/* Add subtle glow pulse to floating cards */
-.fc1::before,.fc2::before{
-  content:'';position:absolute;inset:-2px;border-radius:inherit;
-  background:linear-gradient(135deg,rgba(0,229,154,.15),transparent 60%);
-  z-index:-1;opacity:0;
-  animation:floatGlow 3s ease-in-out infinite;
-}
-.fc2::before{animation-delay:1.5s}
-@keyframes floatGlow{
-  0%,100%{opacity:0;transform:scale(.95)}
-  50%{opacity:1;transform:scale(1.02)}
+/* Front of mock (bottom of oval) vs behind (top of oval) */
+@keyframes orbitDepth{
+  0%,40%{z-index:20;transform:scale(1.04)}
+  50%,90%{z-index:5;transform:scale(.92)}
+  100%{z-index:20;transform:scale(1.04)}
 }
 
 /* ── Ticker ── */
@@ -658,6 +568,8 @@ seo_render_head([
 .testi-card,
 .calc-card,
 .cta-box,
+.mock-frost,
+.mock-panel,
 .float-card,
 .hero-badge,
 .ticker-outer,
@@ -894,10 +806,13 @@ footer a:hover{opacity:.75}
   </div>
 
   <div class="mock-wrap">
-    <div class="float-card fc1" data-plx="-0.12"><?= icon('zap', 15) ?> <?= esc($t['float_1']) ?></div>
-    <div class="float-card fc2" data-plx="0.1"><?= icon('shield', 15) ?> <?= esc($t['float_2']) ?></div>
     <div class="mock-tilt" id="mockTilt">
-      <div class="mock">
+      <div class="mock-orbit">
+        <div class="float-card fc1"><?= icon('zap', 15) ?> <?= esc($t['float_1']) ?></div>
+        <div class="float-card fc2"><?= icon('shield', 15) ?> <?= esc($t['float_2']) ?></div>
+        <div class="mock">
+          <div class="mock-frost" aria-hidden="true"></div>
+          <div class="mock-inner">
         <div class="mock-bar">
           <div class="d r"></div><div class="d y"></div><div class="d g"></div>
           <div class="url">https://your-site.com</div>
@@ -938,6 +853,8 @@ footer a:hover{opacity:.75}
                 <span class="fab-badge" id="mockBadge" style="display:none">1</span>
               </button>
             </div>
+          </div>
+        </div>
           </div>
         </div>
       </div>
