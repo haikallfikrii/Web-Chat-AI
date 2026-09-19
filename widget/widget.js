@@ -1293,7 +1293,7 @@
         const isBrowserNetworkErr = raw === "" || raw.startsWith("Failed to fetch") || raw.startsWith("NetworkError") || raw.startsWith("Load failed");
         const displayMsg = (!isBrowserNetworkErr && raw.length > 0 && raw.length < 300)
           ? raw
-          : "Maaf, tidak bisa terhubung ke server. Periksa koneksi dan coba lagi.";
+          : "Maaf, server chat lambat atau timeout. Sila cuba hantar semula dalam beberapa saat.";
         appendBubble(messagesEl, "error", displayMsg);
         console.error("[ChatLM] Error:", raw);
       } finally {

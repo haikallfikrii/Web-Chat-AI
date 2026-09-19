@@ -17,7 +17,8 @@
 
 declare(strict_types=1);
 
-set_time_limit(60);
+// Leave headroom after AI_HTTP_TIMEOUT (default 55s) for DB writes + JSON response.
+set_time_limit(90);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/ai_providers.php';
@@ -145,15 +146,20 @@ if (!cors_apply_for_widget($allowed_for_cors) && !cors_is_same_server_request())
 $user_ip = get_client_ip();
 
 // ── 9. Riwayat percakapan (sebelum pesan user baru disimpan) ─
+// Long system prompts + full history slow the LLM and push Hostinger toward 504.
+$prompt_len = mb_strlen((string) ($client['ai_system_prompt'] ?? ''), 'UTF-8');
+$history_limit = $prompt_len > 12000 ? 12 : ($prompt_len > 6000 ? 24 : 48);
 $history_rows = fetch_chat_history_rows(
     $pdo,
     (int) $client['client_id'],
     $session_id,
-    48
+    $history_limit
 );
 
 // ── 10. Simpan pesan user ────────────────────────────────────
-chat_message_insert($pdo, (int) $client['client_id'], $session_id, 'user', $message, $user_ip);
+if (!chat_message_insert($pdo, (int) $client['client_id'], $session_id, 'user', $message, $user_ip, true)) {
+    send_json(['error' => 'Gagal menyimpan percakapan.'], 500);
+}
 
 // ── 11. Notifikasi Telegram (pesan masuk) ────────────────────
 if ((int) ($client['telegram_notify_enabled'] ?? 0) === 1) {
@@ -210,7 +216,10 @@ if ($has_ai) {
 }
 
 // ── 13. Simpan jawaban asisten ───────────────────────────────
-chat_message_insert($pdo, (int) $client['client_id'], $session_id, 'assistant', $bot_reply, '');
+// After a long AI call the MySQL link is often dead on shared hosting.
+// Never fail the user-facing reply just because history insert failed.
+$pdo = get_db(true);
+chat_message_insert($pdo, (int) $client['client_id'], $session_id, 'assistant', $bot_reply, '', false);
 
 // ── 14. Response ─────────────────────────────────────────────
 send_json([
@@ -222,16 +231,20 @@ send_json([
 // FUNGSI HELPER LOKAL
 // ════════════════════════════════════════════════════════════
 
+/**
+ * @return bool true if saved (or soft-fail skipped), false if hard-fail
+ */
 function chat_message_insert(
     PDO $pdo,
     int $client_id,
     string $session_id,
     string $role,
     string $body,
-    string $ip
-): void {
-    try {
-        $stmt = $pdo->prepare("
+    string $ip,
+    bool $hard_fail = true
+): bool {
+    $attempt = static function (PDO $db) use ($client_id, $session_id, $role, $body, $ip): void {
+        $stmt = $db->prepare("
             INSERT INTO chat_messages (client_id, session_id, role, body, ip_address)
             VALUES (:client_id, :session_id, :role, :body, :ip)
         ");
@@ -242,9 +255,25 @@ function chat_message_insert(
             ':body'       => mb_substr($body, 0, 65535, 'UTF-8'),
             ':ip'         => mb_substr($ip, 0, 45, 'UTF-8'),
         ]);
+    };
+
+    try {
+        $attempt($pdo);
+        return true;
     } catch (PDOException $e) {
         error_log('[chat] chat_messages insert error: ' . $e->getMessage());
-        send_json(['error' => 'Gagal menyimpan percakapan.'], 500);
+        // One reconnect retry (MySQL server has gone away / lost connection).
+        try {
+            $attempt(get_db(true));
+            return true;
+        } catch (PDOException $e2) {
+            error_log('[chat] chat_messages insert retry failed: ' . $e2->getMessage());
+            if ($hard_fail) {
+                return false;
+            }
+            // Soft-fail: keep returning the AI reply to the widget.
+            return true;
+        }
     }
 }
 

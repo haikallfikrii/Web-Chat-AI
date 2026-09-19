@@ -195,12 +195,23 @@ if (APP_SECRET === '' || strlen(APP_SECRET) < 16) {
 }
 
 // ── Buat koneksi PDO (singleton sederhana) ───────────────────
-function get_db(): PDO
+function get_db(bool $force_reconnect = false): PDO
 {
     static $pdo = null;
 
+    if ($force_reconnect) {
+        $pdo = null;
+    }
+
     if ($pdo !== null) {
-        return $pdo;
+        // Detect stale links after long AI/cURL waits (Hostinger wait_timeout).
+        try {
+            $pdo->query('SELECT 1');
+            return $pdo;
+        } catch (PDOException $e) {
+            error_log('[DB] stale connection, reconnecting: ' . $e->getMessage());
+            $pdo = null;
+        }
     }
 
     $dsn = sprintf(
