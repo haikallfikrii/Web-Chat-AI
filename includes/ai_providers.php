@@ -77,6 +77,59 @@ function fetch_chat_history_rows(
 }
 
 /**
+ * Siapkan system prompt agar request ke provider lebih cepat di shared hosting.
+ * - Buang preamble "salin ke ChatLM" yang tidak berguna untuk model
+ * - Soft-cap panjang knowledge (Hostinger/proxy sering putus di >30–60s)
+ * - Instruksi jawab ringkas
+ */
+function ai_prepare_system_prompt(string $prompt, string $bot_name): string
+{
+    $prompt = trim($prompt);
+    $name   = trim($bot_name) !== '' ? trim($bot_name) : 'Assistant';
+
+    // Drop meta "copy this into ChatLM" blocks before the real agent identity.
+    if (preg_match('/\n---\s*\n+(Anda ialah|You are)\b/iu', $prompt, $m, PREG_OFFSET_CAPTURE)) {
+        $prompt = trim(mb_substr($prompt, (int) $m[1][1], null, 'UTF-8'));
+    }
+
+    $maxChars = 12000;
+    if (mb_strlen($prompt, 'UTF-8') > $maxChars) {
+        $prompt = rtrim(mb_substr($prompt, 0, $maxChars, 'UTF-8'))
+            . "\n\n[Knowledge shortened for faster replies. If unsure, say so briefly.]";
+    }
+
+    $speedRule = 'Reply briefly and clearly (prefer under 8 short sentences unless the user asks for detail). '
+        . 'If the answer is not in your knowledge, say you do not know and offer the contact channel from your prompt.';
+
+    if ($prompt === '') {
+        return 'You are "' . $name . '", a helpful assistant. ' . $speedRule;
+    }
+
+    return $speedRule . "\n\n" . $prompt;
+}
+
+/**
+ * @param list<array{role:string,body:string}> $rows
+ * @return list<array{role:string,body:string}>
+ */
+function ai_trim_history_rows(array $rows, int $max_msgs = 8, int $max_body_chars = 1200): array
+{
+    if (count($rows) > $max_msgs) {
+        $rows = array_slice($rows, -$max_msgs);
+    }
+
+    foreach ($rows as &$row) {
+        $body = (string) ($row['body'] ?? '');
+        if (mb_strlen($body, 'UTF-8') > $max_body_chars) {
+            $row['body'] = rtrim(mb_substr($body, 0, $max_body_chars, 'UTF-8')) . '…';
+        }
+    }
+    unset($row);
+
+    return $rows;
+}
+
+/**
  * Jalankan chat completion sesuai ai_provider.
  *
  * @param array{
@@ -92,6 +145,11 @@ function ai_chat_complete(array $widget, string $provider_api_key, array $histor
     $provider = (string) ($widget['ai_provider'] ?? '');
     $rawModel = (string) ($widget['ai_model'] ?? '');
     $widget['ai_model'] = ai_normalize_model_for_provider($provider, $rawModel);
+    $widget['ai_system_prompt'] = ai_prepare_system_prompt(
+        (string) ($widget['ai_system_prompt'] ?? ''),
+        (string) ($widget['bot_name'] ?? 'Assistant')
+    );
+    $history_rows = ai_trim_history_rows($history_rows);
 
     switch ($provider) {
         case 'openai':
@@ -176,7 +234,8 @@ function ai_openai_compatible_chat(
     $payload = [
         'model'       => (string) ($widget['ai_model'] ?? 'gpt-4o-mini'),
         'messages'    => $messages,
-        'temperature' => 0.7,
+        'temperature' => 0.4,
+        'max_tokens'  => 512,
     ];
 
     $headers = [
@@ -243,7 +302,8 @@ function ai_gemini_chat(string $api_key, array $widget, array $history_rows, str
             'parts' => [['text' => $system]],
         ],
         'generationConfig'  => [
-            'temperature' => 0.7,
+            'temperature'     => 0.4,
+            'maxOutputTokens' => 512,
         ],
     ];
 

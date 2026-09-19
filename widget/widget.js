@@ -993,22 +993,51 @@
 
   // ── Kirim pesan ke backend ─────────────────────────────────
   async function sendMessage(message) {
-    const res = await fetch(`${BASE_URL}/api/chat.php`, {
-      method:  "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Api-Key":    API_KEY,
-      },
-      body: JSON.stringify({
-        session_id: STATE.sessionId,
-        message:    message,
-      }),
-    });
+    const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), 65000) : null;
 
-    const data = await res.json();
+    let res;
+    try {
+      res = await fetch(`${BASE_URL}/api/chat.php`, {
+        method:  "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-Key":    API_KEY,
+        },
+        body: JSON.stringify({
+          session_id: STATE.sessionId,
+          message:    message,
+        }),
+        signal: ctrl ? ctrl.signal : undefined,
+      });
+    } catch (e) {
+      if (e && e.name === "AbortError") {
+        throw new Error("Server lambat (>60s). Cuba soalan lebih pendek, atau pendekkan System Prompt di dashboard.");
+      }
+      throw e;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+
+    const rawText = await res.text();
+    let data = null;
+    try {
+      data = rawText ? JSON.parse(rawText) : null;
+    } catch (_) {
+      data = null;
+    }
 
     if (!res.ok) {
-      throw new Error(data.error || `HTTP ${res.status}`);
+      const msg =
+        (data && data.error) ||
+        (res.status === 504 || res.status === 502
+          ? "Server chat timeout. Cuba lagi, atau pendekkan System Prompt / pilih model lebih pantas."
+          : `HTTP ${res.status}`);
+      throw new Error(msg);
+    }
+
+    if (!data || typeof data.reply !== "string") {
+      throw new Error("Respons server tidak sah. Cuba hantar semula.");
     }
 
     // Update session_id jika server memberikan yang baru

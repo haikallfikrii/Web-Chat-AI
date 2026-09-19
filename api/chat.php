@@ -148,7 +148,7 @@ $user_ip = get_client_ip();
 // ── 9. Riwayat percakapan (sebelum pesan user baru disimpan) ─
 // Long system prompts + full history slow the LLM and push Hostinger toward 504.
 $prompt_len = mb_strlen((string) ($client['ai_system_prompt'] ?? ''), 'UTF-8');
-$history_limit = $prompt_len > 12000 ? 12 : ($prompt_len > 6000 ? 24 : 48);
+$history_limit = $prompt_len > 12000 ? 6 : ($prompt_len > 6000 ? 10 : 16);
 $history_rows = fetch_chat_history_rows(
     $pdo,
     (int) $client['client_id'],
