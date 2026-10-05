@@ -1072,7 +1072,7 @@ seo_render_head([
 
 <!-- ═══ FOOTER ═══ -->
 <?php
-$devPortfolio = 'https://dev-khalfikri.pantheonsite.io/';
+$devPortfolio = 'https://haikallfikrii.github.io/';
 $devLinkedIn  = 'https://www.linkedin.com/in/muhamad-fikri-haikal-fullstack-web-developer/';
 $devEmail     = 'muhamadfikrih29@gmail.com';
 ?>
