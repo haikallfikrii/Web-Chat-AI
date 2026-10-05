@@ -546,7 +546,7 @@ seo_render_head([
 .cta-box,
 .hero-badge,
 .ticker-outer,
-footer{
+.site-footer{
   background:
     linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 45%,rgba(0,229,154,.03)),
     rgba(8,13,26,.08);
@@ -608,19 +608,48 @@ footer{
 }
 
 /* ── Footer ── */
-footer{
-  position:relative;z-index:1;border-top:1px solid var(--border);
-  padding:32px 24px;display:flex;flex-wrap:wrap;align-items:center;
-  justify-content:space-between;gap:18px;color:var(--muted);font-size:13px;
+.site-footer{
+  position:relative;z-index:1;border:0;border-top:1px solid rgba(255,255,255,.12);
+  color:var(--muted);font-size:14px;
+  padding:clamp(44px,6vw,64px) 0 96px;
 }
-footer a{color:var(--green)}
-footer a:hover{opacity:.75}
-.footer-links{display:flex;gap:18px}
-.footer-meta{display:flex;flex-direction:column;gap:6px;line-height:1.45}
-.footer-dev{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--text-2)}
-.footer-dev strong{color:var(--text);font-weight:700}
-.footer-dev a{font-weight:600}
-.footer-dot{color:var(--muted)}
+.foot-in{max-width:1200px;margin:0 auto;padding:0 24px}
+.foot-grid{
+  display:grid;grid-template-columns:minmax(0,1.7fr) repeat(3,minmax(0,1fr));
+  gap:clamp(24px,4vw,48px);
+}
+.foot-brand{margin-right:0;width:max-content;max-width:100%}
+.foot-brand .brand-mark--logo{width:32px;height:32px}
+.foot-about p{margin:14px 0 18px;max-width:340px;line-height:1.65;color:var(--text-2)}
+.foot-social{display:flex;gap:10px}
+.foot-social a{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  color:var(--text-2);background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);
+  transition:color .2s,border-color .2s,background .2s,transform .2s;
+}
+.foot-social a:hover{
+  color:var(--green);border-color:var(--green-line);
+  background:rgba(0,229,154,.08);transform:translateY(-2px);
+}
+.foot-col h4{
+  margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text);
+}
+.foot-col ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.foot-col a{color:var(--text-2);transition:color .2s}
+.foot-col a:hover{color:var(--green)}
+.foot-bottom{
+  margin-top:clamp(32px,5vw,48px);padding-top:22px;
+  border-top:1px solid rgba(255,255,255,.08);
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:10px 24px;font-size:13px;line-height:1.5;
+}
+.foot-credit{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--text-2)}
+.foot-credit a{color:var(--green);font-weight:600;overflow-wrap:anywhere}
+.foot-credit a:hover{text-decoration:underline}
+.foot-credit strong{font-weight:800}
+.foot-dot{color:var(--muted)}
 
 /* ── Scroll-reveal ── */
 .sr{opacity:0;transform:translateY(34px);
@@ -645,6 +674,9 @@ footer a:hover{opacity:.75}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .stat-cell:nth-child(2){border-right:none}
   .stat-cell:nth-child(1),.stat-cell:nth-child(2){border-bottom:1px solid var(--border-2)}
+  .foot-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .foot-about{grid-column:1 / -1}
+  .foot-about p{max-width:520px}
 }
 @media(max-width:780px){
   .calc-slider{height:36px}
@@ -662,6 +694,12 @@ footer a:hover{opacity:.75}
   .stats-grid{grid-template-columns:1fr}
   .stat-cell{border-right:none!important;border-bottom:1px solid var(--border-2)!important}
   .stat-cell:last-child{border-bottom:none!important}
+  .foot-in{padding:0 20px}
+  .foot-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 20px}
+  .foot-bottom{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:340px){
+  .foot-grid{grid-template-columns:1fr}
 }
 @media(max-width:400px){
   .hero{padding:48px 14px 40px}
@@ -1033,24 +1071,69 @@ footer a:hover{opacity:.75}
 </div>
 
 <!-- ═══ FOOTER ═══ -->
-<footer>
-  <div class="footer-meta">
-    <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?>. All rights reserved.</span>
-    <span class="footer-dev">
-      Developed by
-      <a href="https://dev-khalfikri.pantheonsite.io/" target="_blank" rel="noopener noreferrer"><strong>KalFikri</strong></a>
-      <span class="footer-dot">·</span>
-      <a href="https://www.linkedin.com/in/muhamad-fikri-haikal-fullstack-web-developer/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-      <span class="footer-dot">·</span>
-      <a href="mailto:muhamadfikrih29@gmail.com">muhamadfikrih29@gmail.com</a>
-    </span>
-  </div>
-  <div class="footer-links">
-    <a href="<?= esc(app_url('/docs/')) ?>"><?= esc($t['footer_docs']) ?></a>
-    <a href="<?= esc(app_url('/blog/')) ?>"><?= esc($t['footer_blog']) ?></a>
-    <a href="<?= esc(app_url('/pricing.php')) ?>"><?= esc($t['footer_pricing']) ?></a>
-    <a href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['footer_login']) ?></a>
-    <a href="<?= esc(app_url('/register.php')) ?>"><?= esc($t['footer_reg']) ?></a>
+<?php
+$devPortfolio = 'https://dev-khalfikri.pantheonsite.io/';
+$devLinkedIn  = 'https://www.linkedin.com/in/muhamad-fikri-haikal-fullstack-web-developer/';
+$devEmail     = 'muhamadfikrih29@gmail.com';
+?>
+<footer class="site-footer">
+  <div class="foot-in">
+    <div class="foot-grid">
+      <div class="foot-about">
+        <a href="<?= esc(app_url('/')) ?>" class="brand foot-brand">
+          <?= brand_mark_html(32) ?>
+          <span class="brand-text"><?= brand_name_html() ?></span>
+        </a>
+        <p><?= esc($t['footer_tagline']) ?></p>
+        <div class="foot-social">
+          <a href="<?= esc($devPortfolio) ?>" target="_blank" rel="noopener noreferrer" aria-label="Portfolio KalFikri" title="Portfolio"><?= icon('globe', 16) ?></a>
+          <a href="<?= esc($devLinkedIn) ?>" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+          </a>
+          <a href="mailto:<?= esc($devEmail) ?>" aria-label="Email" title="Email"><?= icon('mail', 16) ?></a>
+        </div>
+      </div>
+
+      <nav class="foot-col" aria-label="<?= esc($t['footer_product']) ?>">
+        <h4><?= esc($t['footer_product']) ?></h4>
+        <ul>
+          <li><a href="#features"><?= esc($t['nav_features']) ?></a></li>
+          <li><a href="#how"><?= esc($t['nav_how']) ?></a></li>
+          <li><a href="#providers"><?= esc($t['nav_providers']) ?></a></li>
+          <li><a href="#calculator"><?= esc($t['calc_tag']) ?></a></li>
+          <li><a href="<?= esc(app_url('/pricing.php')) ?>"><?= esc($t['footer_pricing']) ?></a></li>
+        </ul>
+      </nav>
+
+      <nav class="foot-col" aria-label="<?= esc($t['footer_resources']) ?>">
+        <h4><?= esc($t['footer_resources']) ?></h4>
+        <ul>
+          <li><a href="<?= esc(app_url('/docs/')) ?>"><?= esc($t['footer_docs']) ?></a></li>
+          <li><a href="<?= esc(app_url('/blog/')) ?>"><?= esc($t['footer_blog']) ?></a></li>
+          <li><a href="#testimonials"><?= esc($t['testi_tag']) ?></a></li>
+        </ul>
+      </nav>
+
+      <nav class="foot-col" aria-label="<?= esc($t['footer_account']) ?>">
+        <h4><?= esc($t['footer_account']) ?></h4>
+        <ul>
+          <li><a href="<?= esc(app_url('/login.php')) ?>"><?= esc($t['footer_login']) ?></a></li>
+          <li><a href="<?= esc(app_url('/register.php')) ?>"><?= esc($t['footer_reg']) ?></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="foot-bottom">
+      <span>&copy; <?= date('Y') ?> <?= brand_name_html() ?>. <?= esc($t['footer_rights']) ?></span>
+      <span class="foot-credit">
+        <?= esc($t['footer_dev_by']) ?>
+        <a href="<?= esc($devPortfolio) ?>" target="_blank" rel="noopener noreferrer"><strong>KalFikri</strong></a>
+        <span class="foot-dot" aria-hidden="true">·</span>
+        <a href="<?= esc($devLinkedIn) ?>" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <span class="foot-dot" aria-hidden="true">·</span>
+        <a href="mailto:<?= esc($devEmail) ?>"><?= esc($devEmail) ?></a>
+      </span>
+    </div>
   </div>
 </footer>
 
